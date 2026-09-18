@@ -13,11 +13,14 @@ tools/bg-*.png
 # solo, assets/media/poster.webp, che invece e' versionato.
 tools/frames/
 
-# Materiale di lavoro lasciato nella radice: schermate di riferimento e originali
-# ad altissima risoluzione da cui si ricavano gli asset serviti.
-upscaled-logo.png
-header-rivisitato.png
-errore_grafico_card.png
+# Materiale di lavoro lasciato nella radice: schermate di riferimento, riscontri
+# di errori, originali ad altissima risoluzione da cui si ricavano gli asset
+# serviti. La regola vale per l'intera radice e non per i singoli nomi, perche'
+# di file cosi' ne arriva uno a ogni richiesta e elencarli a mano significa
+# dimenticarsene uno — e' gia' successo. Gli asset veri stanno in assets/.
+/*.png
+/*.jpg
+/*.mp4
 
 # MATERIALE SORGENTE. Non entra nel repository: sono decine di megabyte che il
 # browser non chiede mai, e che rallenterebbero ogni clone e ogni deploy. Le
