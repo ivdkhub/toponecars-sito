@@ -51,6 +51,10 @@ CLIPS = ["1", "2", "3", "4", "5"]
 # alla scena chiara.
 EXTRA = {
     "darktheme": os.path.join(ROOT, "animazioni_da_aggiungere", "darkthemevideo.mp4"),
+    # Cambio di vernice: stessa idea, stessa partenza. Anche questa parte dal
+    # fotogramma di riposo della scena 2 (scarto medio 3,52) e arriva all'auto
+    # gialla, dove resta in pausa.
+    "vernice-giallo": os.path.join(ROOT, "fromredtoyellow.mp4"),
 }
 
 # GOP di 24 (un fotogramma chiave al secondo) e rilevamento dei cambi di scena
@@ -250,12 +254,13 @@ def main():
     # Cucitura del tema scuro: il primo fotogramma di darktheme deve coincidere
     # con il fotogramma di riposo della scena 2, cioe' l'ultimo di t1. E' la
     # giunzione che si vedrebbe accendendo e spegnendo la luce.
-    dark = frames(os.path.join(ref_dir, "darktheme.mp4"))
-    d = delta(fwd_frames["1"][-1], dark[0])
-    d.update({"from": "t1.mp4 (ultimo, riposo scena 2)", "to": "darktheme.mp4 (primo)",
-              "frames": len(dark)})
-    report["seams"].append(d)
-    print("seam scena2->darktheme", d)
+    for nome in EXTRA:
+        extra = frames(os.path.join(ref_dir, nome + ".mp4"))
+        d = delta(fwd_frames["1"][-1], extra[0])
+        d.update({"from": "t1.mp4 (ultimo, riposo scena 2)", "to": nome + ".mp4 (primo)",
+                  "frames": len(extra)})
+        report["seams"].append(d)
+        print("seam scena2->" + nome, d)
 
     # Cucitura del reverse: il primo fotogramma di tN.rev DEVE coincidere con
     # l'ultimo di tN, altrimenti lo scroll all'indietro scatterebbe alla partenza.

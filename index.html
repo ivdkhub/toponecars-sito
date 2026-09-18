@@ -37,6 +37,27 @@
          sizes="calc(132.21 * min(100vw / 1440, 100vh / 810))"
          width="467" height="150" decoding="async">
 
+    <!-- La vernice: cambia il colore dell'auto. Come la lampadina sta fuori dalla
+         barra e compare solo dove e' azionabile; a differenza sua puo' avere piu'
+         di un colore, quindi apre un elenco. Le voci le costruisce
+         assets/js/controls.js leggendo la configurazione. -->
+    <div class="paint" data-paint-control data-on="false">
+      <button class="paint__btn" type="button" data-paint-toggle
+              aria-haspopup="true" aria-expanded="false" aria-label="Cambia colore dell'auto">
+        <svg class="paint__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <!-- Rullo da carrozziere, inclinato, con la vernice che cola: e' il
+               disegno del riferimento consegnato dal committente. -->
+          <rect x="9.2" y="2.4" width="11.6" height="5.2" rx="1.4" transform="rotate(38 15 5)"/>
+          <path d="M8.4 9.1 5.1 13.3"/>
+          <path d="M5.1 13.3v3.1c0 .9-.7 1.6-1.6 1.6s-1.6.7-1.6 1.6v2.1"/>
+          <path d="M13.9 13.2 18 18.6"/>
+          <rect x="12.4" y="14.6" width="6.6" height="3.4" rx="1.7" transform="rotate(38 15.7 16.3)"/>
+        </svg>
+      </button>
+      <div class="paint__menu" data-paint-menu hidden role="menu"></div>
+    </div>
+
     <!-- La lampadina: spegne la luce sulla scena che lo prevede. Sta fuori dalla
          barra, a sinistra, ed e' solo un'icona: il suo stato lo dice il disegno
          (i raggi ci sono a luce spenta, cioe' quando serve riaccenderla).

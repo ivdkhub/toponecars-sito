@@ -299,14 +299,14 @@
 /* -------------------------------------------------------------- lampadina */
 
 /* Sta a sinistra della barra, fuori da essa, centrata sulla sua stessa altezza
-   (header-rivisitato.png). E' solo un'icona: lo stato lo dice il disegno, con i
-   raggi accesi quando la luce e' spenta ed e' quindi il momento di riaccenderla.
-   Compare soltanto sulla scena che la prevede — altrove sarebbe un comando che
-   non fa nulla — e a luce spenta resta l'unico comando attivo della pagina,
-   perche' li' la navigazione fra le scene e' sospesa. */
+   (header-rivisitato.png), in coppia con la vernice. E' solo un'icona: lo stato
+   lo dice il disegno, con i raggi accesi quando la luce e' spenta ed e' quindi
+   il momento di riaccenderla. Compare soltanto sulla scena che la prevede —
+   altrove sarebbe un comando che non fa nulla — e a luce spenta resta uno dei
+   due soli comandi attivi, perche' li' la navigazione fra le scene e' sospesa. */
 .lamp {
   position: absolute;
-  left: calc(88 * var(--s));
+  left: calc(102 * var(--s));
   top: calc(81.5 * var(--s));
   width: calc(24 * var(--s));
   height: calc(24 * var(--s));
@@ -343,4 +343,103 @@ html[data-theme="scuro"] .lamp .lamp__rays { opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
   .lamp, .lamp__rays { transition-duration: 0ms; }
+}
+
+
+/* ---------------------------------------------------------------- vernice */
+
+/* Il comando del colore sta accanto alla lampadina, con le stesse misure: sono
+   due varianti della stessa scena e devono leggersi come una coppia. A
+   differenza della lampadina apre un elenco, perche' i colori possono essere
+   piu' di uno. */
+.paint {
+  position: absolute;
+  left: calc(66 * var(--s));
+  top: calc(81.5 * var(--s));
+  width: calc(24 * var(--s));
+  height: calc(24 * var(--s));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 420ms var(--ease-out);
+}
+
+.paint[data-on="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.paint__btn {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--menu-text);
+  cursor: pointer;
+  transition: color 320ms var(--ease-out);
+}
+.paint__btn:hover { color: var(--menu-cta-light-text); }
+.paint__btn[disabled] { cursor: default; }
+
+.paint__icon { display: block; width: 100%; height: 100%; }
+
+/* A vernice cambiata il comando prende il colore che l'auto ha addosso: e'
+   l'invito a tornare indietro, ed e' anche l'unico modo per farlo, visto che da
+   li' non si cambia scena. */
+html[data-paint="giallo"] .paint__btn { color: rgb(234, 183, 9); }
+
+/* L'elenco dei colori: stesso fondo e stesso raggio della barra del menu, cosi'
+   sembra parte della stessa cosa. */
+.paint__menu {
+  position: absolute;
+  left: 0;
+  top: calc(32 * var(--s));
+  min-width: calc(146 * var(--s));
+  padding: calc(5 * var(--s));
+  border-radius: calc(4 * var(--s));
+  background: rgba(12, 6, 4, 0.82);
+  display: flex;
+  flex-direction: column;
+  gap: calc(2 * var(--s));
+}
+.paint__menu[hidden] { display: none; }
+
+.paint__opt {
+  display: flex;
+  align-items: center;
+  gap: calc(9 * var(--s));
+  padding: calc(6 * var(--s)) calc(8 * var(--s));
+  border: 0;
+  border-radius: calc(3 * var(--s));
+  background: none;
+  color: var(--menu-text);
+  font-family: 'Albert Sans', sans-serif;
+  font-size: calc(12.7 * var(--s));
+  letter-spacing: calc(-0.34 * var(--s));
+  line-height: 1;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 220ms var(--ease-out), color 220ms var(--ease-out);
+}
+.paint__opt:hover { background: rgba(255, 255, 255, 0.1); color: var(--menu-cta-light-text); }
+
+/* Il colore che l'auto ha adesso resta indicato, ma non invita a nulla. */
+.paint__opt[data-current="true"] {
+  color: var(--menu-cta-light-text);
+  background: rgba(255, 255, 255, 0.07);
+  cursor: default;
+}
+
+.paint__swatch {
+  display: block;
+  width: calc(12 * var(--s));
+  height: calc(12 * var(--s));
+  border-radius: 50%;
+  box-shadow: 0 0 0 calc(1 * var(--s)) rgba(255, 255, 255, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paint, .paint__btn, .paint__opt { transition-duration: 0ms; }
 }

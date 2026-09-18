@@ -242,7 +242,7 @@
       },
       {
         "ok": true,
-        "label": "non e’ stato un salto istantaneo (1304 ms, currentTime intermedio 4.04)",
+        "label": "non e’ stato un salto istantaneo (1312 ms, currentTime intermedio 4.04)",
         "detail": ""
       }
     ],
@@ -483,7 +483,7 @@
       },
       {
         "ok": true,
-        "label": "tutti i livelli video a 1.5 (1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5)",
+        "label": "tutti i livelli video a 1.5 (1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5)",
         "detail": ""
       }
     ],
@@ -607,6 +607,88 @@
       {
         "ok": true,
         "label": "nascosto sull’ultima scena",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "vernice: il colore cambia e torna, senza cambiare scena",
+    "checks": [
+      {
+        "ok": true,
+        "label": "si parte dal colore ordinario (rosso)",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il comando della vernice esiste",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "l’elenco ha una voce per ogni colore, piu’ quello ordinario",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "la scena non cambia verniciando",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "in pausa sull’ultimo fotogramma della clip di vernice",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "si rientra sul fotogramma di riposo della scena",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "con l’auto verniciata non si cambia scena, e le due varianti si escludono",
+    "checks": [
+      {
+        "ok": true,
+        "label": "rotellina e frecce: la scena resta dov’era",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "i passi sono stati scartati",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "canGo(1) e’ falso con la vernice cambiata",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "l’invito a scorrere e’ nascosto",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "la lampadina non e’ azionabile mentre la vernice e’ cambiata",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "e la lampadina infatti non si vede",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "un click su di essa non fa nulla",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "tornato il colore ordinario, il passo avanti funziona",
         "detail": ""
       }
     ],

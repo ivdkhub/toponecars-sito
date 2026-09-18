@@ -104,9 +104,11 @@ export function resolveMediaPaths(config, dir, rev = MEDIA_REV) {
     t.src = resolve(t.src);
     t.reverseSrc = resolve(t.reverseSrc);
   });
-  if (config.theme) {
-    config.theme.src = resolve(config.theme.src);
-    config.theme.reverseSrc = resolve(config.theme.reverseSrc);
+  for (const variante of Object.values(config.variants || {})) {
+    variante.options.forEach((o) => {
+      o.src = resolve(o.src);
+      o.reverseSrc = resolve(o.reverseSrc);
+    });
   }
   return config;
 }
@@ -122,25 +124,63 @@ export const CONFIG = {
   poster: 'assets/media/poster.webp',
 
   /**
-   * Il passaggio al tema scuro.
+   * Le varianti di una scena.
    *
-   * Non e' una scena in piu': e' un secondo stato di riposo della scena indicata
-   * da `scene`. La clip parte esattamente dal fotogramma su cui quella scena si
-   * ferma — verificato come tutte le altre giunzioni del progetto: scarto medio
-   * 3,53, in linea con il 3,30 della giuntura fra la prima e la seconda
-   * transizione — e arriva all'inquadratura notturna, dove resta in pausa.
-   * Riprodotta al contrario riporta al fotogramma chiaro di partenza.
+   * Una variante non e' una scena in piu': e' uno stato di riposo alternativo
+   * della scena indicata da `scene`. Ogni sua opzione ha una clip che parte
+   * esattamente dal fotogramma su cui quella scena si ferma e arriva altrove,
+   * dove resta in pausa; riprodotta al contrario riporta al punto di partenza.
+   * Le giunzioni sono state misurate come tutte le altre del progetto — 3,45 per
+   * il buio e 3,52 per la vernice, contro il 3,30 della giuntura fra la prima e
+   * la seconda transizione — e si coprono con la stessa dissolvenza.
    *
-   * `blockNavigation` e' il vincolo chiesto dal committente: a luce spenta non
-   * si cambia scena. La sequenza si percorre solo con il tema chiaro, e la
-   * ragione e' semplice — le altre sei transizioni esistono soltanto illuminate.
+   * `base` e' lo stato ordinario, quello in cui la scena si trova arrivandoci.
+   *
+   * `blockNavigation` e' il vincolo chiesto dal committente: fuori dallo stato
+   * ordinario non si cambia scena. La ragione e' la stessa per entrambe le
+   * varianti — le sei transizioni della sequenza esistono soltanto con le luci
+   * accese e l'auto rossa, quindi percorrerle da un'altra variante vorrebbe dire
+   * riaccendere la luce, o ridipingere l'auto, di nascosto.
+   *
+   * Due varianti non possono essere attive insieme, e per la stessa ragione: la
+   * clip del buio riprende un'auto rossa, quella della vernice un'auto illuminata.
    */
-  theme: {
-    scene: 1,
-    src: 'darktheme.mp4',
-    reverseSrc: 'darktheme.rev.mp4',
-    seamFadeMs: 300,
-    blockNavigation: true,
+  variants: {
+    theme: {
+      scene: 1,
+      base: 'chiaro',
+      blockNavigation: true,
+      options: [
+        {
+          id: 'scuro',
+          label: 'Luci spente',
+          src: 'darktheme.mp4',
+          reverseSrc: 'darktheme.rev.mp4',
+          seamFadeMs: 300,
+        },
+      ],
+    },
+    // I due colori non sono scelti a occhio: sono la mediana dei pixel che la
+    // clip ridipinge davvero, presi sul primo e sull'ultimo fotogramma. Servono
+    // ai pallini del menu, che cosi' mostrano esattamente la vernice che si
+    // otterrebbe.
+    paint: {
+      scene: 1,
+      base: 'rosso',
+      baseLabel: 'Rosso Carmine',
+      baseSwatch: '#950f19',
+      blockNavigation: true,
+      options: [
+        {
+          id: 'giallo',
+          label: 'Giallo corsa',
+          swatch: '#eab709',
+          src: 'vernice-giallo.mp4',
+          reverseSrc: 'vernice-giallo.rev.mp4',
+          seamFadeMs: 300,
+        },
+      ],
+    },
   },
 
   /** Silenzio che chiude un gesto: finche' gli eventi arrivano piu' fitti di

@@ -33,6 +33,7 @@ assets/
   fonts/ Aldrich-Regular.woff2  AlbertSans-Variable.woff2
   media/ av1/ av1-sd/ hevc/ hevc-sd/ h264-sd/   t1..t5.mp4 + .rev.mp4
                                                 darktheme.mp4 + .rev.mp4
+                                                vernice-giallo.mp4 + .rev.mp4
          poster.webp  logo.webp  logo@2x.webp
 tools/   generazione media, misura, autotest, confronto al pixel
 tests/   autotest.html — la pagina di autotest, apribile anche a mano
@@ -76,33 +77,48 @@ li serve con `Cache-Control: immutable` per un anno. **Rigenerando i video va
 incrementata `MEDIA_REV`**, altrimenti chi ha già visitato il sito continua a
 vedere le clip vecchie.
 
-## Il tema scuro
+## Le varianti di una scena
 
-Sulla seconda scena la luce si spegne: la lampadina accanto alla barra del menu
-riproduce `darktheme.mp4`, che parte dal fotogramma su cui quella scena si ferma
-e arriva all'inquadratura notturna; premuta di nuovo riproduce la clip riavvolta
-e riporta alla scena chiara. È la stessa meccanica delle transizioni fra scene —
-stessa velocità, stesse dissolvenze sulle giunture, stesso rifiuto delle
-richieste che arrivano mentre il video scorre — con una differenza sola: qui non
-cambia la scena, cambia lo stato di riposo su cui la scena si ferma.
+Sulla seconda scena si può spegnere la luce e si può cambiare il colore
+dell'auto. Nessuna delle due è una scena in più: sono **stati di riposo
+alternativi** della stessa scena. La clip parte dal fotogramma su cui quella
+scena si ferma e arriva altrove, dove resta in pausa; riprodotta al contrario
+riporta al punto di partenza.
 
-**A luce spenta non si cambia scena.** È un vincolo voluto: le sei transizioni
-esistono soltanto illuminate, e percorrerle al buio vorrebbe dire riaccendere la
-luce di nascosto. `canGo()` è quindi falso finché la luce è spenta, e ogni
-richiesta — rotellina, frecce, swipe, pulsante — viene scartata come al bordo
-della sequenza. Per la stessa ragione la lampadina resta visibile al buio, ed è
-l'unico comando attivo: è l'unica via d'uscita.
+| variante | comando | clip | stati |
+|---|---|---|---|
+| `theme` | lampadina | `darktheme.mp4` | `chiaro` → `scuro` |
+| `paint` | vernice | `vernice-giallo.mp4` | `rosso` → `giallo` |
 
-Tutto si configura in `config.js`, sezione `theme`: quale scena lo prevede, quali
-clip, quanto dura la dissolvenza della giuntura.
+È la stessa meccanica delle transizioni fra scene — stessa velocità, stesse
+dissolvenze sulle giunture, stesso rifiuto delle richieste che arrivano mentre il
+video scorre. Le giunture sono state misurate come tutte le altre: **3,45** per
+il buio e **3,57** per la vernice, contro il 3,30 della giuntura fra la prima e
+la seconda transizione.
 
-## I due comandi visibili
+Due regole, entrambe volute:
 
-`assets/js/controls.js` contiene la lampadina e l'invito «Scroll to explore» in
-basso al centro. Nessuno dei due decide alcunché: chiedono alla macchina a stati
-se la cosa è possibile e, se non lo è, non la propongono. L'invito a scorrere
-segue `canGo(1)`, che è già falso durante una transizione, sull'ultima scena e a
-luce spenta — una condizione sola copre tutti e tre i casi.
+- **da una variante non si cambia scena.** Le sei transizioni della sequenza
+  esistono soltanto con le luci accese e l'auto rossa, quindi percorrerle da lì
+  vorrebbe dire riaccendere la luce, o ridipingere l'auto, di nascosto. `canGo()`
+  è falso e ogni richiesta viene scartata come al bordo della sequenza;
+- **due varianti non sono attive insieme,** per la stessa ragione: la clip del
+  buio riprende un'auto rossa, quella della vernice un'auto illuminata. Il
+  comando dell'una sparisce mentre l'altra è attiva.
+
+Per questo ogni comando resta visibile quando la sua variante è attiva: è l'unica
+via d'uscita. Tutto si configura in `config.js`, sezione `variants`: quale scena,
+quali clip, quali colori, quanto dura la dissolvenza. Aggiungere un colore
+significa aggiungere una clip e una voce in `options`, nient'altro.
+
+## I comandi visibili
+
+`assets/js/controls.js` contiene la lampadina, la vernice e l'invito «Scroll to
+explore» in basso al centro. Nessuno di loro decide alcunché: chiedono alla
+macchina a stati se la cosa è possibile e, se non lo è, non la propongono.
+L'invito a scorrere segue `canGo(1)`, che è già falso durante una transizione,
+sull'ultima scena e da qualunque variante — una condizione sola copre tutti i
+casi.
 
 ## Sostituire un video
 

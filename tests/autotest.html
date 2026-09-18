@@ -85,7 +85,7 @@ const idle = (f) => waitFor(() => state(f) === 'idle', 30000);
 const quante = (f) => f.contentWindow.__TOC__.config.scenes.length;
 const ultima = (f) => quante(f) - 1;
 /** Scena su cui la lampadina funziona, anch'essa letta dalla configurazione. */
-const scenaTema = (f) => f.contentWindow.__TOC__.config.theme.scene;
+const scenaTema = (f) => f.contentWindow.__TOC__.config.variants.theme.scene;
 
 /** Un colpo di rotellina: N eventi ravvicinati, come li manda un trackpad. */
 async function wheel(f, deltaY, { count = 1, gap = 16 } = {}) {
@@ -465,7 +465,7 @@ const SCENARIOS = [
       lamp.click();
       await waitFor(() => ds(f).theme === 'scuro' && state(f) === 'idle', 40000);
       t.eq(scene(f), scenaTema(f), 'la scena non cambia spegnendo');
-      t.eq(w().player.visible.dataset.clip, 'tema-avanti', 'in pausa sulla clip del tema');
+      t.eq(w().player.visible.dataset.clip, 'theme-scuro-avanti', 'in pausa sulla clip del tema');
       t.eq(lamp.getAttribute('aria-pressed'), 'true', 'il comando si dichiara premuto');
 
       lamp.click();
@@ -542,6 +542,82 @@ const SCENARIOS = [
       t.eq(g.contentDocument.querySelector('[data-scrollcue]').dataset.on, 'false',
         'nascosto sull’ultima scena');
       return g;
+    },
+  },
+
+  {
+    name: 'vernice: il colore cambia e torna, senza cambiare scena',
+    async run(t) {
+      const f = await frame('scene=1');
+      const w = () => f.contentWindow.__TOC__;
+      await idle(f);
+      const base = w().config.variants.paint.base;
+      const opzione = w().config.variants.paint.options[0].id;
+      t.eq(ds(f).paint, base, `si parte dal colore ordinario (${base})`);
+
+      const apri = f.contentDocument.querySelector('[data-paint-toggle]');
+      t.eq(!!apri, true, 'il comando della vernice esiste');
+      apri.click();
+      const voci = [...f.contentDocument.querySelectorAll('[data-paint-option]')];
+      t.eq(voci.length, w().config.variants.paint.options.length + 1,
+        'l’elenco ha una voce per ogni colore, piu’ quello ordinario');
+
+      voci.find((v) => v.dataset.paintOption === opzione).click();
+      await waitFor(() => ds(f).paint === opzione && state(f) === 'idle', 40000);
+      t.eq(scene(f), scenaTema(f), 'la scena non cambia verniciando');
+      t.eq(w().player.visible.dataset.clip, 'paint-' + opzione + '-avanti',
+        'in pausa sull’ultimo fotogramma della clip di vernice');
+
+      f.contentDocument.querySelector('[data-paint-toggle]').click();
+      f.contentDocument.querySelector(`[data-paint-option="${base}"]`).click();
+      await waitFor(() => ds(f).paint === base && state(f) === 'idle', 40000);
+      t.eq(w().player.visible.dataset.clip, 'tr1-avanti',
+        'si rientra sul fotogramma di riposo della scena');
+      return f;
+    },
+  },
+
+  {
+    name: 'con l’auto verniciata non si cambia scena, e le due varianti si escludono',
+    async run(t) {
+      const f = await frame('scene=1');
+      const w = () => f.contentWindow.__TOC__;
+      await idle(f);
+      const paintSpec = w().config.variants.paint;
+      const opzione = paintSpec.options[0].id;
+
+      f.contentDocument.querySelector('[data-paint-toggle]').click();
+      f.contentDocument.querySelector(`[data-paint-option="${opzione}"]`).click();
+      await waitFor(() => ds(f).paint === opzione && state(f) === 'idle', 40000);
+
+      const partenza = scene(f);
+      const scartiPrima = w().rejected.atEdge;
+      await gesture(f, 120);
+      await key(f, 'ArrowDown');
+      await sleep(900);
+      t.eq(scene(f), partenza, 'rotellina e frecce: la scena resta dov’era');
+      t.gt(w().rejected.atEdge - scartiPrima, 0, 'i passi sono stati scartati');
+      t.eq(w().machine.canGo(1), false, 'canGo(1) e’ falso con la vernice cambiata');
+      t.eq(f.contentDocument.querySelector('[data-scrollcue]').dataset.on, 'false',
+        'l’invito a scorrere e’ nascosto');
+
+      // la lampadina non deve poter partire da qui: le due clip partono entrambe
+      // dalla scena ordinaria e si sovrapporrebbero
+      t.eq(w().machine.canToggleVariant('theme'), false,
+        'la lampadina non e’ azionabile mentre la vernice e’ cambiata');
+      const lamp = f.contentDocument.querySelector('[data-lamp]');
+      t.eq(lamp.dataset.on, 'false', 'e la lampadina infatti non si vede');
+      lamp.click();
+      await sleep(600);
+      t.eq(ds(f).theme, 'chiaro', 'un click su di essa non fa nulla');
+
+      f.contentDocument.querySelector('[data-paint-toggle]').click();
+      f.contentDocument.querySelector(`[data-paint-option="${paintSpec.base}"]`).click();
+      await waitFor(() => state(f) === 'idle' && ds(f).paint === paintSpec.base, 40000);
+      await gesture(f, 120);
+      await idle(f);
+      t.eq(scene(f), partenza + 1, 'tornato il colore ordinario, il passo avanti funziona');
+      return f;
     },
   },
 ];

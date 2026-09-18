@@ -22,8 +22,12 @@ export class SceneMachine extends EventTarget {
     this.state = 'boot';
     this.direction = 0;
     this.busy = false;
-    // 'chiaro' e' lo stato ordinario: e' l'unico in cui la sequenza si percorre.
-    this.theme = 'chiaro';
+    // Stato corrente di ogni variante della scena (luci, vernice). Quello
+    // ordinario e' l'unico da cui la sequenza si percorre.
+    this.variants = {};
+    for (const [key, spec] of Object.entries(config.variants || {})) {
+      this.variants[key] = spec.base;
+    }
     this.root = document.documentElement;
   }
 
@@ -31,52 +35,82 @@ export class SceneMachine extends EventTarget {
   get count() { return this.config.scenes.length; }
   get isBusy() { return this.busy; }
 
-  /** La scena su cui la luce si puo' spegnere, o null se la cosa e' disattivata. */
-  get themeScene() {
-    const t = this.config.theme;
-    return t && t.src ? t.scene : null;
+  /** Comodita' storica: lo stato delle luci, la variante piu' usata. */
+  get theme() { return this.variants.theme; }
+
+  /** Configurazione di una variante, o null se non esiste. */
+  variantSpec(key) { return (this.config.variants || {})[key] || null; }
+
+  /** Se una variante e' fuori dal suo stato ordinario. */
+  variantAttiva(key) {
+    const spec = this.variantSpec(key);
+    return !!spec && this.variants[key] !== spec.base;
   }
 
   canGo(dir) {
     const next = this.index + dir;
-    // A luce spenta non si va da nessuna parte: le transizioni fra le scene
-    // esistono soltanto illuminate, e mostrarne una qui vorrebbe dire riaccendere
-    // la luce di soppiatto. Prima si torna al chiaro, poi si prosegue.
-    if (this.theme !== 'chiaro' && this.config.theme && this.config.theme.blockNavigation) return false;
+    // Da una variante non si va da nessuna parte: le transizioni fra le scene
+    // esistono soltanto con le luci accese e l'auto rossa, quindi percorrerle da
+    // qui vorrebbe dire riaccendere la luce, o ridipingere l'auto, di nascosto.
+    // Prima si torna allo stato ordinario, poi si prosegue.
+    for (const key of Object.keys(this.variants)) {
+      if (this.variantAttiva(key) && this.variantSpec(key).blockNavigation) return false;
+    }
     return !this.busy && next >= 0 && next < this.count;
   }
 
-  /** Se la lampadina e' azionabile adesso: solo da fermi, e solo sulla sua scena. */
-  canToggleTheme() {
-    return !this.busy && this.themeScene !== null && this.index === this.themeScene;
+  /**
+   * Se il comando di una variante e' azionabile adesso: solo da fermi, solo
+   * sulla sua scena e solo se nessun'altra variante e' attiva — due clip che
+   * partono entrambe dalla scena ordinaria non si possono sovrapporre.
+   */
+  canToggleVariant(key) {
+    const spec = this.variantSpec(key);
+    if (!spec || this.busy || this.index !== spec.scene) return false;
+    return Object.keys(this.variants).every((k) => k === key || !this.variantAttiva(k));
   }
 
   /**
-   * Accende o spegne la luce. Ritorna false se la richiesta non era eseguibile,
-   * esattamente come `step`: niente coda, niente attesa.
+   * Porta una scena in una sua variante, o la riporta allo stato ordinario.
+   * Ritorna false se la richiesta non era eseguibile, esattamente come `step`:
+   * niente coda, niente attesa.
+   *
+   * @param {string} key variante da muovere ('theme', 'paint', ...)
+   * @param {string|null} optionId opzione da attivare; null torna allo stato base
    */
-  async toggleTheme(reason = 'input') {
-    if (!this.canToggleTheme()) return false;
+  async setVariant(key, optionId, reason = 'input') {
+    const spec = this.variantSpec(key);
+    if (!spec || !this.canToggleVariant(key)) return false;
 
-    const from = this.theme;
-    const to = from === 'chiaro' ? 'scuro' : 'chiaro';
-    const dir = to === 'scuro' ? 1 : -1;
+    const from = this.variants[key];
+    const to = optionId || spec.base;
+    if (from === to) return false;
+    // Da un'opzione si torna prima allo stato ordinario: la clip di un'opzione
+    // parte da li', non da un'altra opzione.
+    if (from !== spec.base && to !== spec.base) return false;
+
+    const dir = to === spec.base ? -1 : 1;
+    const opzione = dir > 0 ? to : from;
 
     this.busy = true;
-    this.state = 'theming';
+    this.state = 'varianting';
     this.direction = dir;
     this.#syncRoot();
-    this.#emit('themestart', { from, to, direction: dir, reason, scene: this.scene, index: this.index });
+    const detail = { key, from, to, option: opzione, direction: dir, reason,
+                     scene: this.scene, index: this.index };
+    this.#emit('variantstart', detail);
+    if (key === 'theme') this.#emit('themestart', detail);
 
     try {
-      await this.player.runTheme(dir, this.index);
+      await this.player.runVariant(key, opzione, dir, this.index);
     } finally {
-      this.theme = to;
+      this.variants[key] = to;
       this.state = 'idle';
       this.direction = 0;
       this.busy = false;
       this.#syncRoot();
-      this.#emit('themeend', { from, to, direction: dir, reason, scene: this.scene, index: this.index });
+      this.#emit('variantend', detail);
+      if (key === 'theme') this.#emit('themeend', detail);
     }
     return true;
   }
@@ -136,7 +170,9 @@ export class SceneMachine extends EventTarget {
 
   #syncRoot() {
     const r = this.root;
-    r.dataset.theme = this.theme;
+    // Ogni variante si espone come attributo: html[data-theme="scuro"],
+    // html[data-paint="giallo"]. E' cosi' che il CSS sa che aspetto avere.
+    for (const [key, stato] of Object.entries(this.variants)) r.dataset[key] = stato;
     r.dataset.scene = String(this.index);
     r.dataset.sceneId = this.scene ? this.scene.id : '';
     r.dataset.state = this.state;

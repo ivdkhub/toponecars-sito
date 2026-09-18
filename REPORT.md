@@ -388,7 +388,49 @@ allo sfondo, si può fare senza spostarlo di un pixel.
 
 ---
 
-## 9. Modifiche chieste dopo la consegna
+## 9. Le varianti della scena 2
+
+Due stati di riposo alternativi della seconda scena, aggiunti su richiesta:
+le luci spente (`darktheme.mp4`) e la vernice gialla (`vernice-giallo.mp4`).
+Entrambe partono dal fotogramma su cui la scena si ferma, e la giuntura è stata
+misurata con lo stesso metodo delle altre:
+
+| giuntura | scarto medio | oltre soglia |
+|---|---|---|
+| riposo scena 2 → `darktheme` | 3,45 | 11,1% |
+| riposo scena 2 → `vernice-giallo` | 3,57 | 11,5% |
+| *(riferimento)* `t1` → `t2` | 3,30 | 10,6% |
+
+Sono quindi difettose quanto le giunture ordinarie del progetto, e si coprono con
+la stessa dissolvenza da 300 ms.
+
+I colori dei pallini nel menu della vernice non sono scelti a occhio: sono la
+mediana dei pixel che la clip ridipinge davvero — presi mascherando i pixel che
+cambiano fra il primo e l'ultimo fotogramma — e valgono `#950f19` per il rosso e
+`#eab709` per il giallo.
+
+Due vincoli, entrambi voluti dal committente e verificati dagli autotest 17, 19 e
+20: da una variante non si cambia scena, e due varianti non possono essere attive
+insieme. Il secondo non è una comodità: la clip del buio riprende un'auto rossa e
+quella della vernice un'auto illuminata, quindi sovrapporle mostrerebbe un salto.
+
+Un difetto trovato durante la verifica e corretto: il comando della vernice era
+marcato `data-paint`, lo stesso nome con cui la macchina a stati espone lo stato
+della variante su `<html>`. `querySelector('[data-paint]')` pescava quindi
+l'elemento radice e il comando restava invisibile. Ora il comando si chiama
+`data-paint-control`.
+
+Un effetto collaterale sul confronto al pixel, atteso e non preoccupante: la
+«barra menu» risulta ora larga 1572 px invece di 1534 e spostata a sinistra di
+38. Non si è mossa di un pixel — lo confermano le voci al suo interno, tutte a
+scarto zero — ma il rilevatore misura il rettangolo dell'inchiostro in quella
+fascia, e i due comandi che ora stanno alla sua sinistra ne fanno parte. Nei
+mockup non esistono, quindi lo strumento li segnala come differenza: è
+esattamente il suo mestiere.
+
+---
+
+## 10. Modifiche chieste dopo la consegna
 
 Quattro interventi decisi dal committente a valle delle verifiche, tutti
 documentati qui perché **si discostano dai mockup** e il confronto al pixel li
@@ -417,7 +459,7 @@ registra come scostamenti:
 
 ---
 
-## 10. Cosa non è stato verificato
+## 11. Cosa non è stato verificato
 
 - Browser diversi da Chrome 153 su Windows.
 - Dispositivi touch reali: lo swipe è verificato con eventi sintetici.

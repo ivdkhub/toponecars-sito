@@ -41,7 +41,7 @@ export class VideoPlayer {
     this.visible = null;
     this.running = false;
     this.reversePreloaded = false;
-    this.theme = null;
+    this.variants = {};
     this.scene = 0;
     this.warmed = new Set();
     this.diagnostics = { rejectedPlays: 0, scrubbedRuns: 0, forcedEnds: 0, timeouts: 0, unloaded: 0 };
@@ -85,16 +85,19 @@ export class VideoPlayer {
       });
     });
 
-    // La clip del tema sta fuori dalla sequenza: la macchina a stati non la
-    // raggiunge mai con un passo di scena, la si riproduce solo su richiesta.
-    const t = this.config.theme;
-    if (t && t.src) {
-      this.theme = {
-        spec: t,
-        fwd: this.makeVideo(t.src, null, 'tema-avanti'),
-        rev: t.reverseSrc ? this.makeVideo(t.reverseSrc, null, 'tema-indietro') : null,
-        seamFadeMs: t.seamFadeMs ?? this.config.seamFadeMs,
-      };
+    // Le clip delle varianti stanno fuori dalla sequenza: la macchina a stati
+    // non le raggiunge mai con un passo di scena, si riproducono solo su
+    // richiesta.
+    for (const [key, spec] of Object.entries(this.config.variants || {})) {
+      this.variants[key] = { spec, options: {} };
+      for (const o of spec.options) {
+        this.variants[key].options[o.id] = {
+          spec: o,
+          fwd: this.makeVideo(o.src, null, key + '-' + o.id + '-avanti'),
+          rev: o.reverseSrc ? this.makeVideo(o.reverseSrc, null, key + '-' + o.id + '-indietro') : null,
+          seamFadeMs: o.seamFadeMs ?? this.config.seamFadeMs,
+        };
+      }
     }
   }
 
@@ -242,11 +245,14 @@ export class VideoPlayer {
       this.#unload(clip.fwd);
       this.#unload(clip.rev);
     });
-    // La luce si accende su una scena sola: lontano da quella, la clip del tema
-    // e' peso morto come le altre.
-    if (this.theme && this.config.theme && sceneIndex !== this.config.theme.scene) {
-      this.#unload(this.theme.fwd);
-      this.#unload(this.theme.rev);
+    // Le varianti vivono su una scena sola: lontano da quella, le loro clip sono
+    // peso morto come le altre.
+    for (const variante of Object.values(this.variants)) {
+      if (variante.spec.scene === sceneIndex) continue;
+      for (const opzione of Object.values(variante.options)) {
+        this.#unload(opzione.fwd);
+        this.#unload(opzione.rev);
+      }
     }
   }
 
@@ -388,29 +394,32 @@ export class VideoPlayer {
   }
 
   /**
-   * Accende o spegne la luce sulla scena corrente.
+   * Porta una scena in una sua variante, o la riporta allo stato ordinario.
    *
    * Stessa meccanica delle transizioni di scena, con una differenza sola: qui
    * non si cambia scena, si cambia lo stato di riposo su cui la scena si ferma.
-   * Andando verso il buio si resta sull'ultimo fotogramma della clip; tornando
-   * alla luce si rientra sul fotogramma di riposo della scena, che vive su un
-   * altro elemento e va quindi raggiunto in dissolvenza, esattamente come al
-   * ritorno indietro fra due scene.
+   * Andando verso la variante si resta sull'ultimo fotogramma della clip;
+   * tornando indietro si rientra sul fotogramma di riposo della scena, che vive
+   * su un altro elemento e va quindi raggiunto in dissolvenza, esattamente come
+   * al ritorno indietro fra due scene.
    *
-   * @param {1|-1} dir 1 = verso il buio, -1 = verso la luce
+   * @param {string} key variante ('theme', 'paint', ...)
+   * @param {string} optionId opzione di quella variante
+   * @param {1|-1} dir 1 = verso la variante, -1 = ritorno allo stato ordinario
    * @param {number} scene scena su cui si sta lavorando
    */
-  async runTheme(dir, scene) {
+  async runVariant(key, optionId, dir, scene) {
     this.running = true;
     try {
-      return await this.runThemeInner(dir, scene);
+      return await this.runVariantInner(key, optionId, dir, scene);
     } finally {
       this.running = false;
     }
   }
 
-  async runThemeInner(dir, scene) {
-    const theme = this.theme;
+  async runVariantInner(key, optionId, dir, scene) {
+    const variante = this.variants[key];
+    const theme = variante && variante.options[optionId];
     if (!theme) return false;
     const useReverseFile = dir < 0 && !!theme.rev;
     const el = useReverseFile ? theme.rev : theme.fwd;
@@ -453,16 +462,18 @@ export class VideoPlayer {
   }
 
   /**
-   * Porta in cache la clip del tema: la lampadina deve rispondere subito, e
-   * senza questo la prima accensione aspetterebbe il download.
+   * Porta in cache le clip delle varianti: i comandi devono rispondere subito, e
+   * senza questo il primo click aspetterebbe il download.
    */
-  async preloadTheme(which = 'fwd') {
-    const theme = this.theme;
-    if (!theme) return;
-    const el = which === 'rev' ? theme.rev : theme.fwd;
-    if (!el) return;
-    while (this.running) await new Promise((r) => setTimeout(r, 120));
-    await this.#warm(el);
+  async preloadVariants(which = 'fwd') {
+    for (const variante of Object.values(this.variants)) {
+      for (const opzione of Object.values(variante.options)) {
+        const el = which === 'rev' ? opzione.rev : opzione.fwd;
+        if (!el) continue;
+        while (this.running) await new Promise((r) => setTimeout(r, 120));
+        await this.#warm(el);
+      }
+    }
   }
 
   /** Riproduzione nativa, con guardie contro ogni modo in cui puo' non finire. */

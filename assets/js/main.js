@@ -13,7 +13,7 @@ import { SceneMachine } from './scene-machine.js';
 import { InputController } from './input-controller.js';
 import { BlockBinder, SceneCounter } from './blocks.js';
 import { MenuHighlight } from './menu.js';
-import { ThemeSwitch, ScrollCue } from './controls.js';
+import { ThemeSwitch, PaintPicker, ScrollCue } from './controls.js';
 
 // Generoso di proposito: serve a non lasciare mai una pagina nera in silenzio,
 // non a dichiarare guasto un caricamento semplicemente lento. Viene comunque
@@ -96,8 +96,10 @@ async function start() {
   // I due comandi visibili. Vengono dopo perche' lo scrollcue chiede un passo
   // esattamente come la rotellina, e passa dallo stesso punto di ingresso.
   const lamp = new ThemeSwitch(config, machine, document);
+  const paint = new PaintPicker(config, machine, document);
   const scrollcue = new ScrollCue(machine, richiediPasso, document);
   lamp.attach();
+  paint.attach();
   scrollcue.attach();
 
   const start0 = config.startScene ?? 0;
@@ -107,10 +109,10 @@ async function start() {
   menu.set(start0);
   input.attach();
 
-  // Spenta la luce, l'unica cosa che si puo' fare e' riaccenderla: la clip del
-  // ritorno viene preparata mentre si guarda quella dell'andata.
-  document.addEventListener('themestart', (e) => {
-    if (e.detail && e.detail.to === 'scuro') player.preloadTheme('rev');
+  // Entrati in una variante, l'unica cosa che si puo' fare e' uscirne: le clip
+  // del ritorno vengono preparate mentre si guarda quella dell'andata.
+  document.addEventListener('variantstart', (e) => {
+    if (e.detail && e.detail.direction > 0) player.preloadVariants('rev');
   });
 
   // Esposizione per gli autotest: nessun effetto sul comportamento normale.
@@ -118,7 +120,7 @@ async function start() {
   // perche' l'intro e' finita": senza questa bandiera un test che aspetta solo
   // lo stato idle puo' leggere la pagina un istante prima che l'intro cominci.
   window.__TOC__ = {
-    config, player, machine, input, binder, counter, menu, lamp, scrollcue,
+    config, player, machine, input, binder, counter, menu, lamp, paint, scrollcue,
     rejected, introDone: false,
   };
   booted = true;
@@ -138,10 +140,10 @@ async function start() {
   // riavvolte non servono a nessuno finche' non si torna indietro.
   await player.preloadForward(machine.index);
 
-  // La clip del tema per ultima: la lampadina e' un comando volontario, quindi
-  // puo' aspettare che la sequenza sia pronta, ma quando viene premuta deve
-  // partire subito e non mettersi a scaricare.
-  player.preloadTheme('fwd');
+  // Le clip delle varianti per ultime: lampadina e vernice sono comandi
+  // volontari, quindi possono aspettare che la sequenza sia pronta, ma quando
+  // vengono premuti devono partire subito e non mettersi a scaricare.
+  player.preloadVariants('fwd');
 }
 
 window.addEventListener('error', (e) => {

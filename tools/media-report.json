@@ -2,23 +2,23 @@
   "variants": [
     {
       "dir": "av1",
-      "bytes": 16319598
+      "bytes": 17726445
     },
     {
       "dir": "av1-sd",
-      "bytes": 7877464
+      "bytes": 8517426
     },
     {
       "dir": "hevc",
-      "bytes": 13159177
+      "bytes": 14052388
     },
     {
       "dir": "hevc-sd",
-      "bytes": 6095475
+      "bytes": 6488940
     },
     {
       "dir": "h264-sd",
-      "bytes": 11612263
+      "bytes": 12457935
     }
   ],
   "clips": [
@@ -209,6 +209,14 @@
       "from": "t1.mp4 (ultimo, riposo scena 2)",
       "to": "darktheme.mp4 (primo)",
       "frames": 121
+    },
+    {
+      "meanAbs": 3.571,
+      "max": 204,
+      "pctOver8": 11.52,
+      "from": "t1.mp4 (ultimo, riposo scena 2)",
+      "to": "vernice-giallo.mp4 (primo)",
+      "frames": 73
     }
   ],
   "reverseSeams": [
