@@ -420,6 +420,36 @@ della variante su `<html>`. `querySelector('[data-paint]')` pescava quindi
 l'elemento radice e il comando restava invisibile. Ora il comando si chiama
 `data-paint-control`.
 
+L'icona del rullo è il disegno consegnato dal committente (`rollpainter.png`),
+ritagliato sul proprio tratto e usato come **maschera**: il colore lo mette
+`currentColor`, quindi il comando si accende di giallo a vernice applicata
+esattamente come la lampadina fa a luce spenta.
+
+Le due icone sono allineate su misure prese sul rendering, non a occhio.
+Fotografando i comandi a 4× su fondo trasparente:
+
+| | inchiostro | centro verticale nel riquadro |
+|---|---|---|
+| rullo, prima | 22,50 × 22,50 | 11,62 |
+| lampadina | 13,50 × 17,75 | 13,88 |
+| rullo, dopo | 17,75 × 17,75 | 11,62 |
+
+La lampadina cadeva più in basso perché a luce accesa i raggi sono invisibili e
+resta il solo bulbo, che nel riquadro sta in fondo; il suo disegno è quindi
+alzato di 2,26 unità, e l'offset è costante, quindi non introduce nessuno scatto
+quando i raggi si accendono. Alla fine i due centri coincidono al centesimo di
+unità, le altezze sono identiche e fra i due disegni restano 10,75 unità di
+spazio.
+
+**Un difetto del player trovato provando la pagina e corretto.** Comandando la
+pagina da un'altra finestra, una transizione è rimasta appesa: Chrome aveva
+messo in pausa il video e smesso di chiamare `requestAnimationFrame`, sul quale
+poggiava tutto il watchdog di `awaitEnd`. La guardia esistente copriva il caso
+«la scheda si nasconde durante la riproduzione», non «era già nascosta quando è
+partita», e in quel caso nessun `visibilitychange` sarebbe mai arrivato. Ora
+l'attesa si chiude subito se la pagina è già nascosta, e un timer indipendente
+dai fotogrammi fa comunque da rete di sicurezza. Lo copre l'autotest 21.
+
 Un effetto collaterale sul confronto al pixel, atteso e non preoccupante: la
 «barra menu» risulta ora larga 1572 px invece di 1534 e spostata a sinistra di
 38. Non si è mossa di un pixel — lo confermano le voci al suo interno, tutte a

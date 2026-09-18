@@ -515,9 +515,12 @@ export class VideoPlayer {
       let lastProgress = started;
       let done = false;
 
+      let guardia = 0;
+
       const finish = (why) => {
         if (done) return;
         done = true;
+        clearTimeout(guardia);
         el.removeEventListener('ended', onEnded);
         document.removeEventListener('visibilitychange', onHidden);
         if (why !== 'ended') this.diagnostics.forcedEnds += 1;
@@ -528,6 +531,11 @@ export class VideoPlayer {
 
       el.addEventListener('ended', onEnded);
       document.addEventListener('visibilitychange', onHidden);
+
+      // Se la scheda e' gia' nascosta non c'e' nulla da guardare e, soprattutto,
+      // non arrivera' nessun visibilitychange ad avvisarci: si chiude subito e
+      // il fotogramma viene portato a destinazione a mano.
+      if (document.hidden) return finish('hidden');
 
       const tick = (now) => {
         if (done) return;
@@ -540,6 +548,16 @@ export class VideoPlayer {
         raf(tick);
       };
       raf(tick);
+
+      // Rete di sicurezza indipendente dai fotogrammi: requestAnimationFrame non
+      // gira quando la finestra e' coperta o la scheda passa in secondo piano, e
+      // li' il watchdog qui sopra non verrebbe mai eseguito. Un timer normale
+      // continua invece a scattare, e chiude comunque l'attesa. Senza questo, una
+      // transizione avviata in una finestra che perde la visibilita' resterebbe
+      // aperta per sempre e la pagina non uscirebbe piu' dallo stato di
+      // transizione (osservato davvero, comandando la pagina da un'altra
+      // finestra).
+      guardia = setTimeout(() => finish('guardia'), budget + this.config.stallTimeoutMs);
     });
   }
 

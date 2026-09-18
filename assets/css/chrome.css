@@ -328,7 +328,19 @@
 .lamp:hover { color: var(--menu-cta-light-text); }
 .lamp[disabled] { cursor: default; }
 
-.lamp__icon { display: block; width: 100%; height: 100%; }
+/* Il disegno va alzato di 2,26 unita'.
+   A luce accesa i raggi sono invisibili, quindi cio' che si vede e' il solo
+   bulbo, che nel riquadro sta in basso: misurato, il suo centro cadeva a 13,88
+   contro gli 11,62 del rullo, e le due icone risultavano sfalsate. Alzandolo di
+   quella differenza i due centri coincidono. L'offset e' costante — non cambia
+   quando i raggi si accendono — quindi non introduce nessuno scatto. */
+.lamp__icon {
+  display: block;
+  position: relative;
+  top: calc(-2.26 * var(--s));
+  width: 100%;
+  height: 100%;
+}
 
 /* I raggi ci sono solo a luce spenta: sono il modo piu' breve per dire in che
    stato si trova la pagina senza aggiungere una parola. */
@@ -352,9 +364,12 @@ html[data-theme="scuro"] .lamp .lamp__rays { opacity: 1; }
    due varianti della stessa scena e devono leggersi come una coppia. A
    differenza della lampadina apre un elenco, perche' i colori possono essere
    piu' di uno. */
+/* Posizione misurata sugli inchiostri, non sui riquadri: il disegno del rullo
+   arriva a 96,25 e quello della lampadina comincia a 107,25, cioe' 11 unita' piu'
+   in la'. E' la stessa distanza che separa le voci dentro la barra del menu. */
 .paint {
   position: absolute;
-  left: calc(66 * var(--s));
+  left: calc(75.25 * var(--s));
   top: calc(81.5 * var(--s));
   width: calc(24 * var(--s));
   height: calc(24 * var(--s));
@@ -369,7 +384,9 @@ html[data-theme="scuro"] .lamp .lamp__rays { opacity: 1; }
 }
 
 .paint__btn {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
   padding: 0;
@@ -382,7 +399,25 @@ html[data-theme="scuro"] .lamp .lamp__rays { opacity: 1; }
 .paint__btn:hover { color: var(--menu-cta-light-text); }
 .paint__btn[disabled] { cursor: default; }
 
-.paint__icon { display: block; width: 100%; height: 100%; }
+/* Misura presa sul rendering, non a occhio: fotografando i due comandi a 4x su
+   fondo trasparente, il disegno della lampadina occupa 71 px in altezza, cioe'
+   17,75 unita' di design — i raggi restano invisibili a luce accesa, quindi non
+   contano. Il file del rullo e' ritagliato sul proprio disegno, percio' dargli
+   quella stessa altezza basta perche' le due icone si leggano come una coppia.
+   La larghezza la decide il rapporto dell'immagine, che e' quadrata.
+
+   L'immagine fa da maschera e il colore lo mette `currentColor`: e' cio' che
+   permette al rullo di accendersi di giallo a vernice cambiata, come fa la
+   lampadina a luce spenta. Nota: i media sono serviti con Cache-Control
+   immutable, quindi sostituendo il disegno va cambiato anche il nome del file. */
+.paint__icon {
+  display: block;
+  width: calc(17.75 * var(--s));
+  height: calc(17.75 * var(--s));
+  background: currentColor;
+  -webkit-mask: url('../media/icona-rullo.png') center / contain no-repeat;
+  mask: url('../media/icona-rullo.png') center / contain no-repeat;
+}
 
 /* A vernice cambiata il comando prende il colore che l'auto ha addosso: e'
    l'invito a tornare indietro, ed e' anche l'unico modo per farlo, visto che da

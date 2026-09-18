@@ -242,7 +242,7 @@
       },
       {
         "ok": true,
-        "label": "non e’ stato un salto istantaneo (1312 ms, currentTime intermedio 4.04)",
+        "label": "non e’ stato un salto istantaneo (1314 ms, currentTime intermedio 4.04)",
         "detail": ""
       }
     ],
@@ -689,6 +689,27 @@
       {
         "ok": true,
         "label": "tornato il colore ordinario, il passo avanti funziona",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "finestra nascosta: la transizione si chiude comunque, non resta appesa",
+    "checks": [
+      {
+        "ok": true,
+        "label": "la pagina esce dallo stato di transizione",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "e lo stato arriva comunque a destinazione",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il fotogramma viene portato a destinazione a mano",
         "detail": ""
       }
     ],

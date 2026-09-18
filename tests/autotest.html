@@ -620,6 +620,35 @@ const SCENARIOS = [
       return f;
     },
   },
+  {
+    name: 'finestra nascosta: la transizione si chiude comunque, non resta appesa',
+    async run(t) {
+      const f = await frame('scene=1');
+      const w = () => f.contentWindow.__TOC__;
+      await idle(f);
+
+      // Si finge una finestra coperta: document.hidden vero e nessun fotogramma.
+      // E’ la condizione in cui Chrome mette il video in pausa e smette di
+      // chiamare requestAnimationFrame; senza una guardia indipendente dai
+      // fotogrammi la pagina resterebbe in transizione per sempre.
+      await f.contentWindow.eval(`
+        Object.defineProperty(document, 'hidden', { get: () => true, configurable: true });
+        Object.defineProperty(document, 'visibilityState', { get: () => 'hidden', configurable: true });
+        window.requestAnimationFrame = () => 0;
+      `);
+
+      const opzione = w().config.variants.paint.options[0].id;
+      f.contentDocument.querySelector('[data-paint-toggle]').click();
+      f.contentDocument.querySelector(`[data-paint-option="${opzione}"]`).click();
+
+      await waitFor(() => state(f) === 'idle', 20000);
+      t.eq(state(f), 'idle', 'la pagina esce dallo stato di transizione');
+      t.eq(ds(f).paint, opzione, 'e lo stato arriva comunque a destinazione');
+      t.eq(w().player.visible.dataset.clip, 'paint-' + opzione + '-avanti',
+        'il fotogramma viene portato a destinazione a mano');
+      return f;
+    },
+  },
 ];
 
 /* -------------------------------------------------------------------- avvio */
