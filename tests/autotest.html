@@ -84,6 +84,8 @@ const idle = (f) => waitFor(() => state(f) === 'idle', 30000);
  *  pur essendo tutto a posto. */
 const quante = (f) => f.contentWindow.__TOC__.config.scenes.length;
 const ultima = (f) => quante(f) - 1;
+/** Scena su cui la lampadina funziona, anch'essa letta dalla configurazione. */
+const scenaTema = (f) => f.contentWindow.__TOC__.config.theme.scene;
 
 /** Un colpo di rotellina: N eventi ravvicinati, come li manda un trackpad. */
 async function wheel(f, deltaY, { count = 1, gap = 16 } = {}) {
@@ -446,6 +448,100 @@ const SCENARIOS = [
       const rates = [...f.contentDocument.querySelectorAll('.stage video')].map((v) => v.playbackRate);
       t.eq(rates.every((r) => r === atteso), true, `tutti i livelli video a ${atteso} (${rates.join(', ')})`);
       return f;
+    },
+  },
+
+  {
+    name: 'lampadina: spegne e riaccende la luce senza cambiare scena',
+    async run(t) {
+      const f = await frame('scene=1');
+      const w = () => f.contentWindow.__TOC__;
+      await idle(f);
+      t.eq(scene(f), scenaTema(f), `si parte dalla scena del tema (${scenaTema(f)})`);
+      t.eq(ds(f).theme, 'chiaro', 'si parte a luce accesa');
+
+      const lamp = f.contentDocument.querySelector('[data-lamp]');
+      t.eq(!!lamp, true, 'la lampadina esiste nel blocco');
+      lamp.click();
+      await waitFor(() => ds(f).theme === 'scuro' && state(f) === 'idle', 40000);
+      t.eq(scene(f), scenaTema(f), 'la scena non cambia spegnendo');
+      t.eq(w().player.visible.dataset.clip, 'tema-avanti', 'in pausa sulla clip del tema');
+      t.eq(lamp.getAttribute('aria-pressed'), 'true', 'il comando si dichiara premuto');
+
+      lamp.click();
+      await waitFor(() => ds(f).theme === 'chiaro' && state(f) === 'idle', 40000);
+      t.eq(scene(f), scenaTema(f), 'la scena non cambia riaccendendo');
+      t.eq(w().player.visible.dataset.clip, 'tr1-avanti',
+        'si rientra sul fotogramma di riposo della scena, non su quello del tema');
+      return f;
+    },
+  },
+
+  {
+    name: 'a luce spenta non si cambia scena, con nessun comando',
+    async run(t) {
+      const f = await frame('scene=1');
+      await idle(f);
+      f.contentDocument.querySelector('[data-lamp]').click();
+      await waitFor(() => ds(f).theme === 'scuro' && state(f) === 'idle', 40000);
+
+      const partenza = scene(f);
+      const scartiPrima = f.contentWindow.__TOC__.rejected.atEdge;
+      await gesture(f, 120);
+      await key(f, 'ArrowDown');
+      await key(f, 'PageDown');
+      await swipe(f, -160);
+      await sleep(900);
+      t.eq(scene(f), partenza, 'rotellina, frecce, PageDown e swipe: la scena resta dov’era');
+      t.eq(state(f), 'idle', 'nessuna transizione e’ partita');
+      t.gt(f.contentWindow.__TOC__.rejected.atEdge - scartiPrima, 0,
+        'i passi sono stati scartati, non accodati');
+      t.eq(f.contentWindow.__TOC__.machine.canGo(1), false, 'canGo(1) e’ falso a luce spenta');
+      t.eq(f.contentWindow.__TOC__.machine.canGo(-1), false, 'canGo(-1) e’ falso a luce spenta');
+
+      // riaccendendo, la navigazione torna disponibile
+      f.contentDocument.querySelector('[data-lamp]').click();
+      await waitFor(() => ds(f).theme === 'chiaro' && state(f) === 'idle', 40000);
+      await gesture(f, 120);
+      await idle(f);
+      t.eq(scene(f), partenza + 1, 'riaccesa la luce, il passo avanti funziona di nuovo');
+      return f;
+    },
+  },
+
+  {
+    name: 'invito a scorrere: visibile solo quando un passo avanti e’ possibile',
+    async run(t) {
+      const f = await frame('scene=1');
+      await idle(f);
+      const cue = f.contentDocument.querySelector('[data-scrollcue]');
+      t.eq(!!cue, true, 'l’invito a scorrere esiste');
+      t.eq(cue.dataset.on, 'true', 'visibile da fermi a meta’ sequenza');
+
+      f.contentDocument.querySelector('[data-lamp]').click();
+      await waitFor(() => ds(f).theme === 'scuro' && state(f) === 'idle', 40000);
+      t.eq(cue.dataset.on, 'false', 'nascosto a luce spenta, dove il passo non si puo’ fare');
+      f.contentDocument.querySelector('[data-lamp]').click();
+      await waitFor(() => ds(f).theme === 'chiaro' && state(f) === 'idle', 40000);
+      t.eq(cue.dataset.on, 'true', 'torna visibile a luce riaccesa');
+
+      // un click vale uno scroll
+      const prima = scene(f);
+      cue.click();
+      await idle(f);
+      t.eq(scene(f), prima + 1, 'cliccarlo fa esattamente un passo avanti');
+
+      // sull'ultima scena non c'e' piu' nulla davanti: si parte direttamente da
+      // li' invece di attraversare tutta la sequenza, che costerebbe sei
+      // transizioni video per una verifica sola.
+      const fine = ultima(f);
+      f.remove();
+      const g = await frame('scene=' + fine);
+      await idle(g);
+      t.eq(scene(g), fine, `si parte dall'ultima scena (${fine})`);
+      t.eq(g.contentDocument.querySelector('[data-scrollcue]').dataset.on, 'false',
+        'nascosto sull’ultima scena');
+      return g;
     },
   },
 ];

@@ -41,6 +41,7 @@ export class VideoPlayer {
     this.visible = null;
     this.running = false;
     this.reversePreloaded = false;
+    this.theme = null;
     this.scene = 0;
     this.warmed = new Set();
     this.diagnostics = { rejectedPlays: 0, scrubbedRuns: 0, forcedEnds: 0, timeouts: 0, unloaded: 0 };
@@ -83,6 +84,18 @@ export class VideoPlayer {
         seamFadeMs: spec.seamFadeMs ?? this.config.seamFadeMs,
       });
     });
+
+    // La clip del tema sta fuori dalla sequenza: la macchina a stati non la
+    // raggiunge mai con un passo di scena, la si riproduce solo su richiesta.
+    const t = this.config.theme;
+    if (t && t.src) {
+      this.theme = {
+        spec: t,
+        fwd: this.makeVideo(t.src, null, 'tema-avanti'),
+        rev: t.reverseSrc ? this.makeVideo(t.reverseSrc, null, 'tema-indietro') : null,
+        seamFadeMs: t.seamFadeMs ?? this.config.seamFadeMs,
+      };
+    }
   }
 
   makeVideo(src, poster, id) {
@@ -229,6 +242,12 @@ export class VideoPlayer {
       this.#unload(clip.fwd);
       this.#unload(clip.rev);
     });
+    // La luce si accende su una scena sola: lontano da quella, la clip del tema
+    // e' peso morto come le altre.
+    if (this.theme && this.config.theme && sceneIndex !== this.config.theme.scene) {
+      this.#unload(this.theme.fwd);
+      this.#unload(this.theme.rev);
+    }
   }
 
   #unload(el) {
@@ -366,6 +385,84 @@ export class VideoPlayer {
     // Arrivati: la finestra dei decodificatori si sposta con la scena.
     this.scene = destScene;
     this.forget(destScene);
+  }
+
+  /**
+   * Accende o spegne la luce sulla scena corrente.
+   *
+   * Stessa meccanica delle transizioni di scena, con una differenza sola: qui
+   * non si cambia scena, si cambia lo stato di riposo su cui la scena si ferma.
+   * Andando verso il buio si resta sull'ultimo fotogramma della clip; tornando
+   * alla luce si rientra sul fotogramma di riposo della scena, che vive su un
+   * altro elemento e va quindi raggiunto in dissolvenza, esattamente come al
+   * ritorno indietro fra due scene.
+   *
+   * @param {1|-1} dir 1 = verso il buio, -1 = verso la luce
+   * @param {number} scene scena su cui si sta lavorando
+   */
+  async runTheme(dir, scene) {
+    this.running = true;
+    try {
+      return await this.runThemeInner(dir, scene);
+    } finally {
+      this.running = false;
+    }
+  }
+
+  async runThemeInner(dir, scene) {
+    const theme = this.theme;
+    if (!theme) return false;
+    const useReverseFile = dir < 0 && !!theme.rev;
+    const el = useReverseFile ? theme.rev : theme.fwd;
+    const reversedScrub = dir < 0 && !useReverseFile;
+
+    await this.ready(el);
+    el.playbackRate = this.config.playbackRate;
+
+    const dur = Number.isFinite(el.duration) ? el.duration : 0;
+    const end = Math.max(0, dur - FRAME_EPS);
+    const from = reversedScrub ? end : 0;
+    const to = reversedScrub ? 0 : end;
+
+    await this.seek(el, from);
+    this.show(el, el === this.visible ? 0 : theme.seamFadeMs);
+
+    if (reversedScrub) {
+      this.diagnostics.scrubbedRuns += 1;
+      await this.scrub(el, from, to);
+    } else {
+      await this.playTo(el, to);
+    }
+
+    el.pause();
+    await this.seek(el, to);
+
+    if (dir < 0) {
+      // Rientro alla luce: lo stato di riposo della scena vive sulla clip della
+      // transizione precedente, non su questa.
+      const rest = this.restTarget(scene);
+      if (rest.el !== el) {
+        await this.ready(rest.el);
+        const fresh = this.restTarget(scene);
+        await this.seek(fresh.el, fresh.time);
+        this.show(fresh.el, theme.seamFadeMs);
+        await new Promise((r) => setTimeout(r, theme.seamFadeMs));
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Porta in cache la clip del tema: la lampadina deve rispondere subito, e
+   * senza questo la prima accensione aspetterebbe il download.
+   */
+  async preloadTheme(which = 'fwd') {
+    const theme = this.theme;
+    if (!theme) return;
+    const el = which === 'rev' ? theme.rev : theme.fwd;
+    if (!el) return;
+    while (this.running) await new Promise((r) => setTimeout(r, 120));
+    await this.#warm(el);
   }
 
   /** Riproduzione nativa, con guardie contro ogni modo in cui puo' non finire. */

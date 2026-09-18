@@ -12,12 +12,17 @@
  */
 
 :root {
-  --menu-fill: rgba(12, 6, 4, 0.42);
-  --menu-text: rgb(169, 128, 192);
+  /* I colori del menu vengono dal mockup, dove il fondo alle sue spalle e'
+     sempre scuro. Nella pagina vera il video passa anche per inquadrature
+     chiare — il giallo della scena 2, il bianco della quarta — e li' quel viola
+     tenue si perdeva. Barra piu' densa e testo piu' chiaro: la forma resta
+     quella misurata, cambia solo quanto stacca dal fondo. */
+  --menu-fill: rgba(12, 6, 4, 0.58);
+  --menu-text: rgb(214, 198, 232);
   --menu-cta-light: rgba(233, 199, 255, 0.55);
-  --menu-cta-light-text: rgb(238, 232, 245);
-  --menu-cta-ghost: rgba(255, 255, 255, 0.075);
-  --menu-cta-ghost-text: rgb(135, 105, 158);
+  --menu-cta-light-text: rgb(245, 241, 250);
+  --menu-cta-ghost: rgba(255, 255, 255, 0.11);
+  --menu-cta-ghost-text: rgb(196, 176, 216);
 }
 
 .chrome {
@@ -49,7 +54,10 @@
   top: calc(70.67 * var(--s));
   width: calc(1165.44 * var(--s));
   height: calc(45.59 * var(--s));
-  border-radius: calc(22.8 * var(--s));
+  /* Angoli quasi vivi: e' la revisione chiesta dal committente
+     (header-rivisitato.png). La pastiglia dell'evidenziazione resta invece
+     arrotondata, com'e' nel mockup. */
+  border-radius: calc(4 * var(--s));
   background: var(--menu-fill);
 
   display: flex;
@@ -205,4 +213,134 @@
   .counter__bar::after { transition: none; }
   /* La pastiglia non scivola: compare e basta. */
   .menu__pill { transition: opacity 260ms linear; }
+}
+
+
+/* ------------------------------------------------------ invito a scorrere */
+
+/* Elemento comune come il contatore: dichiarato una volta, non partecipa alle
+   animazioni dei blocchi e non si sposta mai. Compare solo quando un passo
+   avanti e' davvero possibile — lo decide assets/js/blocks.js — cosi' non
+   promette mai qualcosa che la pagina in quel momento rifiuterebbe. */
+/* In basso al centro, ma sotto la fascia occupata dalle schede del blocco 1:
+   quelle partono a 58,5 dal fondo e arrivano fin quasi al centro orizzontale,
+   quindi un invito impilato in verticale ci finiva sopra. Disposto in
+   orizzontale e tenuto basso, resta al centro senza toccare nulla. */
+.scrollcue {
+  position: absolute;
+  left: 50%;
+  bottom: calc(16 * var(--s));
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: calc(11 * var(--s));
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--bianco);
+  font-family: 'Aldrich', sans-serif;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 420ms var(--ease-out), transform 420ms var(--ease-out);
+}
+
+.scrollcue[data-on="true"] {
+  opacity: 0.78;
+  pointer-events: auto;
+}
+.scrollcue[data-on="true"]:hover { opacity: 1; }
+
+.scrollcue__label {
+  font-size: calc(10.5 * var(--s));
+  letter-spacing: calc(1.9 * var(--s));
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Profilo del mouse: due misure e un raggio, nient'altro. */
+.scrollcue__mouse {
+  position: relative;
+  display: block;
+  width: calc(17 * var(--s));
+  height: calc(27 * var(--s));
+  border: calc(1.2 * var(--s)) solid currentColor;
+  border-radius: calc(9 * var(--s));
+}
+
+/* La rotellina scende, sfuma e ricomincia: e' l'unico elemento della pagina che
+   si muove da solo, e serve a dire che il gesto atteso e' lo scroll. */
+.scrollcue__wheel {
+  position: absolute;
+  left: 50%;
+  top: calc(5 * var(--s));
+  width: calc(2.4 * var(--s));
+  height: calc(5.5 * var(--s));
+  margin-left: calc(-1.2 * var(--s));
+  border-radius: calc(1.2 * var(--s));
+  background: var(--giallo);
+  animation: scrollcue-wheel 1900ms var(--ease-out) infinite;
+}
+
+@keyframes scrollcue-wheel {
+  0%   { transform: translateY(0);                     opacity: 0; }
+  18%  { opacity: 1; }
+  62%  { transform: translateY(calc(10 * var(--s)));   opacity: 0; }
+  100% { transform: translateY(calc(10 * var(--s)));   opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollcue { transition: opacity 420ms linear; }
+  .scrollcue__wheel { animation: none; opacity: 1; }
+}
+
+
+/* -------------------------------------------------------------- lampadina */
+
+/* Sta a sinistra della barra, fuori da essa, centrata sulla sua stessa altezza
+   (header-rivisitato.png). E' solo un'icona: lo stato lo dice il disegno, con i
+   raggi accesi quando la luce e' spenta ed e' quindi il momento di riaccenderla.
+   Compare soltanto sulla scena che la prevede — altrove sarebbe un comando che
+   non fa nulla — e a luce spenta resta l'unico comando attivo della pagina,
+   perche' li' la navigazione fra le scene e' sospesa. */
+.lamp {
+  position: absolute;
+  left: calc(88 * var(--s));
+  top: calc(81.5 * var(--s));
+  width: calc(24 * var(--s));
+  height: calc(24 * var(--s));
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--menu-text);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 420ms var(--ease-out), color 320ms var(--ease-out);
+}
+
+.lamp[data-on="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lamp:hover { color: var(--menu-cta-light-text); }
+.lamp[disabled] { cursor: default; }
+
+.lamp__icon { display: block; width: 100%; height: 100%; }
+
+/* I raggi ci sono solo a luce spenta: sono il modo piu' breve per dire in che
+   stato si trova la pagina senza aggiungere una parola. */
+.lamp__rays {
+  opacity: 0;
+  transition: opacity 320ms var(--ease-out);
+}
+
+html[data-theme="scuro"] .lamp { color: var(--giallo); }
+html[data-theme="scuro"] .lamp:hover { color: rgb(240, 202, 74); }
+html[data-theme="scuro"] .lamp .lamp__rays { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lamp, .lamp__rays { transition-duration: 0ms; }
 }

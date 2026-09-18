@@ -18,6 +18,9 @@
   --b1-card-fill: rgb(254, 218, 51);
   --b1-card-value: rgb(194, 156, 70);
   --b1-card-label: rgb(147, 95, 101);
+  /* Senza il fondo giallo il testo torna ai colori della pagina. */
+  --b1-card-value-flat: rgba(255, 255, 255, 0.88);
+  --b1-card-label-flat: rgba(255, 255, 255, 0.52);
 
   --b2-headline: rgba(255, 255, 255, 0.71);
   --b2-giant: rgba(14, 4, 23, 0.55);
@@ -70,17 +73,20 @@
   gap: calc(9.12 * var(--s));
 }
 
+/* Le tre schede non hanno fondo.
+ *
+ * Nel mockup sono gialle piene, e sul video chiaro funzionavano; sul tema scuro
+ * diventavano tre macchie fluorescenti su una scena notturna (vedi
+ * errore_grafico_card.png). Il fondo e' quindi tolto del tutto e restano il
+ * contorno e il testo, che si leggono su entrambi i temi perche' non dipendono
+ * da nessuno dei due. E' una deroga voluta rispetto al mockup: il confronto al
+ * pixel la registra come scostamento sulle schede. */
 .b1__card {
   width: calc(191.48 * var(--s));
   height: calc(91.18 * var(--s));
   border-radius: calc(15.2 * var(--s));
-  background: linear-gradient(
-    180deg,
-    rgb(246, 208, 42) 0%,
-    rgb(254, 219, 52) 10%,
-    rgb(254, 212, 52) 90%,
-    rgb(255, 219, 62) 100%
-  );
+  background: transparent;
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.28);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -97,6 +103,11 @@
   color: var(--b1-card-value);
   margin-top: calc(var(--b1-value-y) * var(--s));
 }
+
+/* I due colori del testo erano calibrati per stare sul giallo: senza il fondo
+   servono quelli della palette, che reggono sia sul viola sia sul nero. */
+.b1__card-value { color: var(--b1-card-value-flat); }
+.b1__card-label { color: var(--b1-card-label-flat); }
 
 .b1__card-label {
   font-family: 'Albert Sans', sans-serif;
@@ -189,3 +200,7 @@
 .b3__note--pinza      { left: calc((1308.05 - var(--b3-note-box) / 2) * var(--s)); top: calc(400.85 * var(--s)); }
 .b3__note--disco      { left: calc(( 151.97 - var(--b3-note-box) / 2) * var(--s)); top: calc(522.85 * var(--s)); }
 .b3__note--campana    { left: calc(( 151.78 - var(--b3-note-box) / 2) * var(--s)); top: calc(625.05 * var(--s)); }
+
+
+/* Lo stile della lampadina non e' qui: da quando e' un'icona accanto alla barra
+   del menu appartiene agli elementi comuni, e sta in chrome.css. */

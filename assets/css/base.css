@@ -89,7 +89,8 @@ body { touch-action: none; }     /* niente scroll nativo da touch */
   z-index: 1;
   pointer-events: none;
 }
-.canvas a { pointer-events: auto; }
+.canvas a,
+.canvas button { pointer-events: auto; }
 
 /* ------------------------------------------------------ animazioni di entrata */
 

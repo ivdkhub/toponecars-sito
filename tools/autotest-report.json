@@ -242,7 +242,7 @@
       },
       {
         "ok": true,
-        "label": "non e’ stato un salto istantaneo (1322 ms, currentTime intermedio 4.04)",
+        "label": "non e’ stato un salto istantaneo (1304 ms, currentTime intermedio 4.04)",
         "detail": ""
       }
     ],
@@ -483,7 +483,130 @@
       },
       {
         "ok": true,
-        "label": "tutti i livelli video a 1.5 (1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5)",
+        "label": "tutti i livelli video a 1.5 (1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5)",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "lampadina: spegne e riaccende la luce senza cambiare scena",
+    "checks": [
+      {
+        "ok": true,
+        "label": "si parte dalla scena del tema (1)",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "si parte a luce accesa",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "la lampadina esiste nel blocco",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "la scena non cambia spegnendo",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "in pausa sulla clip del tema",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il comando si dichiara premuto",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "la scena non cambia riaccendendo",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "si rientra sul fotogramma di riposo della scena, non su quello del tema",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "a luce spenta non si cambia scena, con nessun comando",
+    "checks": [
+      {
+        "ok": true,
+        "label": "rotellina, frecce, PageDown e swipe: la scena resta dov’era",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "nessuna transizione e’ partita",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "i passi sono stati scartati, non accodati",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "canGo(1) e’ falso a luce spenta",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "canGo(-1) e’ falso a luce spenta",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "riaccesa la luce, il passo avanti funziona di nuovo",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "invito a scorrere: visibile solo quando un passo avanti e’ possibile",
+    "checks": [
+      {
+        "ok": true,
+        "label": "l’invito a scorrere esiste",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "visibile da fermi a meta’ sequenza",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "nascosto a luce spenta, dove il passo non si puo’ fare",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "torna visibile a luce riaccesa",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "cliccarlo fa esattamente un passo avanti",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "si parte dall'ultima scena (6)",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "nascosto sull’ultima scena",
         "detail": ""
       }
     ],

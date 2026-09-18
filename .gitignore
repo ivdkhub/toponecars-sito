@@ -13,6 +13,12 @@ tools/bg-*.png
 # solo, assets/media/poster.webp, che invece e' versionato.
 tools/frames/
 
+# Materiale di lavoro lasciato nella radice: schermate di riferimento e originali
+# ad altissima risoluzione da cui si ricavano gli asset serviti.
+upscaled-logo.png
+header-rivisitato.png
+errore_grafico_card.png
+
 # MATERIALE SORGENTE. Non entra nel repository: sono decine di megabyte che il
 # browser non chiede mai, e che rallenterebbero ogni clone e ogni deploy. Le
 # clip servite in assets/media/ si ricavano da qui con tools/build-media.py.

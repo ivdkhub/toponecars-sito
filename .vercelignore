@@ -13,6 +13,9 @@ tools/
 tests/
 
 # Materiale sorgente, se presente sul disco.
+upscaled-logo.png
+header-rivisitato.png
+errore_grafico_card.png
 video/
 foto/
 mockup ui sample/

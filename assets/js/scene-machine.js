@@ -22,6 +22,8 @@ export class SceneMachine extends EventTarget {
     this.state = 'boot';
     this.direction = 0;
     this.busy = false;
+    // 'chiaro' e' lo stato ordinario: e' l'unico in cui la sequenza si percorre.
+    this.theme = 'chiaro';
     this.root = document.documentElement;
   }
 
@@ -29,9 +31,54 @@ export class SceneMachine extends EventTarget {
   get count() { return this.config.scenes.length; }
   get isBusy() { return this.busy; }
 
+  /** La scena su cui la luce si puo' spegnere, o null se la cosa e' disattivata. */
+  get themeScene() {
+    const t = this.config.theme;
+    return t && t.src ? t.scene : null;
+  }
+
   canGo(dir) {
     const next = this.index + dir;
+    // A luce spenta non si va da nessuna parte: le transizioni fra le scene
+    // esistono soltanto illuminate, e mostrarne una qui vorrebbe dire riaccendere
+    // la luce di soppiatto. Prima si torna al chiaro, poi si prosegue.
+    if (this.theme !== 'chiaro' && this.config.theme && this.config.theme.blockNavigation) return false;
     return !this.busy && next >= 0 && next < this.count;
+  }
+
+  /** Se la lampadina e' azionabile adesso: solo da fermi, e solo sulla sua scena. */
+  canToggleTheme() {
+    return !this.busy && this.themeScene !== null && this.index === this.themeScene;
+  }
+
+  /**
+   * Accende o spegne la luce. Ritorna false se la richiesta non era eseguibile,
+   * esattamente come `step`: niente coda, niente attesa.
+   */
+  async toggleTheme(reason = 'input') {
+    if (!this.canToggleTheme()) return false;
+
+    const from = this.theme;
+    const to = from === 'chiaro' ? 'scuro' : 'chiaro';
+    const dir = to === 'scuro' ? 1 : -1;
+
+    this.busy = true;
+    this.state = 'theming';
+    this.direction = dir;
+    this.#syncRoot();
+    this.#emit('themestart', { from, to, direction: dir, reason, scene: this.scene, index: this.index });
+
+    try {
+      await this.player.runTheme(dir, this.index);
+    } finally {
+      this.theme = to;
+      this.state = 'idle';
+      this.direction = 0;
+      this.busy = false;
+      this.#syncRoot();
+      this.#emit('themeend', { from, to, direction: dir, reason, scene: this.scene, index: this.index });
+    }
+    return true;
   }
 
   /**
@@ -89,6 +136,7 @@ export class SceneMachine extends EventTarget {
 
   #syncRoot() {
     const r = this.root;
+    r.dataset.theme = this.theme;
     r.dataset.scene = String(this.index);
     r.dataset.sceneId = this.scene ? this.scene.id : '';
     r.dataset.state = this.state;

@@ -28,7 +28,29 @@
        ricreati, non partecipano alle animazioni di comparsa e non si spostano di
        un pixel al cambio di scena. -->
   <header class="chrome">
-    <img class="chrome__logo" src="assets/media/logo.webp" alt="Top One Cars" width="467" height="150" decoding="async">
+    <!-- Due misure dello stesso disegno: il riquadro del logo non cambia mai, ma
+         su un monitor largo il canvas si scala e quel riquadro puo' valere il
+         doppio dei pixel. `sizes` ripete la formula con cui il CSS lo dimensiona,
+         cosi' il browser sceglie da solo il file giusto. -->
+    <img class="chrome__logo" src="assets/media/logo.webp" alt="Top One Cars"
+         srcset="assets/media/logo.webp 467w, assets/media/logo@2x.webp 1024w"
+         sizes="calc(132.21 * min(100vw / 1440, 100vh / 810))"
+         width="467" height="150" decoding="async">
+
+    <!-- La lampadina: spegne la luce sulla scena che lo prevede. Sta fuori dalla
+         barra, a sinistra, ed e' solo un'icona: il suo stato lo dice il disegno
+         (i raggi ci sono a luce spenta, cioe' quando serve riaccenderla).
+         Compare unicamente dove e' azionabile, perche' un comando morto in
+         mezzo alla pagina e' peggio di un comando assente. -->
+    <button class="lamp" type="button" data-lamp data-on="false" aria-pressed="false"
+            aria-label="Spegni le luci">
+      <svg class="lamp__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path class="lamp__rays" d="M12 1.4v2.4M4.4 4.4l1.7 1.7M1.4 12h2.4M19.6 4.4l-1.7 1.7M22.6 12h-2.4"/>
+        <path d="M9 17.2a5.8 5.8 0 1 1 6 0v1.6a1.2 1.2 0 0 1-1.2 1.2h-3.6A1.2 1.2 0 0 1 9 18.8z"/>
+        <path d="M10.4 22.4h3.2"/>
+      </svg>
+    </button>
     <nav class="menu" aria-label="Principale">
       <!-- La pastiglia che evidenzia la voce corrente e' un elemento a se',
            posizionato dietro le voci: cosi' l'evidenziazione puo' spostarsi
@@ -46,6 +68,17 @@
     <span class="counter__digits" data-counter-digits></span>
     <span class="counter__bar" data-counter-bar aria-hidden="true"></span>
   </div>
+
+  <!-- Invito a scorrere: elemento comune, in basso al centro. Si mostra solo
+       quando un passo avanti e' davvero possibile — quindi non durante una
+       transizione, non sull'ultima scena e non a luce spenta. -->
+  <button class="scrollcue" type="button" data-scrollcue data-on="false"
+          aria-label="Vai alla scena successiva">
+    <span class="scrollcue__label">Scroll to explore</span>
+    <span class="scrollcue__mouse" aria-hidden="true">
+      <span class="scrollcue__wheel"></span>
+    </span>
+  </button>
 
   <!-- BLOCCO 1 — scena 2, vista posteriore a 3/4 -->
   <section class="block block--1" id="block-1" data-visible="false" aria-label="Porsche 911 GT3 RS">

@@ -13,6 +13,7 @@ import { SceneMachine } from './scene-machine.js';
 import { InputController } from './input-controller.js';
 import { BlockBinder, SceneCounter } from './blocks.js';
 import { MenuHighlight } from './menu.js';
+import { ThemeSwitch, ScrollCue } from './controls.js';
 
 // Generoso di proposito: serve a non lasciare mai una pagina nera in silenzio,
 // non a dichiarare guasto un caricamento semplicemente lento. Viene comunque
@@ -73,11 +74,13 @@ async function start() {
   // "ignorato perche' in transizione" da "ignorato perche' al bordo".
   const rejected = { inTransition: 0, atEdge: 0 };
 
-  // Un solo punto di ingresso per ogni sorgente di input. Se il passo non e'
-  // possibile (prima/ultima scena, transizione in corso) si scarta e basta:
-  // niente coda.
-  const input = new InputController(config, (dir, source) => {
+  // Un solo punto di ingresso per ogni richiesta di passo, da qualunque parte
+  // arrivi: rotellina, tastiera, swipe o il pulsante in fondo alla pagina. Se il
+  // passo non e' possibile si scarta e basta: niente coda.
+  const richiediPasso = (dir, source) => {
     if (machine.isBusy) { rejected.inTransition += 1; return; }
+    // canGo e' falso anche a luce spenta: la sequenza si percorre solo con il
+    // tema chiaro, quindi il passo viene scartato come al bordo della sequenza.
     if (!machine.canGo(dir)) { rejected.atEdge += 1; return; }
     // Le clip riavvolte pesano quanto tutte le altre messe insieme e servono a
     // una sola cosa: tornare indietro. Si cominciano a scaricare qui, alla prima
@@ -86,7 +89,16 @@ async function start() {
     // prepara le successive, e cede comunque il passo alla transizione in corso.
     if (dir < 0) player.preloadReverse(machine.index);
     machine.step(dir, source);
-  });
+  };
+
+  const input = new InputController(config, richiediPasso);
+
+  // I due comandi visibili. Vengono dopo perche' lo scrollcue chiede un passo
+  // esattamente come la rotellina, e passa dallo stesso punto di ingresso.
+  const lamp = new ThemeSwitch(config, machine, document);
+  const scrollcue = new ScrollCue(machine, richiediPasso, document);
+  lamp.attach();
+  scrollcue.attach();
 
   const start0 = config.startScene ?? 0;
   await machine.boot(start0);
@@ -95,11 +107,20 @@ async function start() {
   menu.set(start0);
   input.attach();
 
+  // Spenta la luce, l'unica cosa che si puo' fare e' riaccenderla: la clip del
+  // ritorno viene preparata mentre si guarda quella dell'andata.
+  document.addEventListener('themestart', (e) => {
+    if (e.detail && e.detail.to === 'scuro') player.preloadTheme('rev');
+  });
+
   // Esposizione per gli autotest: nessun effetto sul comportamento normale.
   // introDone distingue "fermo perche' l'intro deve ancora partire" da "fermo
   // perche' l'intro e' finita": senza questa bandiera un test che aspetta solo
   // lo stato idle puo' leggere la pagina un istante prima che l'intro cominci.
-  window.__TOC__ = { config, player, machine, input, binder, counter, menu, rejected, introDone: false };
+  window.__TOC__ = {
+    config, player, machine, input, binder, counter, menu, lamp, scrollcue,
+    rejected, introDone: false,
+  };
   booted = true;
   document.dispatchEvent(new CustomEvent('engineready', { detail: { scenes: config.scenes.length } }));
 
@@ -115,7 +136,12 @@ async function start() {
   // Il precaricamento parte solo ORA, e soltanto sulle clip in avanti: durante
   // l'intro ruberebbe banda proprio alla clip che si sta guardando, e le clip
   // riavvolte non servono a nessuno finche' non si torna indietro.
-  player.preloadForward(machine.index);
+  await player.preloadForward(machine.index);
+
+  // La clip del tema per ultima: la lampadina e' un comando volontario, quindi
+  // puo' aspettare che la sequenza sia pronta, ma quando viene premuta deve
+  // partire subito e non mettersi a scaricare.
+  player.preloadTheme('fwd');
 }
 
 window.addEventListener('error', (e) => {

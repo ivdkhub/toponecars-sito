@@ -104,6 +104,10 @@ export function resolveMediaPaths(config, dir, rev = MEDIA_REV) {
     t.src = resolve(t.src);
     t.reverseSrc = resolve(t.reverseSrc);
   });
+  if (config.theme) {
+    config.theme.src = resolve(config.theme.src);
+    config.theme.reverseSrc = resolve(config.theme.reverseSrc);
+  }
   return config;
 }
 
@@ -116,6 +120,28 @@ export const CONFIG = {
    *  quindi i loro poster venivano scaricati (5,6 MB di PNG) per non comparire
    *  mai — e per giunta in concorrenza con la prima clip. */
   poster: 'assets/media/poster.webp',
+
+  /**
+   * Il passaggio al tema scuro.
+   *
+   * Non e' una scena in piu': e' un secondo stato di riposo della scena indicata
+   * da `scene`. La clip parte esattamente dal fotogramma su cui quella scena si
+   * ferma — verificato come tutte le altre giunzioni del progetto: scarto medio
+   * 3,53, in linea con il 3,30 della giuntura fra la prima e la seconda
+   * transizione — e arriva all'inquadratura notturna, dove resta in pausa.
+   * Riprodotta al contrario riporta al fotogramma chiaro di partenza.
+   *
+   * `blockNavigation` e' il vincolo chiesto dal committente: a luce spenta non
+   * si cambia scena. La sequenza si percorre solo con il tema chiaro, e la
+   * ragione e' semplice — le altre sei transizioni esistono soltanto illuminate.
+   */
+  theme: {
+    scene: 1,
+    src: 'darktheme.mp4',
+    reverseSrc: 'darktheme.rev.mp4',
+    seamFadeMs: 300,
+    blockNavigation: true,
+  },
 
   /** Silenzio che chiude un gesto: finche' gli eventi arrivano piu' fitti di
    *  cosi' sono lo stesso gesto (annulla l'inerzia del trackpad). */

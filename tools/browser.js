@@ -31,6 +31,11 @@ export async function launch({ width = 1440, height = 810, scale = 1, headless =
   return puppeteer.launch({
     executablePath: chromePath(),
     headless,
+    // Il valore predefinito e' 180 s per singolo comando CDP, e la suite degli
+    // autotest — diciotto scenari, ognuno con la pagina vera e i suoi video —
+    // dura piu' di cosi'. Senza questo l'attesa di window.__DONE__ fallirebbe
+    // con un ProtocolError mentre i test stanno tranquillamente girando.
+    protocolTimeout: 15 * 60 * 1000,
     defaultViewport: { width, height, deviceScaleFactor: scale },
     args: [
       '--hide-scrollbars',

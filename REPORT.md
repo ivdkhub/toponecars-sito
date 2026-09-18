@@ -388,7 +388,36 @@ allo sfondo, si può fare senza spostarlo di un pixel.
 
 ---
 
-## 9. Cosa non è stato verificato
+## 9. Modifiche chieste dopo la consegna
+
+Quattro interventi decisi dal committente a valle delle verifiche, tutti
+documentati qui perché **si discostano dai mockup** e il confronto al pixel li
+registra come scostamenti:
+
+1. **Le schede della scena 2 non hanno più fondo.** Nel mockup sono gialle piene
+   e sul video chiaro funzionavano; con il tema scuro diventavano tre macchie
+   fluorescenti su una scena notturna. Restano contorno e testo, che si leggono
+   su entrambi i temi perché non dipendono da nessuno dei due.
+2. **La barra del menu ha angoli quasi vivi** (raggio 4 invece di 22,8), come da
+   `header-rivisitato.png`. La pastiglia dell'evidenziazione resta arrotondata,
+   perché è quella del mockup.
+3. **I colori del menu sono più contrastati.** Erano campionati da un mockup che
+   ha sempre un fondo scuro alle spalle della barra; nella pagina vera il video
+   passa per inquadrature chiare — il giallo della scena 2, il bianco della
+   quarta — e lì il viola tenue si perdeva. Il fondo della barra passa da 0,42 a
+   0,58 di opacità e il testo da `rgb(169,128,192)` a `rgb(214,198,232)`.
+4. **Il logo viene da un originale ad altissima risoluzione** (4768×3352), servito
+   in due misure con `srcset` perché il riquadro non cambia mai ma su un monitor
+   largo può valere il doppio dei pixel. Geometria e posizione sono quelle di
+   prima: la tela conserva il rapporto 467:150 del file precedente e il contenuto
+   ne occupa il 97%. Il confronto al pixel misura però il logo 13 px più basso
+   del mockup: il disegno nuovo ha tratti più sottili e precisi, e la parte alta
+   del profilo dell'auto resta sotto la soglia del rilevatore. A schermo si vede
+   meglio di prima, non peggio — verificato sullo scatto a 2×.
+
+---
+
+## 10. Cosa non è stato verificato
 
 - Browser diversi da Chrome 153 su Windows.
 - Dispositivi touch reali: lo swipe è verificato con eventi sintetici.

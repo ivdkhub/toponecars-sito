@@ -44,6 +44,15 @@ OUT = os.path.join(ROOT, "assets", "media")
 FRAMES = os.path.join(ROOT, "tools", "frames")
 CLIPS = ["1", "2", "3", "4", "5"]
 
+# Clip fuori dalla sequenza delle scene, con un sorgente proprio. `darktheme` e'
+# il passaggio al tema scuro: parte dal fotogramma di riposo della scena 2 —
+# verificato, scarto medio 3,53, cioe' quanto le giunzioni ordinarie del
+# progetto — e arriva all'inquadratura notturna. Riprodotta al contrario riporta
+# alla scena chiara.
+EXTRA = {
+    "darktheme": os.path.join(ROOT, "animazioni_da_aggiungere", "darkthemevideo.mp4"),
+}
+
 # GOP di 24 (un fotogramma chiave al secondo) e rilevamento dei cambi di scena
 # riattivato. Il GOP di 12 forzato della prima versione serviva allo scrubbing
 # manuale del currentTime, che pero' e' un percorso di emergenza: con i file
@@ -161,12 +170,18 @@ def main():
     os.makedirs(FRAMES, exist_ok=True)
     report = {"variants": [], "clips": [], "seams": [], "reverseSeams": []}
 
+    # nome della clip -> file sorgente
+    sorgenti = {("t" + n): os.path.join(SRC, n + ".mp4") for n in CLIPS}
+    sorgenti.update(EXTRA)
+    for nome, src in sorgenti.items():
+        if not os.path.exists(src):
+            sys.exit("sorgente mancante per %s: %s" % (nome, src))
+
     for variant in VARIANTS:
         total = 0
-        for n in CLIPS:
-            src = os.path.join(SRC, n + ".mp4")
+        for nome, src in sorgenti.items():
             for reverse in (False, True):
-                name = "t%s.rev.mp4" % n if reverse else "t%s.mp4" % n
+                name = nome + (".rev.mp4" if reverse else ".mp4")
                 dst = os.path.join(OUT, variant["dir"], name)
                 if stale(dst, src):
                     print("encode", variant["dir"] + "/" + name, flush=True)
@@ -195,12 +210,15 @@ def main():
     cv2.imwrite(poster_web, fwd_frames["1"][0], [cv2.IMWRITE_WEBP_QUALITY, 88])
     print("poster.webp", os.path.getsize(poster_web), "byte")
 
-    # Il logo: stesso disegno, canale alfa conservato, un terzo del peso.
-    logo_png = os.path.join(OUT, "logo.png")
-    logo_web = os.path.join(OUT, "logo.webp")
-    if os.path.exists(logo_png) and stale(logo_web, logo_png):
-        run(["-i", logo_png, "-c:v", "libwebp", "-lossless", "1", logo_web])
-        print("logo.webp", os.path.getsize(logo_web), "byte")
+    # Il logo, nelle due misure servite dallo srcset di index.html: stesso
+    # disegno, canale alfa conservato, un terzo del peso. Senza perdita, perche'
+    # e' un disegno a tratto e gli artefatti si vedrebbero sui contorni sottili.
+    for nome in ("logo", "logo@2x"):
+        logo_png = os.path.join(OUT, nome + ".png")
+        logo_web = os.path.join(OUT, nome + ".webp")
+        if os.path.exists(logo_png) and stale(logo_web, logo_png):
+            run(["-i", logo_png, "-c:v", "libwebp", "-lossless", "1", logo_web])
+            print(nome + ".webp", os.path.getsize(logo_web), "byte")
 
     for n in CLIPS:
         f = fwd_frames[n]
@@ -228,6 +246,16 @@ def main():
         d.update({"from": "t%s.mp4 (ultimo)" % a, "to": "t%s.mp4 (primo)" % b})
         report["seams"].append(d)
         print("seam t%s->t%s" % (a, b), d)
+
+    # Cucitura del tema scuro: il primo fotogramma di darktheme deve coincidere
+    # con il fotogramma di riposo della scena 2, cioe' l'ultimo di t1. E' la
+    # giunzione che si vedrebbe accendendo e spegnendo la luce.
+    dark = frames(os.path.join(ref_dir, "darktheme.mp4"))
+    d = delta(fwd_frames["1"][-1], dark[0])
+    d.update({"from": "t1.mp4 (ultimo, riposo scena 2)", "to": "darktheme.mp4 (primo)",
+              "frames": len(dark)})
+    report["seams"].append(d)
+    print("seam scena2->darktheme", d)
 
     # Cucitura del reverse: il primo fotogramma di tN.rev DEVE coincidere con
     # l'ultimo di tN, altrimenti lo scroll all'indietro scatterebbe alla partenza.
