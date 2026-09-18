@@ -1,0 +1,66 @@
+/* PARAMETRI TIPOGRAFICI E DI POSIZIONE — file generato.
+ *
+ * Non si scrivono a mano: li calcola tools/fit-type.py misurando la stessa
+ * stringa nel mockup e nel rendering e risolvendo per font-size e
+ * letter-spacing. Le coordinate seguono lo stesso ciclo, correggendo lo scarto
+ * misurato del riquadro d'inchiostro.
+ *
+ * Tutti i valori sono in unita' di design (canvas 1440x810): nel CSS vengono
+ * sempre moltiplicati per var(--s).
+ *
+ * Rigenerare con:  node tools/pixel-shoot.js && python tools/fit-type.py
+ */
+:root {
+  /* barra del menu */
+  --menu-link-fs: 12.7;
+  --menu-link-ls: -0.42;
+  --menu-link-w: 400;
+  --menu-cta-fs: 12.7;
+  --menu-cta-ls: -0.455;
+  --menu-cta-w: 400;
+  --menu-ghost-fs: 12.7;
+  --menu-ghost-ls: -0.34;
+  --menu-ghost-w: 400;
+
+  /* blocco 1 */
+  --b1-title-x: 166.5;
+  --b1-title-y: 174.28;
+  --b1-title1-fs: 47.5;
+  --b1-title1-ls: -0.17;
+  --b1-title1-w: 400;
+  --b1-title2-fs: 58;
+  --b1-title2-ls: 0.8;
+  --b1-title2-w: 400;
+  --b1-title-gap: 28.22;
+  --b1-value-fs: 58;
+  --b1-value-ls: 0.745;
+  --b1-value-w: 400;
+  --b1-value-y: 8.24;
+  --b1-label-fs: 10.545;
+  --b1-label-ls: 0.256;
+  --b1-label-w: 400;
+  --b1-label-y: -6.32;
+
+  /* blocco 2 */
+  --b2-line-x: 150.5;
+  --b2-line-y: 117.98;
+  --b2-line-fs: 43.4;
+  --b2-line-ls: 1.9;
+  --b2-line-w: 400;
+  --b2-line-height: 41.22;
+  --b2-giant-fs: 322.17;
+  --b2-giant-ls: 10.75;
+  /* Le cifre vanno spaziate a parte: il carattere del mockup ha un '1' con la
+     bandierina lunga e un avanzamento molto maggiore di quello di Albert Sans. */
+  --b2-giant-num-ls: 91;
+  --b2-giant-w: 550;
+  --b2-giant-x: -142;
+  --b2-giant-y: -124.4;
+
+  /* blocco 3 */
+  --b3-note-fs: 17.388;
+  --b3-note-ls: 0.381;
+  --b3-note-height: 14.49;
+  /* scatola delle note: piu' larga della riga piu' lunga misurata (284.5) */
+  --b3-note-box: 320;
+}

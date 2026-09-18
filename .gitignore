@@ -1,0 +1,26 @@
+# dipendenze
+node_modules/
+
+# artefatti degli strumenti, tutti rigenerabili
+tools/__pycache__/
+tools/shots/
+tools/autotest-report.png
+# sfondi estratti dai mockup da align-mockups.py: 5,3 MB di PNG intermedi
+tools/bg-*.png
+
+# Fotogrammi di riposo estratti dalle clip: li riscrive tools/build-media.py e
+# li leggono soltanto gli strumenti di verifica. Nel sito ne viene servito uno
+# solo, assets/media/poster.webp, che invece e' versionato.
+tools/frames/
+
+# MATERIALE SORGENTE. Non entra nel repository: sono decine di megabyte che il
+# browser non chiede mai, e che rallenterebbero ogni clone e ogni deploy. Le
+# clip servite in assets/media/ si ricavano da qui con tools/build-media.py.
+#
+# Attenzione: essendo fuori dal controllo di versione, questi file esistono solo
+# sul disco di chi lavora al sito. Vanno conservati a parte (un archivio, un
+# disco esterno, un bucket): senza di loro i video non si possono rigenerare.
+video/
+foto/
+mockup ui sample/
+animazioni_da_aggiungere/

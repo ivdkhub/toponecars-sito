@@ -1,0 +1,243 @@
+{
+  "variants": [
+    {
+      "dir": "av1",
+      "bytes": 14769319
+    },
+    {
+      "dir": "av1-sd",
+      "bytes": 7191746
+    },
+    {
+      "dir": "hevc",
+      "bytes": 12108476
+    },
+    {
+      "dir": "hevc-sd",
+      "bytes": 5637539
+    },
+    {
+      "dir": "h264-sd",
+      "bytes": 10406873
+    }
+  ],
+  "clips": [
+    {
+      "clip": "t1.mp4",
+      "frames": 97,
+      "fps": 24.0,
+      "w": 1928,
+      "h": 1072,
+      "duration": 4.042,
+      "bytes": {
+        "av1": [
+          1244092,
+          1207201
+        ],
+        "av1-sd": [
+          610852,
+          584320
+        ],
+        "hevc": [
+          1070141,
+          1029722
+        ],
+        "hevc-sd": [
+          500417,
+          484020
+        ],
+        "h264-sd": [
+          933176,
+          904249
+        ]
+      }
+    },
+    {
+      "clip": "t2.mp4",
+      "frames": 97,
+      "fps": 24.0,
+      "w": 1928,
+      "h": 1072,
+      "duration": 4.042,
+      "bytes": {
+        "av1": [
+          1640124,
+          1642089
+        ],
+        "av1-sd": [
+          806575,
+          804234
+        ],
+        "hevc": [
+          1255159,
+          1231077
+        ],
+        "hevc-sd": [
+          587847,
+          589105
+        ],
+        "h264-sd": [
+          1038992,
+          1043885
+        ]
+      }
+    },
+    {
+      "clip": "t3.mp4",
+      "frames": 73,
+      "fps": 24.0,
+      "w": 1928,
+      "h": 1072,
+      "duration": 3.042,
+      "bytes": {
+        "av1": [
+          1667176,
+          1611347
+        ],
+        "av1-sd": [
+          811981,
+          779915
+        ],
+        "hevc": [
+          1365425,
+          1343730
+        ],
+        "hevc-sd": [
+          633757,
+          626337
+        ],
+        "h264-sd": [
+          1116839,
+          1085198
+        ]
+      }
+    },
+    {
+      "clip": "t4.mp4",
+      "frames": 97,
+      "fps": 24.0,
+      "w": 1928,
+      "h": 1072,
+      "duration": 4.042,
+      "bytes": {
+        "av1": [
+          1776180,
+          1833807
+        ],
+        "av1-sd": [
+          878672,
+          908856
+        ],
+        "hevc": [
+          1547207,
+          1530823
+        ],
+        "hevc-sd": [
+          701708,
+          724231
+        ],
+        "h264-sd": [
+          1325325,
+          1377868
+        ]
+      }
+    },
+    {
+      "clip": "t5.mp4",
+      "frames": 97,
+      "fps": 24.0,
+      "w": 1928,
+      "h": 1072,
+      "duration": 4.042,
+      "bytes": {
+        "av1": [
+          1108216,
+          1039087
+        ],
+        "av1-sd": [
+          521183,
+          485158
+        ],
+        "hevc": [
+          889277,
+          845915
+        ],
+        "hevc-sd": [
+          404554,
+          385563
+        ],
+        "h264-sd": [
+          803847,
+          777494
+        ]
+      }
+    }
+  ],
+  "seams": [
+    {
+      "meanAbs": 3.302,
+      "max": 212,
+      "pctOver8": 10.64,
+      "from": "t1.mp4 (ultimo)",
+      "to": "t2.mp4 (primo)"
+    },
+    {
+      "meanAbs": 3.38,
+      "max": 199,
+      "pctOver8": 10.09,
+      "from": "t2.mp4 (ultimo)",
+      "to": "t3.mp4 (primo)"
+    },
+    {
+      "meanAbs": 5.983,
+      "max": 199,
+      "pctOver8": 25.34,
+      "from": "t3.mp4 (ultimo)",
+      "to": "t4.mp4 (primo)"
+    },
+    {
+      "meanAbs": 2.409,
+      "max": 120,
+      "pctOver8": 5.63,
+      "from": "t4.mp4 (ultimo)",
+      "to": "t5.mp4 (primo)"
+    }
+  ],
+  "reverseSeams": [
+    {
+      "meanAbs": 1.479,
+      "max": 32,
+      "pctOver8": 2.61,
+      "pair": "t1.mp4 (ultimo) vs t1.rev.mp4 (primo)",
+      "revFrames": 97
+    },
+    {
+      "meanAbs": 1.298,
+      "max": 39,
+      "pctOver8": 1.79,
+      "pair": "t2.mp4 (ultimo) vs t2.rev.mp4 (primo)",
+      "revFrames": 97
+    },
+    {
+      "meanAbs": 2.209,
+      "max": 46,
+      "pctOver8": 4.29,
+      "pair": "t3.mp4 (ultimo) vs t3.rev.mp4 (primo)",
+      "revFrames": 73
+    },
+    {
+      "meanAbs": 1.123,
+      "max": 31,
+      "pctOver8": 1.15,
+      "pair": "t4.mp4 (ultimo) vs t4.rev.mp4 (primo)",
+      "revFrames": 97
+    },
+    {
+      "meanAbs": 1.551,
+      "max": 39,
+      "pctOver8": 3.36,
+      "pair": "t5.mp4 (ultimo) vs t5.rev.mp4 (primo)",
+      "revFrames": 97
+    }
+  ]
+}

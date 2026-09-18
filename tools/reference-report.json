@@ -1,0 +1,46 @@
+{
+  "scena 5 — vista dall'alto": {
+    "riferimento": "retro-highview.png",
+    "fotogramma": "poster-5.png",
+    "fotoPx": [
+      2752,
+      1536
+    ],
+    "fotogrammaPx": [
+      1928,
+      1072
+    ],
+    "scalaSemplice": 0.70058,
+    "scalaAssestata": 0.70058,
+    "spostamento": [
+      0.0,
+      -2.0
+    ],
+    "residuoMedioPrima": 4.077,
+    "residuoMedioDopo": 3.234,
+    "residuoMediano": 3.0,
+    "oltre8pct": 6.93
+  },
+  "scena 6 — ruote scomposte": {
+    "riferimento": "retro-ruotescomposte.png",
+    "fotogramma": "poster-6.png",
+    "fotoPx": [
+      2752,
+      1536
+    ],
+    "fotogrammaPx": [
+      1928,
+      1072
+    ],
+    "scalaSemplice": 0.70058,
+    "scalaAssestata": 0.70058,
+    "spostamento": [
+      0.0,
+      -2.0
+    ],
+    "residuoMedioPrima": 5.173,
+    "residuoMedioDopo": 4.277,
+    "residuoMediano": 3.0,
+    "oltre8pct": 13.62
+  }
+}

@@ -1,0 +1,184 @@
+/* Fondamenta: font locali, unita' di scala, palcoscenico video, overlay di errore. */
+
+@font-face {
+  font-family: 'Albert Sans';
+  src: url('../fonts/AlbertSans-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Aldrich';
+  src: url('../fonts/Aldrich-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  /* Unita' di scala del progetto. A 16:9 vale esattamente 1px, quindi i numeri
+     scritti nel CSS coincidono con quelli misurati sui mockup; con altre
+     proporzioni il blocco si rimpicciolisce per intero restando dentro lo
+     schermo, senza che nulla vada a capo o si riposizioni. */
+  --s: min(100vw / 1440, 100vh / 810);
+
+  /* Palette del progetto. */
+  --viola: rgb(127, 77, 177);
+  --giallo: rgb(215, 171, 35);
+  --bianco: rgb(216, 229, 230);
+
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --enter-duration: 700ms;
+  --enter-stagger: 80ms;
+  --exit-duration: 350ms;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;              /* il viewport e' fisso: la pagina non scorre mai */
+  overscroll-behavior: none;
+  background: #000;
+  color: #fff;
+  font-family: 'Albert Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+body { touch-action: none; }     /* niente scroll nativo da touch */
+
+/* --------------------------------------------------------------- palcoscenico */
+
+.stage {
+  position: fixed;
+  inset: 0;
+  background: #120720;
+  z-index: 0;
+}
+
+/* Un livello per clip. Solo uno e' opaco; il cambio avviene in dissolvenza
+   incrociata dove il materiale sorgente non combacia. */
+.stage .layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition-property: opacity;
+  transition-timing-function: linear;
+  transition-duration: 0ms;
+  will-change: opacity;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------- canvas */
+
+/* Riquadro 1440x810 centrato: tutto cio' che sta dentro e' posizionato in
+   coordinate di design. */
+.canvas {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: calc(1440 * var(--s));
+  height: calc(810 * var(--s));
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+}
+.canvas a { pointer-events: auto; }
+
+/* ------------------------------------------------------ animazioni di entrata */
+
+[data-anim] {
+  opacity: 0;
+  transform: translateY(calc(22 * var(--s)));
+  filter: blur(calc(7 * var(--s)));
+  transition:
+    opacity var(--enter-duration) var(--ease-out),
+    transform var(--enter-duration) var(--ease-out),
+    filter var(--enter-duration) var(--ease-out);
+  transition-delay: calc(var(--i, 0) * var(--enter-stagger));
+}
+
+.block[data-visible="true"] [data-anim] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* Uscita coordinata: tutti gli elementi insieme, senza ritardi. E' il "cambio
+   pagina" fra un blocco e l'altro. */
+.block[data-visible="exiting"] [data-anim] {
+  opacity: 0;
+  transform: translateY(calc(-12 * var(--s)));
+  filter: blur(calc(5 * var(--s)));
+  transition-duration: var(--exit-duration);
+  transition-delay: 0ms;
+}
+
+.block {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+}
+.block[data-visible="true"],
+.block[data-visible="exiting"] { visibility: visible; }
+
+/* Con prefers-reduced-motion resta solo la dissolvenza: niente spostamento,
+   niente sfocatura, niente scaglionamento. */
+@media (prefers-reduced-motion: reduce) {
+  [data-anim] {
+    transform: none;
+    filter: none;
+    transition: opacity var(--enter-duration) linear;
+    transition-delay: 0ms;
+  }
+  .block[data-visible="exiting"] [data-anim] {
+    transform: none;
+    filter: none;
+    transition-duration: var(--exit-duration);
+  }
+  .stage .layer { transition-duration: 0ms; }
+}
+
+/* Modalita' di cattura per il confronto al pixel: nasconde di colpo tutta la UI
+   lasciando solo il fotogramma video, cosi' la differenza fra i due scatti e'
+   esattamente l'inchiostro della UI. Non ha alcun effetto sull'uso normale. */
+/* display:none e non visibility:hidden, perche' i blocchi visibili dichiarano
+   visibility: visible e sovrascriverebbero l'occultamento del genitore. */
+html[data-capture="bg"] .canvas { display: none; }
+
+/* ---------------------------------------------------------- schermata d'errore */
+
+.failure {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  padding: 8vw;
+  background: #140a22;
+  color: var(--bianco);
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+.failure[hidden] { display: none; }
+.failure h1 {
+  margin: 0;
+  font-family: 'Aldrich', system-ui, sans-serif;
+  font-size: clamp(20px, 3vw, 34px);
+  color: var(--giallo);
+  letter-spacing: 0.02em;
+}
+.failure pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-size: clamp(13px, 1.4vw, 17px);
+  line-height: 1.6;
+  opacity: 0.85;
+}

@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="it" data-state="boot" data-scene="0">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Top One Cars — Porsche 911 GT3 RS</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%237f4db1'/%3E%3Cpath d='M5 20h22M9 20a3 3 0 106 0 3 3 0 10-6 0M18 20a3 3 0 106 0 3 3 0 10-6 0' stroke='%23d7ab23' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+<!-- L'unica immagine del primo fotogramma: e' cio' che si vede mentre la prima
+     clip arriva, quindi vale la pena chiederla subito. -->
+<link rel="preload" as="image" href="assets/media/poster.webp" fetchpriority="high">
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/AlbertSans-Variable.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/Aldrich-Regular.woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/type.css">
+<link rel="stylesheet" href="assets/css/chrome.css">
+<link rel="stylesheet" href="assets/css/blocks.css">
+</head>
+<body>
+
+<!-- Livelli video: uno per clip, creati da video-player.js. Lo stato di riposo di
+     una scena e' il video precedente in pausa sul suo ultimo fotogramma. -->
+<div id="stage" class="stage" aria-hidden="true"></div>
+
+<!-- Canvas 1440x810 centrato: ogni misura interna e' calc(N * var(--s)). -->
+<div class="canvas">
+
+  <!-- ELEMENTI COMUNI: dichiarati una sola volta, fuori dai blocchi. Non vengono
+       ricreati, non partecipano alle animazioni di comparsa e non si spostano di
+       un pixel al cambio di scena. -->
+  <header class="chrome">
+    <img class="chrome__logo" src="assets/media/logo.webp" alt="Top One Cars" width="467" height="150" decoding="async">
+    <nav class="menu" aria-label="Principale">
+      <!-- La pastiglia che evidenzia la voce corrente e' un elemento a se',
+           posizionato dietro le voci: cosi' l'evidenziazione puo' spostarsi
+           senza che il menu si riassesti di un solo pixel. -->
+      <span class="menu__pill" data-menu-pill data-on="false" aria-hidden="true"></span>
+      <a class="menu__link" data-menu-item href="#">Servizi</a>
+      <a class="menu__link" data-menu-item href="#">Contenuti</a>
+      <a class="menu__link" data-menu-item href="#">Recensioni</a>
+      <a class="menu__btn menu__btn--light" data-menu-item href="#">Vieni a trovarci</a>
+      <a class="menu__btn menu__btn--ghost" data-menu-item href="#">Test Drive</a>
+    </nav>
+  </header>
+
+  <div class="counter" id="counter" data-value="01" aria-live="polite">
+    <span class="counter__digits" data-counter-digits></span>
+    <span class="counter__bar" data-counter-bar aria-hidden="true"></span>
+  </div>
+
+  <!-- BLOCCO 1 — scena 2, vista posteriore a 3/4 -->
+  <section class="block block--1" id="block-1" data-visible="false" aria-label="Porsche 911 GT3 RS">
+    <h1 class="b1__title">
+      <span class="b1__title-line" data-anim style="--i:0">Porsche 911</span>
+      <span class="b1__title-line b1__title-line--ghost" data-anim style="--i:1">GT3 RS</span>
+    </h1>
+    <ul class="b1__stats">
+      <li class="b1__card" data-anim style="--i:2">
+        <span class="b1__card-value">4.0l</span>
+        <span class="b1__card-label">ogni 100 km</span>
+      </li>
+      <li class="b1__card" data-anim style="--i:3">
+        <span class="b1__card-value">518</span>
+        <span class="b1__card-label">cavalli tedeschi</span>
+      </li>
+      <li class="b1__card" data-anim style="--i:4">
+        <span class="b1__card-value">3.2S</span>
+        <span class="b1__card-label">da 0 a 100 km /h</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- BLOCCO 2 — scena 3, vista anteriore a 3/4 -->
+  <section class="block block--2" id="block-2" data-visible="false" aria-label="How we engineer the next generation of performance">
+    <h2 class="b2__headline">
+      <span class="b2__line" data-anim style="--i:0">How we engineer</span>
+      <span class="b2__line" data-anim style="--i:1">the next generation</span>
+      <span class="b2__line" data-anim style="--i:2">of performance.</span>
+    </h2>
+    <!-- Le cifre hanno una spaziatura propria: nel mockup il gruppo "911" occupa
+         molto piu' spazio di quanto Albert Sans gli darebbe (vedi REPORT.md). -->
+    <p class="b2__giant" data-anim style="--i:3" aria-hidden="true"><span class="b2__giant-num">911</span> Porsche</p>
+  </section>
+
+  <!-- BLOCCO 3 — scena 4, ruota in primo piano -->
+  <section class="block block--3" id="block-3" data-visible="false" aria-label="Dettagli della ruota">
+    <svg class="b3__leaders" viewBox="0 0 1440 810" preserveAspectRatio="none" aria-hidden="true" data-anim style="--i:0">
+      <defs>
+        <marker id="b3arrow" viewBox="0 0 10 8" refX="9" refY="4"
+                markerWidth="10" markerHeight="8" orient="auto-start-reverse">
+          <path d="M0,0 L10,4 L0,8 z" fill="currentColor"></path>
+        </marker>
+      </defs>
+      <!-- Percorsi misurati sul mockup (tools: estrazione della maschera chiara
+           meno i blocchi di testo, poi trasformata di Hough sui segmenti).
+           La freccia c'e' solo dove c'e' nel mockup: la linea del cerchio
+           termina senza punta. -->
+      <!-- Percorsi misurati sul mockup (tools: estrazione della maschera chiara
+           meno i blocchi di testo, poi trasformata di Hough sui segmenti).
+           La freccia c'e' solo dove c'e' nel mockup: la linea del cerchio
+           termina senza punta. -->
+      <!-- Percorsi misurati sul mockup: maschera del chiaro meno i blocchi di
+           testo, poi trasformata di Hough sui segmenti rimasti. La freccia c'e'
+           solo dove c'e' davvero: la linea del cerchione finisce senza punta. -->
+      <g fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">
+        <path data-leader="cerchio" d="M 901.9 273.0 L 1043.8 163.6 L 1136.1 163.2"></path>
+        <path data-leader="pneumatico" d="M 426.7 238.3 L 318.4 238.0 L 215.5 302.0" marker-end="url(#b3arrow)"></path>
+        <path data-leader="pinza" d="M 921.0 443.9 L 1175.7 444.7" marker-end="url(#b3arrow)"></path>
+        <path data-leader="disco" d="M 553.4 466.0 L 397.0 466.0 L 272.6 564.4" marker-end="url(#b3arrow)"></path>
+      </g>
+    </svg>
+
+    <p class="b3__note b3__note--cerchio" data-anim style="--i:1">
+      Cerchio forgiato a più<br>
+      razze (design a razze<br>
+      sdoppiate) con finitura<br>
+      satinata color oro/bronzo<br>
+      (tipica tonalità Neodyme o<br>
+      Satin Aurum di Porsche).
+    </p>
+    <p class="b3__note b3__note--pneumatico" data-anim style="--i:2">
+      Uno pneumatico ad<br>
+      altissime prestazioni<br>
+      Michelin Pilot Sport Cup<br>
+      2, una gomma semi-slick<br>
+      omologata per uso<br>
+      stradale ma progettata<br>
+      specificamente per la<br>
+      pista, caratterizzata da<br>
+      spalla ribassata e mescola<br>
+      ad elevato grip.
+    </p>
+    <p class="b3__note b3__note--pinza" data-anim style="--i:3">
+      Pinza fissa monoblocco ad<br>
+      alte prestazioni<br>
+      (tipicamente a 6 pistoncini<br>
+      sull'anteriore), rifinita in<br>
+      rosso lucido con il marchio<br>
+      PORSCHE in bianco a<br>
+      contrasto, posizionata a<br>
+      ridosso del disco.
+    </p>
+    <p class="b3__note b3__note--disco" data-anim style="--i:4">
+      Disco cross-drilled per<br>
+      massimizzare la<br>
+      dissipazione del<br>
+      calore, pulire le<br>
+      pastiglie e disperdere i<br>
+      gas di frenata.
+    </p>
+    <p class="b3__note b3__note--campana" data-anim style="--i:5">
+      Fissato alla campana<br>
+      centrale tramite<br>
+      perni/boccole.
+    </p>
+  </section>
+
+</div>
+
+<!-- La pagina non deve mai diventare nera in silenzio. -->
+<div class="failure" id="failure" hidden role="alert">
+  <h1 data-failure-title></h1>
+  <pre data-failure-detail></pre>
+</div>
+
+<noscript>
+  <div class="failure" style="display:block">
+    <h1>JavaScript disattivato</h1>
+    <pre>Questa pagina e' una sequenza di scene video comandate da script.
+Senza JavaScript non c'e' nulla da mostrare.</pre>
+  </div>
+</noscript>
+
+<script type="module" src="assets/js/main.js"></script>
+</body>
+</html>

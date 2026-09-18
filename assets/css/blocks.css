@@ -1,0 +1,191 @@
+/* I tre blocchi di design.
+ *
+ * Ogni misura e' in unita' di design (canvas 1440x810) ricavata dai mockup:
+ *   blocco 1 da 1.png  (s = 1.31605, offset x 3.94)
+ *   blocco 2 da 2.png  (s = 1.30988, offset x 8.89)
+ *   blocco 3 da 3.png  (s = 1.31111, offset x 7.50)
+ * Nessun valore e' stimato a occhio: le posizioni vengono da tools/targets.py e
+ * i parametri tipografici da tools/fit-type.py, che li risolve confrontando la
+ * stessa stringa nel mockup e nel rendering (vedi assets/css/type.css).
+ */
+
+:root {
+  /* Colori presi dal plateau al centro dei tratti, non dai bordi antialiasati.
+     Dove l'elemento e' semitrasparente, alfa e tinta sono stati ricavati per
+     regressione sullo sfondo video che cambia fra i tre mockup. */
+  --b1-title: rgba(255, 255, 255, 0.71);
+  --b1-title-ghost: rgba(255, 255, 255, 0.21);
+  --b1-card-fill: rgb(254, 218, 51);
+  --b1-card-value: rgb(194, 156, 70);
+  --b1-card-label: rgb(147, 95, 101);
+
+  --b2-headline: rgba(255, 255, 255, 0.71);
+  --b2-giant: rgba(14, 4, 23, 0.55);
+
+  --b3-note: rgb(244, 244, 248);
+  --b3-leader: rgba(238, 238, 245, 0.85);
+}
+
+/* ============================================================== BLOCCO 1 === */
+
+.b1__title {
+  position: absolute;
+  left: calc(var(--b1-title-x) * var(--s));
+  top: calc(var(--b1-title-y) * var(--s));
+  margin: 0;
+  font-weight: 400;
+}
+
+.b1__title-line {
+  display: block;
+  font-family: 'Albert Sans', sans-serif;
+  font-weight: 400;
+  color: var(--b1-title);
+  white-space: nowrap;
+}
+
+.b1__title-line:first-child {
+  font-weight: var(--b1-title1-w);
+  font-size: calc(var(--b1-title1-fs) * var(--s));
+  line-height: calc(var(--b1-title-gap) * var(--s));
+  letter-spacing: calc(var(--b1-title1-ls) * var(--s));
+}
+
+.b1__title-line--ghost {
+  font-weight: var(--b1-title2-w);
+  font-size: calc(var(--b1-title2-fs) * var(--s));
+  line-height: calc(var(--b1-title2-fs) * var(--s));
+  letter-spacing: calc(var(--b1-title2-ls) * var(--s));
+  color: var(--b1-title-ghost);
+}
+
+.b1__stats {
+  position: absolute;
+  right: calc(130 * var(--s));
+  bottom: calc(58.51 * var(--s));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  gap: calc(9.12 * var(--s));
+}
+
+.b1__card {
+  width: calc(191.48 * var(--s));
+  height: calc(91.18 * var(--s));
+  border-radius: calc(15.2 * var(--s));
+  background: linear-gradient(
+    180deg,
+    rgb(246, 208, 42) 0%,
+    rgb(254, 219, 52) 10%,
+    rgb(254, 212, 52) 90%,
+    rgb(255, 219, 62) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.b1__card-value {
+  font-family: 'Albert Sans', sans-serif;
+  font-weight: var(--b1-value-w);
+  font-size: calc(var(--b1-value-fs) * var(--s));
+  line-height: calc(var(--b1-value-fs) * var(--s));
+  letter-spacing: calc(var(--b1-value-ls) * var(--s));
+  color: var(--b1-card-value);
+  margin-top: calc(var(--b1-value-y) * var(--s));
+}
+
+.b1__card-label {
+  font-family: 'Albert Sans', sans-serif;
+  font-weight: var(--b1-label-w);
+  font-size: calc(var(--b1-label-fs) * var(--s));
+  line-height: calc(var(--b1-label-fs) * var(--s));
+  letter-spacing: calc(var(--b1-label-ls) * var(--s));
+  color: var(--b1-card-label);
+  margin-top: calc(var(--b1-label-y) * var(--s));
+  white-space: nowrap;
+}
+
+/* ============================================================== BLOCCO 2 === */
+
+.b2__headline {
+  position: absolute;
+  left: calc(var(--b2-line-x) * var(--s));
+  top: calc(var(--b2-line-y) * var(--s));
+  margin: 0;
+  font-weight: 400;
+}
+
+.b2__line {
+  display: block;
+  font-family: 'Albert Sans', sans-serif;
+  font-weight: var(--b2-line-w);
+  font-size: calc(var(--b2-line-fs) * var(--s));
+  line-height: calc(var(--b2-line-height) * var(--s));
+  letter-spacing: calc(var(--b2-line-ls) * var(--s));
+  color: var(--b2-headline);
+  white-space: nowrap;
+}
+
+/* Titolo gigante tagliato dai bordi sinistro e inferiore del viewport: nel
+   mockup esce da entrambi, quindi si posiziona per il bordo reale, non per
+   quello visibile. */
+.b2__giant {
+  position: absolute;
+  left: calc(var(--b2-giant-x) * var(--s));
+  bottom: calc(var(--b2-giant-y) * var(--s));
+  margin: 0;
+  font-family: 'Albert Sans', sans-serif;
+  font-weight: var(--b2-giant-w);
+  font-size: calc(var(--b2-giant-fs) * var(--s));
+  line-height: calc(var(--b2-giant-fs) * var(--s));
+  letter-spacing: calc(var(--b2-giant-ls) * var(--s));
+  color: var(--b2-giant);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.b2__giant-num { letter-spacing: calc(var(--b2-giant-num-ls) * var(--s)); }
+
+/* ============================================================== BLOCCO 3 === */
+
+.b3__leaders {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--b3-leader);
+  overflow: visible;
+}
+
+/* Le note sono centrate e vanno a capo esattamente come nel mockup: le
+   interruzioni sono dichiarate nel markup invece di essere lasciate al calcolo
+   della larghezza, cosi' nessun accidente tipografico puo' spostare una parola
+   da una riga all'altra. */
+/* La centratura NON puo' passare da transform: gli elementi animati azzerano il
+   proprio transform quando entrano in scena, cancellando anche la traslazione.
+   Si usa quindi una larghezza fissa piu' generosa della riga piu' lunga, con il
+   testo centrato dentro: il risultato e' lo stesso e non litiga con l'animazione. */
+.b3__note {
+  position: absolute;
+  margin: 0;
+  width: calc(var(--b3-note-box) * var(--s));
+  font-family: 'Aldrich', sans-serif;
+  font-weight: 400;
+  font-size: calc(var(--b3-note-fs) * var(--s));
+  line-height: calc(var(--b3-note-height) * var(--s));
+  letter-spacing: calc(var(--b3-note-ls) * var(--s));
+  text-align: center;
+  white-space: nowrap;
+  color: var(--b3-note);
+}
+
+/* left = centro misurato meno meta' larghezza della scatola. */
+.b3__note--cerchio    { left: calc((1287.08 - var(--b3-note-box) / 2) * var(--s)); top: calc(125.45 * var(--s)); }
+.b3__note--pneumatico { left: calc(( 177.90 - var(--b3-note-box) / 2) * var(--s)); top: calc(314.65 * var(--s)); }
+.b3__note--pinza      { left: calc((1308.05 - var(--b3-note-box) / 2) * var(--s)); top: calc(400.85 * var(--s)); }
+.b3__note--disco      { left: calc(( 151.97 - var(--b3-note-box) / 2) * var(--s)); top: calc(522.85 * var(--s)); }
+.b3__note--campana    { left: calc(( 151.78 - var(--b3-note-box) / 2) * var(--s)); top: calc(625.05 * var(--s)); }

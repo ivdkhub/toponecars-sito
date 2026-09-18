@@ -1,0 +1,3 @@
+viola: rgb(127, 77, 177)
+giallo: rgb(215, 171, 35)
+bianco: rgb(216, 229, 230)

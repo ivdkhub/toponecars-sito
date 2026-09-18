@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Autotest meccanica — Top One Cars</title>
+<link rel="icon" href="data:,">
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; padding: 24px 28px; background: #140a22; color: #d8e5e6;
+    font: 14px/1.5 ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; color: #d7ab23; }
+  p.lead { margin: 0 0 18px; opacity: .75; }
+  #summary { font-size: 16px; margin: 0 0 14px; }
+  table { border-collapse: collapse; width: 100%; max-width: 1100px; }
+  th, td { text-align: left; padding: 5px 10px; border-bottom: 1px solid #2b1a3f; vertical-align: top; }
+  th { color: #a98fd0; font-weight: 400; }
+  td.verdict { width: 70px; font-weight: 700; }
+  .pass { color: #7fd48a; } .fail { color: #ff7b7b; } .run { color: #d7ab23; }
+  td.detail { opacity: .8; white-space: pre-wrap; }
+  iframe { position: fixed; left: -3000px; top: 0; width: 1440px; height: 810px; border: 0; }
+</style>
+</head>
+<body>
+<h1>Autotest della meccanica</h1>
+<p class="lead">
+  Ogni scenario carica la pagina reale in un iframe 1440&times;810 e la comanda con
+  eventi sintetici, poi verifica lo stato effettivo del DOM. Nessun controllo a vista.
+</p>
+<div id="summary" class="run">in corso…</div>
+<table>
+  <thead><tr><th>#</th><th>esito</th><th>scenario</th><th>dettaglio</th></tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+
+<script type="module">
+const BASE = '../index.html';
+const rows = document.getElementById('rows');
+const results = [];
+window.__RESULTS__ = results;
+window.__DONE__ = false;
+
+/* ------------------------------------------------------------------ utilita' */
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function frame(params = '') {
+  return new Promise((resolve, reject) => {
+    const el = document.createElement('iframe');
+    el.src = BASE + (params ? '?' + params : '');
+    const timer = setTimeout(() => reject(new Error('timeout di caricamento')), 45000);
+    el.addEventListener('load', async () => {
+      try {
+        await waitFor(() => el.contentWindow.__TOC__ && el.contentWindow.__TOC__.introDone, 40000, el);
+        clearTimeout(timer);
+        resolve(el);
+      } catch (e) { clearTimeout(timer); reject(e); }
+    }, { once: true });
+    document.body.appendChild(el);
+  });
+}
+
+function waitFor(cond, ms = 20000, ctx) {
+  const t0 = performance.now();
+  return new Promise((resolve, reject) => {
+    const tick = () => {
+      let v;
+      try { v = cond(ctx); } catch { v = false; }
+      if (v) return resolve(v);
+      if (performance.now() - t0 > ms) return reject(new Error('attesa scaduta'));
+      setTimeout(tick, 30);
+    };
+    tick();
+  });
+}
+
+const ds = (f) => f.contentDocument.documentElement.dataset;
+const scene = (f) => Number(ds(f).scene);
+const state = (f) => ds(f).state;
+const idle = (f) => waitFor(() => state(f) === 'idle', 30000);
+/** Numero di scene e indice dell'ultima, letti dalla configurazione: il test
+ *  non deve sapere quante sono, altrimenti aggiungerne una lo fa fallire
+ *  pur essendo tutto a posto. */
+const quante = (f) => f.contentWindow.__TOC__.config.scenes.length;
+const ultima = (f) => quante(f) - 1;
+
+/** Un colpo di rotellina: N eventi ravvicinati, come li manda un trackpad. */
+async function wheel(f, deltaY, { count = 1, gap = 16 } = {}) {
+  const doc = f.contentDocument;
+  for (let i = 0; i < count; i += 1) {
+    doc.dispatchEvent(new WheelEvent('wheel', {
+      deltaY, deltaMode: 0, bubbles: true, cancelable: true,
+    }));
+    if (i < count - 1) await sleep(gap);
+  }
+}
+
+/** Gesto pulito: attende il silenzio prima e dopo, cosi' e' sempre un gesto nuovo. */
+async function gesture(f, deltaY, opts) {
+  await sleep(260);
+  await wheel(f, deltaY, opts);
+}
+
+async function key(f, k) {
+  await sleep(50);
+  f.contentWindow.dispatchEvent(new KeyboardEvent('keydown', {
+    key: k, bubbles: true, cancelable: true,
+  }));
+}
+
+async function swipe(f, dy) {
+  const doc = f.contentDocument;
+  const target = doc.body;
+  const mk = (y) => new Touch({ identifier: 1, target, clientX: 400, clientY: y });
+  const ev = (type, y) => new TouchEvent(type, {
+    bubbles: true, cancelable: true,
+    touches: type === 'touchend' ? [] : [mk(y)],
+    targetTouches: type === 'touchend' ? [] : [mk(y)],
+    changedTouches: [mk(y)],
+  });
+  doc.dispatchEvent(ev('touchstart', 500));
+  await sleep(30);
+  doc.dispatchEvent(ev('touchmove', 500 + dy));
+  await sleep(30);
+  doc.dispatchEvent(ev('touchend', 500 + dy));
+}
+
+function menuRect(f) {
+  // Si misurano barra, logo E ogni singola voce: l'evidenziazione mobile
+  // potrebbe far riassestare le voci senza che la barra cambi, e sarebbe
+  // proprio il difetto che la specifica vieta.
+  const parti = [
+    f.contentDocument.querySelector('.menu'),
+    f.contentDocument.querySelector('.chrome__logo'),
+    ...f.contentDocument.querySelectorAll('[data-menu-item]'),
+  ];
+  return parti.map((el) => {
+    const r = el.getBoundingClientRect();
+    return [r.x, r.y, r.width, r.height].map((v) => Math.round(v * 100) / 100).join(' ');
+  }).join(' | ');
+}
+
+/** Indice della voce evidenziata, o null. */
+function voceCorrente(f) {
+  const items = [...f.contentDocument.querySelectorAll('[data-menu-item]')];
+  const i = items.findIndex((el) => el.hasAttribute('data-current'));
+  return i === -1 ? null : i;
+}
+
+/** true se la pastiglia copre il testo della voce indicata. */
+function pastigliaSopra(f, indice) {
+  const pill = f.contentDocument.querySelector('[data-menu-pill]');
+  if (pill.dataset.on !== 'true') return indice === null;
+  if (indice === null) return false;
+  const item = f.contentDocument.querySelectorAll('[data-menu-item]')[indice];
+  const a = pill.getBoundingClientRect();
+  const b = item.getBoundingClientRect();
+  const centro = b.x + b.width / 2;
+  return centro > a.x && centro < a.x + a.width && a.width >= b.width - 1;
+}
+
+function blockVisible(f, id) {
+  const el = f.contentDocument.getElementById(id);
+  return el ? el.dataset.visible : 'assente';
+}
+
+/* ------------------------------------------------------------------ scenari */
+
+const FAST = 'playbackRate=4';
+
+const SCENARIOS = [
+  {
+    name: 'catena in avanti fino all’ultima scena, un passo per gesto',
+    async run(t) {
+      const f = await frame(FAST);
+      await idle(f);
+      t.eq(scene(f), 1, 'intro arrivata alla scena 2');
+      for (let expected = 2; expected <= ultima(f); expected += 1) {
+        await gesture(f, 120);
+        await idle(f);
+        t.eq(scene(f), expected, `dopo un gesto: scena ${expected + 1}`);
+      }
+      t.eq(scene(f), ultima(f), `arrivato in fondo (${quante(f)} scene)`);
+      return f;
+    },
+  },
+  {
+    name: 'catena all’indietro fino alla prima scena, con i file reverse',
+    async run(t) {
+      const f = await frame(FAST);
+      await idle(f);
+      while (scene(f) < ultima(f)) { await gesture(f, 120); await idle(f); }
+      t.eq(scene(f), ultima(f), 'arrivato in fondo');
+      const before = f.contentWindow.__TOC__.player.diagnostics.scrubbedRuns;
+      for (let expected = ultima(f) - 1; expected >= 0; expected -= 1) {
+        await gesture(f, -120);
+        await idle(f);
+        t.eq(scene(f), expected, `indietro fino alla scena ${expected + 1}`);
+      }
+      const after = f.contentWindow.__TOC__.player.diagnostics.scrubbedRuns;
+      t.eq(after - before, 0, 'nessuno scrubbing: usati i file reverse nativi');
+      return f;
+    },
+  },
+  {
+    name: 'blocco sulla prima scena',
+    async run(t) {
+      const f = await frame(FAST + '&noIntro=1');
+      await idle(f);
+      t.eq(scene(f), 0, 'fermo sulla prima scena');
+      const before = f.contentWindow.__TOC__.rejected.atEdge;
+      await gesture(f, -120);
+      await sleep(400);
+      t.eq(scene(f), 0, 'lo scroll all’indietro non muove nulla');
+      t.eq(state(f), 'idle', 'nessuna transizione avviata');
+      t.gt(f.contentWindow.__TOC__.rejected.atEdge, before, 'il passo risulta scartato per bordo');
+      return f;
+    },
+  },
+  {
+    name: 'blocco sull’ultima scena',
+    async run(t) {
+      const f = await frame(FAST);
+      await idle(f);
+      while (scene(f) < ultima(f)) { await gesture(f, 120); await idle(f); }
+      t.eq(scene(f), ultima(f), 'sull’ultima scena');
+      const before = f.contentWindow.__TOC__.rejected.atEdge;
+      await gesture(f, 120);
+      await sleep(400);
+      t.eq(scene(f), ultima(f), 'lo scroll in avanti non muove nulla');
+      t.eq(state(f), 'idle', 'nessuna transizione avviata');
+      t.gt(f.contentWindow.__TOC__.rejected.atEdge, before, 'il passo risulta scartato per bordo');
+      return f;
+    },
+  },
+  {
+    name: 'gesto inerziale: 30 eventi ravvicinati = UN solo passo',
+    async run(t) {
+      const f = await frame(FAST);
+      await idle(f);
+      const from = scene(f);
+      const g0 = f.contentWindow.__TOC__.input.stats.wheelGestures;
+      await sleep(300);
+      await wheel(f, 120, { count: 30, gap: 16 });   // coda di inerzia del trackpad
+      await idle(f);
+      await sleep(500);
+      await idle(f);
+      const g1 = f.contentWindow.__TOC__.input.stats.wheelGestures;
+      t.eq(f.contentWindow.__TOC__.input.stats.wheelEvents >= 30, true, '30 eventi wheel ricevuti');
+      t.eq(g1 - g0, 1, 'riconosciuto un solo gesto');
+      t.eq(scene(f), from + 1, 'avanzato di una scena sola, non di tre');
+      return f;
+    },
+  },
+  {
+    name: 'scroll durante una transizione: ignorato, non accodato',
+    async run(t) {
+      const f = await frame(FAST);
+      await idle(f);
+      const from = scene(f);
+      await gesture(f, 120);
+      await waitFor(() => state(f) === 'transitioning', 5000);
+      const before = f.contentWindow.__TOC__.rejected.inTransition;
+      await sleep(120);
+      await wheel(f, 120, { count: 1 });
+      await sleep(300);
+      await wheel(f, 120, { count: 1 });
+      await idle(f);
+      t.gt(f.contentWindow.__TOC__.rejected.inTransition, before, 'gli eventi risultano scartati');
+      await sleep(900);
+      t.eq(scene(f), from + 1, 'nessun passo accodato: avanzato di uno solo');
+      t.eq(state(f), 'idle', 'fermo');
+      return f;
+    },
+  },
+  {
+    name: 'swipe: un passo per swipe, in entrambi i versi',
+    async run(t) {
+      const f = await frame(FAST);
+      await idle(f);
+      const from = scene(f);
+      await swipe(f, -160);                 // dita verso l’alto = avanti
+      await idle(f);
+      t.eq(scene(f), from + 1, 'swipe verso l’alto: una scena avanti');
+      await sleep(300);
+      await swipe(f, 160);
+      await idle(f);
+      t.eq(scene(f), from, 'swipe verso il basso: una scena indietro');
+      return f;
+    },
+  },
+  {
+    name: 'tastiera: frecce e PageUp/PageDown',
+    async run(t) {
+      const f = await frame(FAST);
+      await idle(f);
+      const from = scene(f);
+      await key(f, 'ArrowDown');
+      await idle(f);
+      t.eq(scene(f), from + 1, 'ArrowDown avanza di uno');
+      await key(f, 'PageDown');
+      await idle(f);
+      t.eq(scene(f), from + 2, 'PageDown avanza di uno');
+      await key(f, 'ArrowUp');
+      await idle(f);
+      t.eq(scene(f), from + 1, 'ArrowUp torna di uno');
+      await key(f, 'PageUp');
+      await idle(f);
+      t.eq(scene(f), from, 'PageUp torna di uno');
+      return f;
+    },
+  },
+  {
+    name: 'ritorno indietro senza file reverse: scrubbing, non salto',
+    async run(t) {
+      const f = await frame(FAST + '&forceNoReverse=1');
+      await idle(f);
+      t.eq(scene(f), 1, 'intro completata anche senza file reverse');
+      const before = f.contentWindow.__TOC__.player.diagnostics.scrubbedRuns;
+      const t0 = performance.now();
+      await gesture(f, -120);
+      await waitFor(() => state(f) === 'transitioning', 3000);
+      const mid = f.contentDocument.querySelector('.stage video').currentTime;
+      await idle(f);
+      const elapsed = performance.now() - t0;
+      t.eq(scene(f), 0, 'arrivato alla prima scena');
+      t.gt(f.contentWindow.__TOC__.player.diagnostics.scrubbedRuns, before, 'usato lo scrubbing manuale');
+      t.gt(elapsed, 400, `non e’ stato un salto istantaneo (${Math.round(elapsed)} ms, currentTime intermedio ${mid.toFixed(2)})`);
+      return f;
+    },
+  },
+  {
+    name: 'play() respinto: la transizione viene trascinata a mano',
+    async run(t) {
+      const f = await frame(FAST + '&forceRejectPlay=1');
+      await idle(f);
+      const d = f.contentWindow.__TOC__.player.diagnostics;
+      t.gt(d.rejectedPlays, 0, 'il rifiuto e’ stato registrato');
+      t.gt(d.scrubbedRuns, 0, 'la transizione e’ stata trascinata via requestAnimationFrame');
+      t.eq(scene(f), 1, 'la scena di arrivo e’ comunque corretta');
+      const v = f.contentDocument.querySelector('.stage video');
+      t.eq(Math.abs(v.currentTime - v.duration) < 0.05, true, 'il fotogramma e’ in posizione finale');
+      return f;
+    },
+  },
+  {
+    name: 'blocchi: nascosti durante il video, visibili dopo',
+    // Nota: le scene senza blocco (le ultime due) sono coperte dallo scenario
+    // successivo, che verifica che il contatore avanzi lo stesso.
+    async run(t) {
+      const f = await frame(FAST);
+      await idle(f);
+      t.eq(blockVisible(f, 'block-1'), 'true', 'il blocco 1 compare dopo l’intro');
+      await gesture(f, 120);
+      await sleep(80);
+      t.eq(state(f), 'transitioning', 'transizione in corso');
+      t.eq(blockVisible(f, 'block-1') !== 'true', true, 'il blocco 1 sta gia’ uscendo');
+      await sleep(400);
+      t.eq(blockVisible(f, 'block-2'), 'false', 'il blocco 2 non compare durante il video');
+      await idle(f);
+      await sleep(120);
+      t.eq(blockVisible(f, 'block-2'), 'true', 'il blocco 2 compare a transizione finita');
+      t.eq(blockVisible(f, 'block-1'), 'false', 'il blocco 1 e’ sparito');
+      return f;
+    },
+  },
+  {
+    name: 'menu e logo: nemmeno un pixel di spostamento',
+    async run(t) {
+      const f = await frame(FAST);
+      await idle(f);
+      const seen = [menuRect(f)];
+      while (scene(f) < ultima(f)) {
+        await gesture(f, 120);
+        await sleep(200);
+        seen.push(menuRect(f));            // anche a meta' transizione
+        await idle(f);
+        seen.push(menuRect(f));
+      }
+      while (scene(f) > 0) { await gesture(f, -120); await idle(f); seen.push(menuRect(f)); }
+      const uniq = [...new Set(seen)];
+      t.eq(uniq.length, 1, `stessa geometria in tutte le ${seen.length} rilevazioni`);
+      t.eq(f.contentDocument.querySelectorAll('.menu').length, 1, 'il menu e’ dichiarato una sola volta');
+      t.eq(f.contentDocument.querySelectorAll('#counter').length, 1, 'il contatore e’ dichiarato una sola volta');
+      return f;
+    },
+  },
+  {
+    name: 'contatore: numero e barra coerenti con la configurazione',
+    async run(t) {
+      const f = await frame(FAST);
+      await idle(f);
+      const cfg = f.contentWindow.__TOC__.config;
+      const read = () => {
+        const el = f.contentDocument.getElementById('counter');
+        return {
+          value: el.dataset.value,
+          fill: Number(getComputedStyle(el.querySelector('[data-counter-bar]')).getPropertyValue('--fill')),
+        };
+      };
+      for (let expected = 1; expected <= ultima(f); expected += 1) {
+        if (expected > 1) { await gesture(f, 120); await idle(f); }
+        const r = read();
+        t.eq(r.value, String(cfg.scenes[expected].counter.n).padStart(2, '0'),
+          `scena ${expected + 1}: numero ${r.value}`);
+        t.eq(Math.abs(r.fill - cfg.scenes[expected].counter.bar) < 1e-6, true,
+          `scena ${expected + 1}: barra ${r.fill}`);
+      }
+      return f;
+    },
+  },
+  {
+    name: 'la voce di menu corrente segue la scena',
+    async run(t) {
+      const f = await frame(FAST + '&noIntro=1');
+      await idle(f);
+      const cfg = f.contentWindow.__TOC__.config;
+      const attesa = (i) => (Number.isInteger(cfg.scenes[i].menuItem) ? cfg.scenes[i].menuItem : null);
+
+      t.eq(voceCorrente(f), attesa(0), 'scena 1: nessuna voce evidenziata');
+      t.eq(pastigliaSopra(f, attesa(0)), true, 'scena 1: pastiglia spenta');
+
+      for (let i = 1; i <= ultima(f); i += 1) {
+        await gesture(f, 120);
+        await idle(f);
+        await sleep(500);                       // la pastiglia scivola
+        t.eq(voceCorrente(f), attesa(i),
+          `scena ${i + 1}: voce ${attesa(i) === null ? 'nessuna' : attesa(i)}`);
+        t.eq(pastigliaSopra(f, attesa(i)), true,
+          `scena ${i + 1}: la pastiglia copre la voce giusta`);
+      }
+      return f;
+    },
+  },
+  {
+    // Si verifica l'invariante — la velocita' vive in UN posto e arriva a tutti i
+    // livelli video — non un numero scritto a mano qui dentro: cambiando
+    // l'impostazione in config.js il test deve continuare a valere.
+    name: 'la velocita’ di riproduzione della configurazione arriva a tutti i livelli',
+    async run(t) {
+      const f = await frame('noIntro=1');
+      await idle(f);
+      const atteso = f.contentWindow.__TOC__.config.playbackRate;
+      t.eq(typeof atteso === 'number' && atteso > 0, true, `playbackRate di configurazione: ${atteso}`);
+      const rates = [...f.contentDocument.querySelectorAll('.stage video')].map((v) => v.playbackRate);
+      t.eq(rates.every((r) => r === atteso), true, `tutti i livelli video a ${atteso} (${rates.join(', ')})`);
+      return f;
+    },
+  },
+];
+
+/* -------------------------------------------------------------------- avvio */
+
+function makeT(entry) {
+  return {
+    eq(actual, expected, label) {
+      const ok = Object.is(actual, expected);
+      entry.checks.push({ ok, label, detail: ok ? '' : `atteso ${JSON.stringify(expected)}, ottenuto ${JSON.stringify(actual)}` });
+    },
+    gt(actual, floor, label) {
+      const ok = actual > floor;
+      entry.checks.push({ ok, label, detail: ok ? '' : `atteso > ${floor}, ottenuto ${JSON.stringify(actual)}` });
+    },
+  };
+}
+
+function render() {
+  rows.replaceChildren();
+  results.forEach((r, i) => {
+    const bad = r.checks.filter((c) => !c.ok);
+    const verdict = r.error ? 'ERRORE' : (bad.length ? 'FALLITO' : 'ok');
+    const cls = r.error || bad.length ? 'fail' : 'pass';
+    const tr = document.createElement('tr');
+    const detail = r.error
+      ? String(r.error)
+      : r.checks.map((c) => (c.ok ? '  ' : '! ') + c.label + (c.detail ? ' — ' + c.detail : '')).join('\n');
+    tr.innerHTML = `<td>${i + 1}</td><td class="verdict ${cls}">${verdict}</td><td>${r.name}</td><td class="detail"></td>`;
+    tr.lastChild.textContent = detail;
+    rows.appendChild(tr);
+  });
+}
+
+(async () => {
+  for (const s of SCENARIOS) {
+    const entry = { name: s.name, checks: [], error: null };
+    results.push(entry);
+    render();
+    let f = null;
+    try {
+      f = await s.run(makeT(entry));
+    } catch (e) {
+      entry.error = (e && e.stack) || String(e);
+    } finally {
+      if (f && f.remove) f.remove();
+      document.querySelectorAll('iframe').forEach((el) => el.remove());
+    }
+    render();
+  }
+  const failed = results.filter((r) => r.error || r.checks.some((c) => !c.ok));
+  const checks = results.reduce((n, r) => n + r.checks.length, 0);
+  const sum = document.getElementById('summary');
+  sum.className = failed.length ? 'fail' : 'pass';
+  sum.textContent = failed.length
+    ? `${failed.length} scenari su ${results.length} falliti (${checks} verifiche totali)`
+    : `tutti gli scenari superati: ${results.length} scenari, ${checks} verifiche`;
+  window.__DONE__ = true;
+})();
+</script>
+</body>
+</html>

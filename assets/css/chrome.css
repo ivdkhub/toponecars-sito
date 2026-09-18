@@ -1,0 +1,208 @@
+/* Elementi comuni della pagina: logo, barra del menu, contatore dei blocchi.
+ *
+ * Stanno fuori dai blocchi, non vengono mai ricreati e non si spostano di un
+ * pixel al cambio di scena. Sono posizionati in coordinate assolute sul canvas
+ * 1440x810, quindi la loro posizione non dipende dal contenuto dei blocchi.
+ *
+ * Tutte le misure derivano da mockup ui sample/1.png, convertite in unita' di
+ * design con s = min(W/1440, H/810) = 1.31605 e offset orizzontale 3.94 px.
+ * Il mockup 1 e' il riferimento perche' e' l'unico che contiene il logo: nei
+ * mockup 2 e 3 il logo manca e la barra sta 56 px piu' in alto, ma la specifica
+ * impone che il menu non si muova, quindi vince questa posizione (vedi REPORT.md).
+ */
+
+:root {
+  --menu-fill: rgba(12, 6, 4, 0.42);
+  --menu-text: rgb(169, 128, 192);
+  --menu-cta-light: rgba(233, 199, 255, 0.55);
+  --menu-cta-light-text: rgb(238, 232, 245);
+  --menu-cta-ghost: rgba(255, 255, 255, 0.075);
+  --menu-cta-ghost-text: rgb(135, 105, 158);
+}
+
+.chrome {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------- logo */
+
+.chrome__logo {
+  position: absolute;
+  left: calc(1149.7 * var(--s));
+  top: calc(18.24 * var(--s));
+  width: calc(132.21 * var(--s));
+  height: calc(42.55 * var(--s));
+  object-fit: contain;
+}
+
+/* -------------------------------------------------------------- barra menu */
+
+/* --s-px espone --s come lunghezza leggibile da JS: getComputedStyle su --s
+   restituirebbe la formula min(...) non risolta. */
+.menu { --s-px: calc(1px * var(--s) / 1px); }
+
+.menu {
+  position: absolute;
+  left: calc(140 * var(--s));
+  top: calc(70.67 * var(--s));
+  width: calc(1165.44 * var(--s));
+  height: calc(45.59 * var(--s));
+  border-radius: calc(22.8 * var(--s));
+  background: var(--menu-fill);
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: calc(20.49 * var(--s));
+  pointer-events: auto;
+}
+
+/* Pastiglia dell'evidenziazione: sta dietro alle voci e scivola da una
+   all'altra. Posizione e larghezza le imposta assets/js/menu.js misurando il
+   testo della voce corrente. */
+.menu__pill {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translate(var(--pill-x, 0px), -50%);
+  width: var(--pill-w, 0px);
+  height: calc(23.56 * var(--s));
+  border-radius: calc(7.6 * var(--s));
+  background: var(--menu-cta-light);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 420ms var(--ease-out),
+    width 420ms var(--ease-out),
+    opacity 260ms var(--ease-out);
+}
+.menu__pill[data-on="true"] { opacity: 1; }
+
+/* Le voci stanno sopra la pastiglia. */
+.menu__link,
+.menu__btn { position: relative; z-index: 1; }
+
+/* Il testo della voce corrente prende il colore che nel mockup ha "Vieni a
+   trovarci" quando e' evidenziata. */
+.menu__link[data-current],
+.menu__btn[data-current] {
+  color: var(--menu-cta-light-text);
+  transition: color 260ms var(--ease-out);
+}
+
+.menu__link,
+.menu__btn {
+  font-family: 'Albert Sans', sans-serif;
+  font-weight: 400;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.menu__link {
+  color: var(--menu-text);
+  margin-left: calc(17.48 * var(--s));
+  font-weight: var(--menu-link-w);
+  font-size: calc(var(--menu-link-fs) * var(--s));
+  letter-spacing: calc(var(--menu-link-ls) * var(--s));
+}
+.menu__link:first-child { margin-left: 0; }
+.menu__link:nth-of-type(2) { margin-left: calc(19.76 * var(--s)); }
+
+.menu__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(23.56 * var(--s));
+  border-radius: calc(7.6 * var(--s));
+}
+
+.menu__btn--light {
+  margin-left: calc(11.4 * var(--s));
+  width: calc(93.46 * var(--s));
+  /* Nessuno sfondo fisso: l'evidenziazione e' la pastiglia mobile, che su questa
+     voce riproduce esattamente la pastiglia del mockup. */
+  color: var(--menu-text);
+  font-weight: var(--menu-cta-w);
+  font-size: calc(var(--menu-cta-fs) * var(--s));
+  letter-spacing: calc(var(--menu-cta-ls) * var(--s));
+}
+
+.menu__btn--ghost {
+  margin-left: calc(17.48 * var(--s));
+  width: calc(129.93 * var(--s));
+  background: var(--menu-cta-ghost);
+  color: var(--menu-cta-ghost-text);
+  font-weight: var(--menu-ghost-w);
+  font-size: calc(var(--menu-ghost-fs) * var(--s));
+  letter-spacing: calc(var(--menu-ghost-ls) * var(--s));
+}
+
+/* ------------------------------------------------------- contatore dei blocchi */
+
+/* Unico elemento senza riferimento nei mockup: la specifica lo richiede ma non
+   compare in nessuna delle tre immagini. E' quindi escluso dal confronto al
+   pixel ed e' disegnato con i colori della palette. */
+.counter {
+  position: absolute;
+  left: calc(140 * var(--s));
+  bottom: calc(58.51 * var(--s));
+  display: flex;
+  align-items: center;
+  gap: calc(14 * var(--s));
+  font-family: 'Aldrich', sans-serif;
+  pointer-events: none;
+}
+
+.counter__digits {
+  position: relative;
+  display: block;
+  width: calc(30 * var(--s));
+  height: calc(18 * var(--s));
+  overflow: hidden;
+}
+
+.counter__digit {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: calc(17 * var(--s));
+  line-height: calc(18 * var(--s));
+  letter-spacing: calc(1 * var(--s));
+  color: var(--bianco);
+  transition: transform 380ms var(--ease-out), opacity 380ms var(--ease-out);
+}
+/* La cifra entra scorrendo dal lato da cui si arriva ed esce dall'altro. */
+.counter__digit[data-role="in"][data-dir="up"] { transform: translateY(100%); opacity: 0; }
+.counter__digit[data-role="in"][data-dir="down"] { transform: translateY(-100%); opacity: 0; }
+.counter__digit[data-role="current"] { transform: none; opacity: 1; }
+.counter__digit[data-role="out"][data-dir="up"] { transform: translateY(-100%); opacity: 0; }
+.counter__digit[data-role="out"][data-dir="down"] { transform: translateY(100%); opacity: 0; }
+
+.counter__bar {
+  --fill: 0.12;
+  display: block;
+  width: calc(120 * var(--s));
+  height: calc(2 * var(--s));
+  background: rgba(216, 229, 230, 0.25);
+  position: relative;
+}
+.counter__bar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: calc(var(--fill) * 100%);
+  background: var(--giallo);
+  transition: width 600ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .counter__digit { transition: opacity 380ms linear; transform: none !important; }
+  .counter__bar::after { transition: none; }
+  /* La pastiglia non scivola: compare e basta. */
+  .menu__pill { transition: opacity 260ms linear; }
+}

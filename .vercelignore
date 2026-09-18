@@ -1,0 +1,26 @@
+# Cosa NON sale su Vercel con `vercel deploy` da riga di comando.
+#
+# Nota: con l'integrazione Git questo file non decide cosa viene clonato — li'
+# comanda .gitignore. Vale per i deploy dalla CLI, e come promemoria di cosa il
+# sito usa davvero.
+#
+# A runtime il browser carica soltanto index.html e assets/ (css, js, fonts,
+# media): verificato sui src/href di index.html, sugli import dei moduli e sulle
+# url() dei CSS.
+
+# Strumenti di build e verifica: Python, script Node, report JSON.
+tools/
+tests/
+
+# Materiale sorgente, se presente sul disco.
+video/
+foto/
+mockup ui sample/
+animazioni_da_aggiungere/
+Palette colori.txt
+
+# Documentazione.
+README.md
+REPORT.md
+
+node_modules/

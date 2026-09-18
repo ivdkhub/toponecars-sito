@@ -1,0 +1,50 @@
+{
+  "1.png": {
+    "poster": "poster-2.png",
+    "mockupSize": [
+      1903,
+      1066
+    ],
+    "mockupToFrame": {
+      "scale": 0.992553,
+      "tx": -8.468,
+      "ty": 0.047
+    },
+    "frameInMockupScale": 1.007503,
+    "ncc": 0.980034,
+    "residualMedianCentre": 5.0,
+    "residualP90Centre": 22.0
+  },
+  "2.png": {
+    "poster": "poster-3.png",
+    "mockupSize": [
+      1904,
+      1061
+    ],
+    "mockupToFrame": {
+      "scale": 0.989679,
+      "tx": -0.665,
+      "ty": -0.002
+    },
+    "frameInMockupScale": 1.010428,
+    "ncc": 0.946861,
+    "residualMedianCentre": 4.0,
+    "residualP90Centre": 26.0
+  },
+  "3.png": {
+    "poster": "poster-4.png",
+    "mockupSize": [
+      1903,
+      1062
+    ],
+    "mockupToFrame": {
+      "scale": 0.990945,
+      "tx": -3.48,
+      "ty": -0.006
+    },
+    "frameInMockupScale": 1.009137,
+    "ncc": 0.797189,
+    "residualMedianCentre": 6.0,
+    "residualP90Centre": 28.0
+  }
+}

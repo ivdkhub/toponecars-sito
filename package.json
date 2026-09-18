@@ -1,0 +1,14 @@
+{
+  "name": "sito-toponecars",
+  "private": true,
+  "type": "module",
+  "description": "Landing page a scene video collegate da transizioni cinematografiche.",
+  "scripts": {
+    "serve": "node tools/serve.js",
+    "test": "node tools/autotest-run.js",
+    "pixel": "node tools/pixel-check.js"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^24.0.0"
+  }
+}

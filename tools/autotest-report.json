@@ -1,0 +1,492 @@
+[
+  {
+    "name": "catena in avanti fino all’ultima scena, un passo per gesto",
+    "checks": [
+      {
+        "ok": true,
+        "label": "intro arrivata alla scena 2",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "dopo un gesto: scena 3",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "dopo un gesto: scena 4",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "dopo un gesto: scena 5",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "dopo un gesto: scena 6",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "dopo un gesto: scena 7",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "arrivato in fondo (7 scene)",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "catena all’indietro fino alla prima scena, con i file reverse",
+    "checks": [
+      {
+        "ok": true,
+        "label": "arrivato in fondo",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "indietro fino alla scena 6",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "indietro fino alla scena 5",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "indietro fino alla scena 4",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "indietro fino alla scena 3",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "indietro fino alla scena 2",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "indietro fino alla scena 1",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "nessuno scrubbing: usati i file reverse nativi",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "blocco sulla prima scena",
+    "checks": [
+      {
+        "ok": true,
+        "label": "fermo sulla prima scena",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "lo scroll all’indietro non muove nulla",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "nessuna transizione avviata",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il passo risulta scartato per bordo",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "blocco sull’ultima scena",
+    "checks": [
+      {
+        "ok": true,
+        "label": "sull’ultima scena",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "lo scroll in avanti non muove nulla",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "nessuna transizione avviata",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il passo risulta scartato per bordo",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "gesto inerziale: 30 eventi ravvicinati = UN solo passo",
+    "checks": [
+      {
+        "ok": true,
+        "label": "30 eventi wheel ricevuti",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "riconosciuto un solo gesto",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "avanzato di una scena sola, non di tre",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "scroll durante una transizione: ignorato, non accodato",
+    "checks": [
+      {
+        "ok": true,
+        "label": "gli eventi risultano scartati",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "nessun passo accodato: avanzato di uno solo",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "fermo",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "swipe: un passo per swipe, in entrambi i versi",
+    "checks": [
+      {
+        "ok": true,
+        "label": "swipe verso l’alto: una scena avanti",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "swipe verso il basso: una scena indietro",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "tastiera: frecce e PageUp/PageDown",
+    "checks": [
+      {
+        "ok": true,
+        "label": "ArrowDown avanza di uno",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "PageDown avanza di uno",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "ArrowUp torna di uno",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "PageUp torna di uno",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "ritorno indietro senza file reverse: scrubbing, non salto",
+    "checks": [
+      {
+        "ok": true,
+        "label": "intro completata anche senza file reverse",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "arrivato alla prima scena",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "usato lo scrubbing manuale",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "non e’ stato un salto istantaneo (1322 ms, currentTime intermedio 4.04)",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "play() respinto: la transizione viene trascinata a mano",
+    "checks": [
+      {
+        "ok": true,
+        "label": "il rifiuto e’ stato registrato",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "la transizione e’ stata trascinata via requestAnimationFrame",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "la scena di arrivo e’ comunque corretta",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il fotogramma e’ in posizione finale",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "blocchi: nascosti durante il video, visibili dopo",
+    "checks": [
+      {
+        "ok": true,
+        "label": "il blocco 1 compare dopo l’intro",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "transizione in corso",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il blocco 1 sta gia’ uscendo",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il blocco 2 non compare durante il video",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il blocco 2 compare a transizione finita",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il blocco 1 e’ sparito",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "menu e logo: nemmeno un pixel di spostamento",
+    "checks": [
+      {
+        "ok": true,
+        "label": "stessa geometria in tutte le 17 rilevazioni",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il menu e’ dichiarato una sola volta",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il contatore e’ dichiarato una sola volta",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "contatore: numero e barra coerenti con la configurazione",
+    "checks": [
+      {
+        "ok": true,
+        "label": "scena 2: numero 02",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 2: barra 0.267",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 3: numero 03",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 3: barra 0.413",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 4: numero 04",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 4: barra 0.56",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 5: numero 05",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 5: barra 0.707",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 6: numero 06",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 6: barra 0.853",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 7: numero 07",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 7: barra 1",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "la voce di menu corrente segue la scena",
+    "checks": [
+      {
+        "ok": true,
+        "label": "scena 1: nessuna voce evidenziata",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 1: pastiglia spenta",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 2: voce 0",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 2: la pastiglia copre la voce giusta",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 3: voce 1",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 3: la pastiglia copre la voce giusta",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 4: voce 2",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 4: la pastiglia copre la voce giusta",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 5: voce 3",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 5: la pastiglia copre la voce giusta",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 6: voce 4",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 6: la pastiglia copre la voce giusta",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 7: voce nessuna",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 7: la pastiglia copre la voce giusta",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "la velocita’ di riproduzione della configurazione arriva a tutti i livelli",
+    "checks": [
+      {
+        "ok": true,
+        "label": "playbackRate di configurazione: 1.5",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "tutti i livelli video a 1.5 (1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5)",
+        "detail": ""
+      }
+    ],
+    "error": null
+  }
+]
