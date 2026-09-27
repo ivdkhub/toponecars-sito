@@ -27,3 +27,28 @@ README.md
 REPORT.md
 
 node_modules/
+video-sezione-contenuti/
+
+# Sorgente del catalogo servizi: il sito usa assets/js/servizi-data.js.
+menu_servizi.txt
+
+# Loghi PNG: la pagina usa le versioni WebP (verificato: nessun riferimento).
+assets/media/logo.png
+assets/media/logo@2x.png
+
+# Segnaposto di tools/build-contenuti.py per le codifiche scartate.
+*.scartato
+
+# Strumenti dell'ambiente di sviluppo.
+.claude/
+.agents/
+.playwright-cli/
+skills-lock.json
+
+# Controlli di sviluppo e file di lavoro nella radice.
+.gitattributes
+/extract.py
+/extract_texts.py
+/strings.json
+/texts.json
+/test.js

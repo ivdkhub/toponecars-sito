@@ -116,8 +116,11 @@
   font-size: calc(var(--menu-link-fs) * var(--s));
   letter-spacing: calc(var(--menu-link-ls) * var(--s));
 }
+/* Il primo figlio del menu e' la pastiglia, non una voce: :first-child non
+   tocca mai un link. Conta solo lo scarto misurato sul mockup prima di
+   "Contenuti", che dopo l'aggiunta di "Chi siamo" e' il terzo link. */
 .menu__link:first-child { margin-left: 0; }
-.menu__link:nth-of-type(2) { margin-left: calc(19.76 * var(--s)); }
+.menu__link:nth-of-type(3) { margin-left: calc(19.76 * var(--s)); }
 
 .menu__btn {
   display: inline-flex;
@@ -147,6 +150,52 @@
   font-size: calc(var(--menu-ghost-fs) * var(--s));
   letter-spacing: calc(var(--menu-ghost-ls) * var(--s));
 }
+
+/* ----------------------------------------------------------- scelta lingua */
+
+/* Le bandierine a sinistra nella barra, come il selettore del sito DitchWich:
+   una pastiglia con una bandiera per lingua, quella scelta evidenziata. In
+   assoluto, con lo stesso margine che la barra lascia a destra: le voci del
+   menu restano dove sono. L'evidenziazione usa il colore della pastiglia del
+   menu, non l'arancio di DitchWich. */
+.lang {
+  position: absolute;
+  left: calc(20.49 * var(--s));
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: calc(2 * var(--s));
+  padding: calc(2 * var(--s));
+  border-radius: calc(9.6 * var(--s));
+  background: var(--menu-cta-ghost);
+}
+.lang__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(34 * var(--s));
+  height: calc(21.56 * var(--s));
+  padding: 0;
+  border: 0;
+  border-radius: calc(7.6 * var(--s));
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 260ms var(--ease-out);
+}
+.lang__btn:hover { background: rgba(255, 255, 255, 0.08); }
+.lang__btn[aria-pressed="true"] { background: var(--menu-cta-light); }
+.lang__btn:focus-visible { outline: calc(1.5 * var(--s)) solid var(--menu-cta-light-text); outline-offset: calc(1 * var(--s)); }
+.lang__flag {
+  display: block;
+  width: calc(19 * var(--s));
+  height: calc(13 * var(--s));
+  border-radius: calc(2 * var(--s));
+  box-shadow: 0 0 0 calc(0.5 * var(--s)) rgba(0, 0, 0, 0.25);
+  opacity: 0.72;
+  transition: opacity 260ms var(--ease-out);
+}
+.lang__btn:hover .lang__flag,
+.lang__btn[aria-pressed="true"] .lang__flag { opacity: 1; }
 
 /* ------------------------------------------------------- contatore dei blocchi */
 
@@ -376,6 +425,10 @@ html[data-theme="scuro"] .lamp .lamp__rays { opacity: 1; }
   opacity: 0;
   pointer-events: none;
   transition: opacity 420ms var(--ease-out);
+  /* Un livello sopra i blocchi: il titolo "Top One Cars" viene dopo nel DOM
+     e, animato con transform e filter, si disegnerebbe sopra l'elenco dei
+     colori che gli si apre addosso. */
+  z-index: 2;
 }
 
 .paint[data-on="true"] {

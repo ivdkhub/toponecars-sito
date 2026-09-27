@@ -1,0 +1,435 @@
+/* Pannello della prenotazione — a destra del pannello dei servizi.
+ *
+ * Stesso vetro, stessi caratteri e stessi colori del pannello dei servizi
+ * (assets/css/servizi.css): e' la sua continuazione, quindi deve sembrare un
+ * secondo foglio della stessa lastra. Occupa lo spazio che resta fra il
+ * pannello dei servizi (che finisce a 900) e il bordo destro della barra del
+ * menu (1305.44), alla stessa altezza.
+ */
+
+.bk {
+  position: absolute;
+  left: calc(916 * var(--s));
+  top: calc(136 * var(--s));
+  width: calc(389.44 * var(--s));
+  height: calc(572 * var(--s));
+  padding: calc(26 * var(--s)) calc(24 * var(--s)) calc(22 * var(--s));
+  display: flex;
+  flex-direction: column;
+  gap: calc(14 * var(--s));
+  isolation: isolate;
+  overflow: hidden;
+  pointer-events: auto;
+
+  border-radius: calc(22 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.26);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.02) 55%),
+    var(--svc-glass);
+  -webkit-backdrop-filter: blur(calc(34 * var(--s))) saturate(160%);
+  backdrop-filter: blur(calc(34 * var(--s))) saturate(160%);
+  box-shadow:
+    inset 0 calc(1 * var(--s)) 0 rgba(255, 255, 255, 0.42),
+    inset 0 calc(-1 * var(--s)) 0 rgba(255, 255, 255, 0.08),
+    0 calc(30 * var(--s)) calc(80 * var(--s)) rgba(10, 4, 20, 0.45);
+  color: var(--svc-text);
+  font-family: 'Albert Sans', sans-serif;
+
+  /* Entra da destra, come un foglio che scivola accanto al primo. */
+  opacity: 0;
+  transform: translateX(calc(22 * var(--s))) scale(0.985);
+  filter: blur(calc(6 * var(--s)));
+  transform-origin: 0% 20%;
+  transition:
+    opacity 420ms var(--ease-out),
+    transform 420ms var(--ease-out),
+    filter 420ms var(--ease-out);
+}
+.bk[hidden] { display: none; }
+.bk[data-open="true"] { opacity: 1; transform: none; filter: none; }
+
+.bk::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(90% 55% at 15% -12%, rgba(255, 255, 255, 0.2), transparent 50%);
+  pointer-events: none;
+}
+
+.bk__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: calc(24 * var(--s));
+  line-height: calc(28 * var(--s));
+  letter-spacing: calc(0.3 * var(--s));
+}
+
+/* Ogni passo entra come le righe dei servizi. */
+.bk__pane {
+  display: flex;
+  flex-direction: column;
+  gap: calc(12 * var(--s));
+  flex: 1;
+  min-height: 0;
+  animation: svc-in 420ms var(--ease-out) both;
+}
+.bk__pane[hidden] { display: none; }
+
+/* ------------------------------------------------------------- riepilogo */
+
+.bk__picked {
+  padding-bottom: calc(12 * var(--s));
+  border-bottom: calc(1 * var(--s)) solid var(--svc-hair);
+}
+.bk[data-step="3"] .bk__picked { display: none; }
+
+.bk__picked-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0 0 calc(8 * var(--s));
+  font-size: calc(12 * var(--s));
+  color: var(--svc-muted);
+}
+
+.bk__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--menu-text);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: calc(2 * var(--s));
+  cursor: pointer;
+}
+.bk__link:hover { color: var(--svc-text); }
+
+.bk__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(6 * var(--s));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bk__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(4 * var(--s));
+  max-width: calc(160 * var(--s));
+  height: calc(24 * var(--s));
+  padding: 0 calc(4 * var(--s)) 0 calc(10 * var(--s));
+  border-radius: calc(7.6 * var(--s));
+  background: var(--menu-cta-light);
+  color: var(--menu-cta-light-text);
+  font-size: calc(11.5 * var(--s));
+  animation: svc-in 360ms var(--ease-out) both;
+}
+.bk__chip--more {
+  padding: 0 calc(10 * var(--s));
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--svc-text);
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(10.5 * var(--s));
+  letter-spacing: calc(0.6 * var(--s));
+}
+.bk__chip-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bk__chip-x {
+  flex: none;
+  width: calc(18 * var(--s));
+  height: calc(18 * var(--s));
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.bk__chip-x svg { width: calc(10 * var(--s)); height: calc(10 * var(--s)); }
+.bk__chip-x:hover { background: rgba(255, 255, 255, 0.2); }
+
+/* -------------------------------------------------------------- calendario */
+
+.cal__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: calc(6 * var(--s));
+}
+
+.cal__month {
+  margin: 0;
+  font-size: calc(14 * var(--s));
+  letter-spacing: calc(0.3 * var(--s));
+  text-transform: capitalize;
+}
+
+.cal__arrow {
+  width: calc(26 * var(--s));
+  height: calc(26 * var(--s));
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--svc-text);
+  cursor: pointer;
+  transition: background-color 260ms var(--ease-out), opacity 260ms var(--ease-out);
+}
+.cal__arrow svg { width: calc(12 * var(--s)); height: calc(12 * var(--s)); }
+.cal__arrow:hover:not(:disabled) { background: rgba(255, 255, 255, 0.14); }
+.cal__arrow:disabled { opacity: 0.3; cursor: default; }
+
+.cal__week,
+.cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: calc(2 * var(--s));
+}
+
+.cal__week span {
+  text-align: center;
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(9.5 * var(--s));
+  letter-spacing: calc(1 * var(--s));
+  color: var(--svc-muted);
+  padding-bottom: calc(4 * var(--s));
+}
+
+.cal__day {
+  height: calc(26 * var(--s));
+  padding: 0;
+  border: 0;
+  border-radius: calc(7.6 * var(--s));
+  background: transparent;
+  color: var(--svc-text);
+  font-family: 'Albert Sans', sans-serif;
+  font-size: calc(12.5 * var(--s));
+  cursor: pointer;
+  transition: background-color 220ms var(--ease-out), color 220ms var(--ease-out);
+}
+.cal__day:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); }
+.cal__day:disabled { color: rgba(255, 255, 255, 0.24); cursor: default; }
+.cal__day[data-out="true"] { visibility: hidden; }
+/* Oggi: un filo giallo sotto la cifra, come la barra del contatore. */
+.cal__day[data-today="true"] {
+  text-decoration: underline;
+  text-decoration-color: var(--giallo);
+  text-underline-offset: calc(4 * var(--s));
+}
+.cal__day[aria-pressed="true"] {
+  background: var(--menu-cta-light);
+  color: var(--menu-cta-light-text);
+}
+.cal__day:focus-visible,
+.bk__slot:focus-visible,
+.bk__primary:focus-visible,
+.bk__ghost:focus-visible { outline: calc(1.5 * var(--s)) solid var(--menu-cta-light); outline-offset: calc(1 * var(--s)); }
+
+/* ------------------------------------------------------------------- orari */
+
+.bk__label {
+  margin: calc(2 * var(--s)) 0 0;
+  font-size: calc(12 * var(--s));
+  color: var(--svc-muted);
+}
+.bk__label::first-letter { text-transform: uppercase; }
+
+.bk__slots {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: calc(6 * var(--s));
+  min-height: calc(58 * var(--s));
+  align-content: start;
+}
+
+.bk__slot {
+  height: calc(26 * var(--s));
+  padding: 0;
+  border-radius: calc(7.6 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--svc-text);
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(11 * var(--s));
+  letter-spacing: calc(0.8 * var(--s));
+  cursor: pointer;
+  animation: svc-in 360ms var(--ease-out) both;
+  animation-delay: calc(var(--k, 0) * 30ms);
+  transition: background-color 220ms var(--ease-out), border-color 220ms var(--ease-out);
+}
+.bk__slot:hover { background: rgba(255, 255, 255, 0.12); }
+.bk__slot[aria-pressed="true"] {
+  background: var(--menu-cta-light);
+  border-color: transparent;
+  color: var(--menu-cta-light-text);
+}
+
+/* --------------------------------------------------------------- pulsanti */
+
+.bk__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: calc(8 * var(--s));
+  margin-top: auto;
+}
+
+/* Il pulsante principale e' la barra del menu con la sua voce accesa: lo
+   stesso vestito del pulsante "Prenota un servizio!". */
+.bk__primary,
+.bk__ghost {
+  height: calc(34 * var(--s));
+  padding: 0 calc(18 * var(--s));
+  border: 0;
+  border-radius: calc(7.6 * var(--s));
+  font-family: 'Albert Sans', sans-serif;
+  font-size: calc(13 * var(--s));
+  letter-spacing: calc(0.2 * var(--s));
+  cursor: pointer;
+  transition: background-color 260ms var(--ease-out), opacity 260ms var(--ease-out), transform 160ms var(--ease-out);
+}
+.bk__primary {
+  background: var(--menu-cta-light);
+  color: var(--menu-cta-light-text);
+}
+.bk__primary:hover:not(:disabled) { background: rgba(233, 199, 255, 0.72); }
+.bk__primary:disabled { opacity: 0.35; cursor: default; }
+.bk__ghost {
+  background: var(--menu-fill);
+  color: var(--menu-text);
+}
+.bk__ghost:hover { color: var(--svc-text); }
+.bk__primary:active:not(:disabled),
+.bk__ghost:active { transform: scale(0.98); }
+
+/* ----------------------------------------------------------------- modulo */
+
+.bk__form { gap: calc(9 * var(--s)); }
+
+.bk__when {
+  margin: 0 0 calc(2 * var(--s));
+  font-size: calc(12.5 * var(--s));
+  color: var(--menu-text);
+}
+.bk__when::first-letter { text-transform: uppercase; }
+
+.fld { display: flex; flex-direction: column; gap: calc(4 * var(--s)); min-width: 0; }
+.fld__row { display: grid; grid-template-columns: 1fr 1fr; gap: calc(8 * var(--s)); }
+
+.fld__label {
+  font-size: calc(11 * var(--s));
+  letter-spacing: calc(0.2 * var(--s));
+  color: var(--svc-muted);
+}
+.fld__label em { font-style: normal; opacity: 0.7; }
+
+.fld__input {
+  width: 100%;
+  height: calc(32 * var(--s));
+  padding: 0 calc(10 * var(--s));
+  border-radius: calc(7.6 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.16);
+  background: rgba(10, 4, 20, 0.28);
+  box-shadow: inset 0 calc(1 * var(--s)) calc(2 * var(--s)) rgba(0, 0, 0, 0.2);
+  color: var(--svc-text);
+  font-family: 'Albert Sans', sans-serif;
+  font-size: calc(13 * var(--s));
+  outline: none;
+  transition: border-color 220ms var(--ease-out), background-color 220ms var(--ease-out);
+}
+.fld__input::placeholder { color: rgba(255, 255, 255, 0.3); }
+.fld__input:focus { border-color: var(--menu-cta-light); background: rgba(10, 4, 20, 0.4); }
+.fld__input[aria-invalid="true"] { border-color: rgba(255, 138, 160, 0.8); }
+
+.fld__err {
+  min-height: 0;
+  font-size: calc(10.5 * var(--s));
+  line-height: calc(12 * var(--s));
+  color: rgb(255, 160, 178);
+}
+.fld__err:empty { display: none; }
+
+/* Casella del consenso: nascosta quella nativa, disegnata come il cerchio di
+   scelta dei servizi ma quadrata. */
+.fld__check {
+  position: relative;
+  display: grid;
+  grid-template-columns: calc(18 * var(--s)) 1fr;
+  gap: calc(8 * var(--s));
+  align-items: start;
+  margin-top: calc(2 * var(--s));
+  font-size: calc(11 * var(--s));
+  line-height: calc(15 * var(--s));
+  color: var(--svc-muted);
+  cursor: pointer;
+}
+.fld__check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.fld__box {
+  width: calc(16 * var(--s));
+  height: calc(16 * var(--s));
+  border-radius: calc(4 * var(--s));
+  border: calc(1.2 * var(--s)) solid rgba(255, 255, 255, 0.34);
+  transition: background-color 220ms var(--ease-out), border-color 220ms var(--ease-out);
+}
+.fld__check input:checked + .fld__box {
+  background: var(--menu-cta-light)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%23f5f1fa' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 80% no-repeat;
+  border-color: transparent;
+}
+/* "Leggi": apre l'informativa senza spuntare la casella. */
+.fld__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--svc-text);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: calc(2 * var(--s));
+  cursor: pointer;
+}
+.fld__link:hover { color: #fff; }
+.fld__check input:focus-visible + .fld__box { outline: calc(1.5 * var(--s)) solid var(--menu-cta-light); outline-offset: calc(1 * var(--s)); }
+
+/* --------------------------------------------------------------- conferma */
+
+.bk__done { align-items: flex-start; }
+.bk__done .bk__actions { align-self: stretch; }
+.bk__done-mark {
+  width: calc(48 * var(--s));
+  height: calc(48 * var(--s));
+  display: grid;
+  place-items: center;
+  margin-top: calc(10 * var(--s));
+  border-radius: 50%;
+  background: var(--menu-cta-light);
+  color: var(--menu-cta-light-text);
+}
+.bk__done-mark svg { width: calc(26 * var(--s)); height: calc(26 * var(--s)); }
+.bk__done-text {
+  margin: 0;
+  font-size: calc(15 * var(--s));
+  line-height: calc(22 * var(--s));
+  color: var(--svc-text);
+}
+
+/* --------------------------------------------------------- accessibilita' */
+
+@media (prefers-reduced-transparency: reduce) {
+  .bk {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgb(30, 14, 48);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bk { transform: none; filter: none; transition: opacity 420ms linear; }
+  .bk__pane, .bk__chip, .bk__slot { animation-name: svc-fade; animation-delay: 0ms; }
+}

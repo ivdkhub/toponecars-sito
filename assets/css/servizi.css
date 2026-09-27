@@ -1,0 +1,364 @@
+/* Pannello dei servizi prenotabili — pagina "Servizi" (blocco 2).
+ *
+ * Stesso linguaggio del resto della pagina: misure in unita' di design
+ * moltiplicate per var(--s), Albert Sans per il testo e Aldrich per i numeri
+ * (come il contatore delle scene), il vetro delle schede del blocco 1 e la
+ * pastiglia lilla del menu per la voce selezionata.
+ *
+ * Il vetro e' un'approssimazione web del materiale iOS (backdrop-filter piu'
+ * velature e fili di luce), non il Liquid Glass di Apple, che per il web non
+ * esiste. Il pannello e' piu' scuro delle schede perche' porta molto testo
+ * piccolo: deve leggersi anche sopra il pavimento giallo.
+ */
+
+:root {
+  --svc-glass: rgba(26, 11, 42, 0.52);
+  --svc-text: rgba(255, 255, 255, 0.94);
+  --svc-muted: rgba(255, 255, 255, 0.58);
+  --svc-hair: rgba(255, 255, 255, 0.12);
+}
+
+/* ------------------------------------------------------------ il pulsante */
+
+/* Vestito come la barra del menu nell'header: stesso fondo, stessa altezza,
+   stessi angoli quasi vivi e stesso testo. Al passaggio del puntatore la voce
+   prende la pastiglia lilla, esattamente come la voce corrente del menu. */
+.svc-open {
+  position: absolute;
+  left: calc(var(--b2-line-x) * var(--s));
+  top: calc(300 * var(--s));
+  display: inline-flex;
+  align-items: center;
+  gap: calc(8 * var(--s));
+  height: calc(45.59 * var(--s));
+  padding: 0 calc(14 * var(--s)) 0 calc(11 * var(--s));
+  border: 0;
+  border-radius: calc(4 * var(--s));
+  background: var(--menu-fill);
+  color: var(--menu-text);
+  font-family: 'Albert Sans', sans-serif;
+  cursor: pointer;
+}
+.svc-open:focus-visible { outline: calc(1.5 * var(--s)) solid var(--menu-cta-light); outline-offset: calc(2 * var(--s)); }
+
+.svc-open__label {
+  display: inline-flex;
+  align-items: center;
+  height: calc(23.56 * var(--s));
+  padding: 0 calc(6.84 * var(--s));
+  border-radius: calc(7.6 * var(--s));
+  font-weight: var(--menu-link-w);
+  font-size: calc(var(--menu-link-fs) * var(--s));
+  letter-spacing: calc(var(--menu-link-ls) * var(--s));
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color 260ms var(--ease-out), color 260ms var(--ease-out);
+}
+.svc-open:hover .svc-open__label,
+.svc-open:focus-visible .svc-open__label {
+  background: var(--menu-cta-light);
+  color: var(--menu-cta-light-text);
+}
+
+.svc-open__arrow {
+  width: calc(13 * var(--s));
+  height: calc(13 * var(--s));
+  transition: transform 260ms var(--ease-out);
+}
+.svc-open:hover .svc-open__arrow { transform: translateX(calc(3 * var(--s))); }
+
+/* -------------------------------------------------------------- il pannello */
+
+.svc {
+  position: absolute;
+  left: calc(140 * var(--s));
+  top: calc(136 * var(--s));
+  width: calc(760 * var(--s));
+  height: calc(572 * var(--s));
+  padding: calc(28 * var(--s)) calc(30 * var(--s)) calc(26 * var(--s));
+  display: flex;
+  flex-direction: column;
+  gap: calc(22 * var(--s));
+  isolation: isolate;
+  overflow: hidden;
+  pointer-events: auto;
+
+  border-radius: calc(22 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.26);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.02) 55%),
+    var(--svc-glass);
+  -webkit-backdrop-filter: blur(calc(34 * var(--s))) saturate(160%);
+  backdrop-filter: blur(calc(34 * var(--s))) saturate(160%);
+  box-shadow:
+    inset 0 calc(1 * var(--s)) 0 rgba(255, 255, 255, 0.42),
+    inset 0 calc(-1 * var(--s)) 0 rgba(255, 255, 255, 0.08),
+    0 calc(30 * var(--s)) calc(80 * var(--s)) rgba(10, 4, 20, 0.45);
+  color: var(--svc-text);
+  font-family: 'Albert Sans', sans-serif;
+
+  /* Entra come i blocchi: sale, si mette a fuoco e appare. */
+  opacity: 0;
+  transform: translateY(calc(18 * var(--s))) scale(0.985);
+  filter: blur(calc(6 * var(--s)));
+  transform-origin: 20% 0%;
+  transition:
+    opacity 420ms var(--ease-out),
+    transform 420ms var(--ease-out),
+    filter 420ms var(--ease-out);
+}
+.svc[hidden] { display: none; }
+.svc[data-open="true"] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* Riflesso speculare nell'angolo alto, come sulle schede del blocco 1. */
+.svc::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(90% 60% at 12% -12%, rgba(255, 255, 255, 0.22), transparent 50%);
+  pointer-events: none;
+}
+
+.svc__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.svc__eyebrow {
+  margin: 0 0 calc(8 * var(--s));
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(10.5 * var(--s));
+  letter-spacing: calc(1.9 * var(--s));
+  text-transform: uppercase;
+  color: var(--giallo);
+}
+
+.svc__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: calc(34 * var(--s));
+  line-height: calc(38 * var(--s));
+  letter-spacing: calc(0.4 * var(--s));
+  color: var(--svc-text);
+}
+
+.svc__sub {
+  margin: calc(6 * var(--s)) 0 0;
+  font-size: calc(12.5 * var(--s));
+  color: var(--svc-muted);
+}
+
+.svc__close {
+  flex: none;
+  width: calc(34 * var(--s));
+  height: calc(34 * var(--s));
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 calc(1 * var(--s)) 0 rgba(255, 255, 255, 0.3);
+  color: var(--svc-text);
+  cursor: pointer;
+  transition: background-color 260ms var(--ease-out), transform 260ms var(--ease-out);
+}
+.svc__close svg { width: calc(14 * var(--s)); height: calc(14 * var(--s)); }
+.svc__close:hover { background: rgba(255, 255, 255, 0.16); }
+.svc__close:active { transform: scale(0.96); }
+
+.svc__body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: calc(236 * var(--s)) 1fr;
+  gap: calc(26 * var(--s));
+}
+
+/* ---------------------------------------------------------------- categorie */
+
+.svc__tabs {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4 * var(--s));
+  padding-right: calc(22 * var(--s));
+  border-right: calc(1 * var(--s)) solid var(--svc-hair);
+}
+
+.svc__tab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(10 * var(--s));
+  width: 100%;
+  padding: calc(10 * var(--s)) calc(12 * var(--s));
+  border: 0;
+  border-radius: calc(7.6 * var(--s));
+  background: transparent;
+  color: var(--menu-text);
+  font-family: 'Albert Sans', sans-serif;
+  font-size: calc(13 * var(--s));
+  line-height: calc(16 * var(--s));
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 260ms var(--ease-out), color 260ms var(--ease-out);
+}
+.svc__tab:hover { background: rgba(255, 255, 255, 0.07); }
+.svc__tab:focus-visible { outline: calc(1.5 * var(--s)) solid var(--menu-cta-light); outline-offset: calc(1 * var(--s)); }
+
+/* La voce selezionata e' la pastiglia del menu. */
+.svc__tab[aria-selected="true"] {
+  background: var(--menu-cta-light);
+  color: var(--menu-cta-light-text);
+}
+
+.svc__tab-count {
+  flex: none;
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(10.5 * var(--s));
+  letter-spacing: calc(0.6 * var(--s));
+  opacity: 0.7;
+}
+
+/* ------------------------------------------------------------------ servizi */
+
+.svc__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  align-self: start;
+}
+
+.svc__item {
+  border-bottom: calc(1 * var(--s)) solid var(--svc-hair);
+
+  /* Le righe entrano scaglionate a ogni cambio di categoria: sono elementi
+     nuovi, quindi l'animazione riparte da sola. */
+  animation: svc-in 480ms var(--ease-out) both;
+  animation-delay: calc(var(--k, 0) * 45ms);
+}
+.svc__item:last-child { border-bottom: 0; }
+.svc__empty { padding: calc(14 * var(--s)) 0; font-size: calc(13.5 * var(--s)); color: var(--svc-muted); }
+
+/* Tutta la riga e' il comando che sceglie il servizio. A destra un cerchio che
+   si riempie della pastiglia lilla del menu quando il servizio e' scelto. */
+.svc__pick {
+  display: grid;
+  grid-template-columns: calc(34 * var(--s)) 1fr calc(22 * var(--s));
+  align-items: baseline;
+  column-gap: calc(8 * var(--s));
+  width: 100%;
+  padding: calc(11 * var(--s)) calc(8 * var(--s)) calc(11 * var(--s)) 0;
+  border: 0;
+  border-radius: calc(7.6 * var(--s));
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 260ms var(--ease-out);
+}
+.svc__pick:hover { background: rgba(255, 255, 255, 0.05); }
+.svc__pick:focus-visible { outline: calc(1.5 * var(--s)) solid var(--menu-cta-light); outline-offset: calc(-1 * var(--s)); }
+
+.svc__check {
+  align-self: center;
+  width: calc(20 * var(--s));
+  height: calc(20 * var(--s));
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: calc(1.2 * var(--s)) solid rgba(255, 255, 255, 0.34);
+  color: transparent;
+  transition: background-color 260ms var(--ease-out), border-color 260ms var(--ease-out),
+              color 260ms var(--ease-out), transform 260ms var(--ease-out);
+}
+.svc__check svg { width: calc(12 * var(--s)); height: calc(12 * var(--s)); }
+.svc__pick:hover .svc__check { border-color: rgba(255, 255, 255, 0.6); }
+.svc__pick[aria-pressed="true"] .svc__check {
+  background: var(--menu-cta-light);
+  border-color: transparent;
+  color: var(--menu-cta-light-text);
+}
+.svc__pick:active .svc__check { transform: scale(0.9); }
+.svc__pick[aria-pressed="true"] .svc__name { color: var(--menu-cta-light-text); }
+
+/* Una categoria con servizi scelti porta un punto giallo accanto al conteggio. */
+.svc__tab-count { display: inline-flex; align-items: center; gap: calc(6 * var(--s)); }
+.svc__tab[data-picked="true"] .svc__tab-count::before {
+  content: "";
+  width: calc(5 * var(--s));
+  height: calc(5 * var(--s));
+  border-radius: 50%;
+  background: var(--giallo);
+}
+
+@keyframes svc-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(10 * var(--s)));
+    filter: blur(calc(4 * var(--s)));
+  }
+}
+
+.svc__num {
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(11 * var(--s));
+  letter-spacing: calc(1 * var(--s));
+  color: var(--giallo);
+}
+
+.svc__text { display: flex; flex-direction: column; gap: calc(3 * var(--s)); }
+
+.svc__name {
+  font-size: calc(14.5 * var(--s));
+  line-height: calc(19 * var(--s));
+  color: var(--svc-text);
+}
+
+.svc__detail {
+  font-size: calc(11.5 * var(--s));
+  line-height: calc(15 * var(--s));
+  color: var(--svc-muted);
+}
+
+/* ------------------------------------------- la pagina con il pannello aperto */
+
+/* Il titolo del blocco e il pulsante resterebbero a meta' sotto il vetro:
+   si ritirano finche' il pannello e' aperto. Selettore piu' specifico di quello
+   che, a blocco visibile, riporta a 1 l'opacita' degli elementi animati. */
+html[data-panel="servizi"] .block--2[data-visible="true"] .b2__line,
+html[data-panel="servizi"] .block--2[data-visible="true"] .svc-open {
+  opacity: 0;
+  transition-delay: 0ms;
+  pointer-events: none;
+}
+
+/* A pannello aperto non si cambia scena, quindi l'invito a scorrere tace. */
+html[data-panel="servizi"] .scrollcue { opacity: 0; pointer-events: none; }
+
+/* Chi chiede meno trasparenza riceve lastre piene. */
+@media (prefers-reduced-transparency: reduce) {
+  .svc {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgb(30, 14, 48);
+  }
+}
+
+/* Con prefers-reduced-motion resta solo la dissolvenza. */
+@media (prefers-reduced-motion: reduce) {
+  .svc { transform: none; filter: none; transition: opacity 420ms linear; }
+  .svc__item { animation-name: svc-fade; animation-delay: 0ms; }
+  @keyframes svc-fade { from { opacity: 0; } }
+}
+
+/* Il pannello a schede contiene l'elenco: il ruolo sta qui, cosi' l'elenco resta un elenco. */
+.svc__panel { min-width: 0; align-self: start; }

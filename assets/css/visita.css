@@ -1,0 +1,373 @@
+/* Pagina "Vieni a trovarci" — blocco 5, scena 7 (l'auto vista dall'alto).
+ *
+ * La card sta a destra dell'auto, con il bordo destro a filo della barra del
+ * menu (1305) e la stessa altezza dei pannelli (136 -> 708). E' vestita come
+ * loro: vetro scuro smerigliato, bordo chiaro sottile, luce sul filo in alto.
+ *
+ * La mappa e' l'incorporamento di Google Maps, senza chiave API, ridipinto come
+ * la minimappa di un gioco di corse. Solo con filtri CSS e metodi di fusione:
+ * Chrome non applica i filtri SVG al contenuto di un altro sito, e nessuno
+ * stile si puo' passare all'incorporamento senza chiave.
+ *   1. La mappa passa in scala di grigi. Nella mappa di Google il terreno e la
+ *      campagna hanno quasi la stessa luminosita' (0.94 e 0.93), le strade sono
+ *      il bianco (0.99), la SS 9 e il fiume stanno piu' sotto (0.62 e 0.79).
+ *   2. Un livello grigio del colore del terreno, in "difference": il terreno
+ *      diventa nero e si accende tutto cio' che ne differisce, cioe' strade,
+ *      statale, fiume e scritte.
+ *   3. Il contenitore amplifica quella differenza (brightness): strade chiare
+ *      su fondo nero.
+ *   4. Un gradiente in moltiplicazione colora le strade con il viola e l'oro
+ *      del marchio (oro intorno alla destinazione), uno scuro in "screen"
+ *      alza il nero a un viola notte.
+ *   5. Sopra, l'HUD: mirino sulla destinazione, radar, griglia, bussola, angoli.
+ * La mappa non riceve il puntatore: la rotellina resta al sito (che cambia
+ * scena), e un click la apre in Google Maps.
+ */
+
+.vt {
+  --vt-neon-a: rgb(186, 120, 255);
+  --vt-neon-b: rgb(242, 182, 12);
+  position: absolute;
+  left: calc(945 * var(--s));
+  top: calc(136 * var(--s));
+  width: calc(360 * var(--s));
+  height: calc(572 * var(--s));
+  padding: calc(22 * var(--s)) calc(22 * var(--s)) calc(20 * var(--s));
+  display: flex;
+  flex-direction: column;
+  gap: calc(12 * var(--s));
+  pointer-events: auto;
+
+  border-radius: calc(22 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.26);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.02) 55%),
+    var(--svc-glass);
+  -webkit-backdrop-filter: blur(calc(34 * var(--s))) saturate(160%);
+  backdrop-filter: blur(calc(34 * var(--s))) saturate(160%);
+  box-shadow:
+    inset 0 calc(1 * var(--s)) 0 rgba(255, 255, 255, 0.42),
+    inset 0 calc(-1 * var(--s)) 0 rgba(255, 255, 255, 0.08),
+    0 calc(30 * var(--s)) calc(80 * var(--s)) rgba(10, 4, 20, 0.45);
+  color: var(--svc-text);
+  font-family: 'Albert Sans', sans-serif;
+}
+
+.vt__head .svc__eyebrow { margin-bottom: calc(6 * var(--s)); }
+.vt__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: calc(28 * var(--s));
+  line-height: calc(32 * var(--s));
+  letter-spacing: calc(0.3 * var(--s));
+}
+.vt__addr {
+  margin: calc(4 * var(--s)) 0 0;
+  font-size: calc(12.5 * var(--s));
+  color: var(--svc-muted);
+}
+
+/* ------------------------------------------------------------ la minimappa */
+
+.vt__map {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: calc(14 * var(--s));
+  background: rgb(10, 5, 20);
+  box-shadow:
+    0 0 0 calc(1 * var(--s)) rgba(186, 120, 255, 0.35),
+    0 0 calc(22 * var(--s)) rgba(186, 120, 255, 0.18);
+}
+
+/* Il riquadro di Google e' piu' alto della finestra di 110 unita' in cima: la
+   scheda del luogo che Google mette in alto a sinistra resta fuori vista, mentre
+   logo, termini e comandi in basso restano dove Google li vuole. La
+   destinazione, al centro del riquadro, sta quindi 55 unita' sopra il centro
+   della finestra: il mirino la segue (--vt-pin-dy). */
+.vt__map { --vt-crop: calc(110 * var(--s)); --vt-pin-dy: calc(-55 * var(--s)); }
+.vt__frame {
+  position: absolute;
+  left: 0;
+  top: calc(var(--vt-crop) * -1);
+  width: 100%;
+  height: calc(100% + var(--vt-crop));
+  border: 0;
+  pointer-events: none;
+  filter: grayscale(1);
+  opacity: 0;
+  transition: opacity 900ms var(--ease-out);
+}
+.vt__frame[src] { opacity: 1; }
+
+/* Passi 2 e 3. Il grigio e' quello del terreno (238 = 0.933); l'amplificazione
+   porta le strade (differenza 0.057) quasi al bianco e lascia il terreno
+   (0.008) e la campagna (0.005) vicini al nero. */
+.vt__lens {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  filter: brightness(13);
+}
+.vt__diff {
+  position: absolute;
+  inset: 0;
+  background: rgb(238, 238, 238);
+  mix-blend-mode: difference;
+}
+
+/* Passo 4: le strade prendono i colori del marchio, viola verso l'alto e oro
+   intorno alla destinazione. Il nero non cambia: moltiplicato resta nero. */
+.vt__tint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  background:
+    radial-gradient(circle at 50% calc(50% + var(--vt-pin-dy)), var(--vt-neon-b) 0, var(--vt-neon-b) 10%, transparent 38%),
+    linear-gradient(170deg, var(--vt-neon-a), rgb(140, 90, 240) 55%, rgb(236, 130, 210));
+}
+/* Il nero diventa un viola notte, come il fondo delle mappe dei giochi. */
+.vt__lift {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(ellipse at 50% 40%, rgb(34, 14, 58), rgb(12, 5, 24) 80%);
+}
+
+.vt__hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: 'Aldrich', sans-serif;
+}
+
+/* Griglia sottile e vignettatura, da schermo di bordo. */
+.vt__grid {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(6, 2, 14, 0.75) 100%),
+    repeating-linear-gradient(0deg, rgba(186, 120, 255, 0.07) 0 calc(1 * var(--s)), transparent calc(1 * var(--s)) calc(24 * var(--s))),
+    repeating-linear-gradient(90deg, rgba(186, 120, 255, 0.07) 0 calc(1 * var(--s)), transparent calc(1 * var(--s)) calc(24 * var(--s)));
+}
+
+/* Il radar: un fascio che gira intorno alla destinazione. */
+.vt__sweep {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + var(--vt-pin-dy));
+  width: calc(520 * var(--s));
+  height: calc(520 * var(--s));
+  margin: calc(-260 * var(--s)) 0 0 calc(-260 * var(--s));
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(242, 182, 12, 0.22), rgba(242, 182, 12, 0) 60deg, transparent 360deg);
+  mix-blend-mode: screen;
+  animation: vt-sweep 4.8s linear infinite;
+}
+@keyframes vt-sweep { to { transform: rotate(1turn); } }
+
+/* Il mirino: un punto oro e due anelli che si allargano, come il segnalino
+   della destinazione nella minimappa. */
+.vt__target {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + var(--vt-pin-dy));
+  width: 0;
+  height: 0;
+}
+.vt__target i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.vt__target i:nth-child(1) {
+  width: calc(12 * var(--s));
+  height: calc(12 * var(--s));
+  background: var(--vt-neon-b);
+  box-shadow: 0 0 calc(10 * var(--s)) var(--vt-neon-b), 0 0 0 calc(2.5 * var(--s)) rgba(10, 5, 20, 0.9);
+}
+.vt__target i:nth-child(2),
+.vt__target i:nth-child(3) {
+  width: calc(64 * var(--s));
+  height: calc(64 * var(--s));
+  border: calc(1.5 * var(--s)) solid var(--vt-neon-b);
+  animation: vt-ping 2.4s var(--ease-out) infinite;
+}
+.vt__target i:nth-child(3) { animation-delay: 1.2s; }
+@keyframes vt-ping {
+  from { transform: translate(-50%, -50%) scale(0.2); opacity: 0.9; }
+  to   { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+}
+
+.vt__tag {
+  position: absolute;
+  left: calc(12 * var(--s));
+  top: calc(11 * var(--s));
+  padding: calc(3 * var(--s)) calc(7 * var(--s));
+  border-radius: calc(3 * var(--s));
+  background: rgba(10, 5, 20, 0.7);
+  color: var(--vt-neon-b);
+  font-size: calc(9.5 * var(--s));
+  letter-spacing: calc(1.6 * var(--s));
+  text-transform: uppercase;
+}
+.vt__north {
+  position: absolute;
+  right: calc(12 * var(--s));
+  top: calc(9 * var(--s));
+  width: calc(22 * var(--s));
+  height: calc(22 * var(--s));
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: calc(1 * var(--s)) solid rgba(186, 120, 255, 0.7);
+  background: rgba(10, 5, 20, 0.7);
+  color: var(--svc-text);
+  font-size: calc(10 * var(--s));
+}
+
+.vt__corner {
+  position: absolute;
+  width: calc(14 * var(--s));
+  height: calc(14 * var(--s));
+  border: 0 solid var(--vt-neon-a);
+}
+.vt__corner--tl { left: calc(6 * var(--s)); top: calc(40 * var(--s)); border-left-width: calc(2 * var(--s)); border-top-width: calc(2 * var(--s)); }
+.vt__corner--tr { right: calc(6 * var(--s)); top: calc(40 * var(--s)); border-right-width: calc(2 * var(--s)); border-top-width: calc(2 * var(--s)); }
+.vt__corner--bl { left: calc(6 * var(--s)); bottom: calc(26 * var(--s)); border-left-width: calc(2 * var(--s)); border-bottom-width: calc(2 * var(--s)); }
+.vt__corner--br { right: calc(6 * var(--s)); bottom: calc(26 * var(--s)); border-right-width: calc(2 * var(--s)); border-bottom-width: calc(2 * var(--s)); }
+
+/* Tutta la mappa porta a Google Maps. */
+.vt__open {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+.vt__open:focus-visible { outline: calc(1.5 * var(--s)) solid var(--vt-neon-b); outline-offset: calc(-2 * var(--s)); }
+
+/* La richiesta di consenso, al posto della mappa finche' non si sceglie. Sta
+   sopra il collegamento a Google Maps (z-index 1) e lascia vedere l'HUD: senza
+   mappa il radar gira sul viola notte, e la card non resta con un buco. */
+.vt__consent {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(10 * var(--s));
+  padding: calc(28 * var(--s)) calc(26 * var(--s)) calc(24 * var(--s));
+  text-align: center;
+  background: radial-gradient(ellipse at 50% 55%, rgba(10, 5, 20, 0.72), rgba(10, 5, 20, 0.25) 75%);
+}
+.vt__consent[hidden] { display: none; }
+.vt__consent-txt {
+  margin: 0;
+  max-width: calc(250 * var(--s));
+  font-size: calc(12 * var(--s));
+  line-height: calc(16.5 * var(--s));
+  color: var(--svc-text);
+}
+.vt__consent-btn {
+  padding: calc(9 * var(--s)) calc(16 * var(--s));
+  border: calc(1 * var(--s)) solid var(--vt-neon-b);
+  border-radius: calc(999 * var(--s));
+  background: rgba(242, 182, 12, 0.14);
+  color: var(--vt-neon-b);
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(11 * var(--s));
+  letter-spacing: calc(1.2 * var(--s));
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 0 calc(14 * var(--s)) rgba(242, 182, 12, 0.22);
+  transition: background-color 220ms var(--ease-out), box-shadow 220ms var(--ease-out);
+}
+.vt__consent-btn:hover { background: rgba(242, 182, 12, 0.26); box-shadow: 0 0 calc(22 * var(--s)) rgba(242, 182, 12, 0.4); }
+.vt__consent-more {
+  padding: calc(2 * var(--s));
+  border: 0;
+  background: none;
+  color: var(--svc-muted);
+  font: inherit;
+  font-size: calc(10.5 * var(--s));
+  text-decoration: underline;
+  text-underline-offset: calc(2.5 * var(--s));
+  cursor: pointer;
+}
+.vt__consent-more:hover { color: var(--svc-text); }
+.vt__consent-btn:focus-visible,
+.vt__consent-more:focus-visible { outline: calc(1.5 * var(--s)) solid var(--vt-neon-b); outline-offset: calc(2 * var(--s)); }
+
+/* -------------------------------------------------------------- gli orari */
+
+.vt__status {
+  display: flex;
+  align-items: center;
+  gap: calc(8 * var(--s));
+  margin: 0;
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(11 * var(--s));
+  letter-spacing: calc(0.6 * var(--s));
+  text-transform: uppercase;
+  color: var(--svc-muted);
+}
+.vt__status::before {
+  content: '';
+  flex: none;
+  width: calc(7 * var(--s));
+  height: calc(7 * var(--s));
+  border-radius: 50%;
+  background: rgb(255, 120, 140);
+}
+.vt__status[data-open="true"] { color: var(--svc-text); }
+.vt__status[data-open="true"]::before { background: rgb(120, 230, 150); box-shadow: 0 0 calc(8 * var(--s)) rgb(120, 230, 150); }
+
+.vt__week {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: calc(3 * var(--s));
+  font-size: calc(12 * var(--s));
+  font-variant-numeric: tabular-nums;
+}
+.vt__week li { display: flex; justify-content: space-between; gap: calc(12 * var(--s)); color: var(--svc-muted); white-space: pre; }
+.vt__week li span:first-child { font-family: 'Aldrich', sans-serif; font-size: calc(11 * var(--s)); letter-spacing: calc(0.6 * var(--s)); }
+.vt__week li[data-today="true"] { color: var(--svc-text); }
+.vt__week li[data-today="true"] span:first-child { color: var(--giallo); }
+.vt__week li[data-closed="true"] span:last-child { opacity: 0.6; }
+
+/* --------------------------------------------------------- navigazione */
+
+.vt__go {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(8 * var(--s));
+  height: calc(38 * var(--s));
+  border-radius: calc(10 * var(--s));
+  background: var(--menu-cta-light);
+  color: var(--menu-cta-light-text);
+  font-size: calc(13 * var(--s));
+  text-decoration: none;
+  transition: background-color 260ms var(--ease-out);
+}
+.vt__go:hover { background: rgba(233, 199, 255, 0.72); }
+.vt__go:focus-visible { outline: calc(1.5 * var(--s)) solid var(--menu-cta-light-text); outline-offset: calc(2 * var(--s)); }
+.vt__go svg { width: calc(15 * var(--s)); height: calc(15 * var(--s)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .vt__sweep, .vt__target i:nth-child(2), .vt__target i:nth-child(3) { animation: none; }
+  .vt__target i:nth-child(2), .vt__target i:nth-child(3) { display: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .vt { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgb(30, 14, 48); }
+}

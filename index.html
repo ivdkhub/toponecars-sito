@@ -3,17 +3,69 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Top One Cars — Porsche 911 GT3 RS</title>
+<title>Top One Cars — Officina autoriparazioni, Vizzolo Predabissi</title>
+<meta name="description" content="Top One Cars, officina autoriparazioni a Vizzolo Predabissi (MI), SS 9 Via Emilia 312: tagliandi, diagnosi, freni, pneumatici, climatizzazione, revisioni e noleggio auto. Prenota il servizio online.">
+<meta name="theme-color" content="#120720">
+<!-- Anteprima quando il link si condivide. og:image e og:url vogliono indirizzi
+     assoluti: si aggiungono quando il dominio definitivo e' noto. -->
+<meta property="og:type" content="website">
+<meta property="og:locale" content="it_IT">
+<meta property="og:site_name" content="Top One Cars">
+<meta property="og:title" content="Top One Cars — Officina autoriparazioni, Vizzolo Predabissi">
+<meta property="og:description" content="Tagliandi, diagnosi, pneumatici, climatizzazione, revisioni e noleggio auto. Prenota il servizio online.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%237f4db1'/%3E%3Cpath d='M5 20h22M9 20a3 3 0 106 0 3 3 0 10-6 0M18 20a3 3 0 106 0 3 3 0 10-6 0' stroke='%23d7ab23' stroke-width='2' fill='none'/%3E%3C/svg%3E">
 <!-- L'unica immagine del primo fotogramma: e' cio' che si vede mentre la prima
      clip arriva, quindi vale la pena chiederla subito. -->
 <link rel="preload" as="image" href="assets/media/poster.webp" fetchpriority="high">
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/AlbertSans-Variable.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/Aldrich-Regular.woff2" crossorigin>
+<!-- Tutti i moduli che main.js importa, a ogni livello: senza questo elenco il
+     browser li scopre uno strato alla volta, quattro giri di rete prima che il
+     motore parta. Lo tiene allineato tools/check-modulepreload.mjs. -->
+<!-- modulepreload:inizio -->
+<link rel="modulepreload" href="assets/js/config.js">
+<link rel="modulepreload" href="assets/js/video-player.js">
+<link rel="modulepreload" href="assets/js/scene-machine.js">
+<link rel="modulepreload" href="assets/js/input-controller.js">
+<link rel="modulepreload" href="assets/js/blocks.js">
+<link rel="modulepreload" href="assets/js/menu.js">
+<link rel="modulepreload" href="assets/js/i18n-testi.js">
+<link rel="modulepreload" href="assets/js/i18n.js">
+<link rel="modulepreload" href="assets/js/controls.js">
+<link rel="modulepreload" href="assets/js/theme-tint.js">
+<link rel="modulepreload" href="assets/js/servizi-data.js">
+<link rel="modulepreload" href="assets/js/dati-officina.js">
+<link rel="modulepreload" href="assets/js/servizi.js">
+<link rel="modulepreload" href="assets/js/prenotazione.js">
+<link rel="modulepreload" href="assets/js/menu-hint.js">
+<link rel="modulepreload" href="assets/js/recensioni-data.js">
+<link rel="modulepreload" href="assets/js/recensioni.js">
+<link rel="modulepreload" href="assets/js/contenuti-data.js">
+<link rel="modulepreload" href="assets/js/contenuti.js">
+<link rel="modulepreload" href="assets/js/admin.js">
+<link rel="modulepreload" href="assets/js/lingua.js">
+<link rel="modulepreload" href="assets/js/consenso.js">
+<link rel="modulepreload" href="assets/js/visita.js">
+<link rel="modulepreload" href="assets/js/noleggio.js">
+<link rel="modulepreload" href="assets/js/parallax.js">
+<link rel="modulepreload" href="assets/js/legale.js">
+<link rel="modulepreload" href="assets/js/main.js">
+<!-- modulepreload:fine -->
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/type.css">
 <link rel="stylesheet" href="assets/css/chrome.css">
 <link rel="stylesheet" href="assets/css/blocks.css">
+<link rel="stylesheet" href="assets/css/servizi.css">
+<link rel="stylesheet" href="assets/css/prenotazione.css">
+<link rel="stylesheet" href="assets/css/recensioni.css">
+<link rel="stylesheet" href="assets/css/visita.css">
+<link rel="stylesheet" href="assets/css/noleggio.css">
+<link rel="stylesheet" href="assets/css/contenuti.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+<link rel="stylesheet" href="assets/css/stampa-preventivo.css">
+<link rel="stylesheet" href="assets/css/hint.css">
+<link rel="stylesheet" href="assets/css/legale.css">
 </head>
 <body>
 
@@ -72,11 +124,47 @@
            posizionato dietro le voci: cosi' l'evidenziazione puo' spostarsi
            senza che il menu si riassesti di un solo pixel. -->
       <span class="menu__pill" data-menu-pill data-on="false" aria-hidden="true"></span>
+      <!-- Scelta della lingua, a sinistra nella barra (assets/js/lingua.js).
+           Posizionata in assoluto: le voci del menu non si spostano. La
+           traduzione la fa assets/js/i18n.js, con il dizionario in
+           assets/js/i18n-testi.js. -->
+      <div class="lang" role="group" aria-label="Lingua del sito" data-lang>
+        <button class="lang__btn" type="button" data-lang-code="it" aria-pressed="true" title="Italiano" aria-label="Italiano">
+          <svg class="lang__flag" viewBox="0 0 22 15" aria-hidden="true">
+            <rect width="7.34" height="15" fill="#009246"/>
+            <rect x="7.33" width="7.34" height="15" fill="#FFFFFF"/>
+            <rect x="14.66" width="7.34" height="15" fill="#CE2B37"/>
+          </svg>
+        </button>
+        <button class="lang__btn" type="button" data-lang-code="en" aria-pressed="false" title="English" aria-label="English">
+          <svg class="lang__flag" viewBox="0 0 22 15" aria-hidden="true">
+            <rect width="22" height="15" fill="#012169"/>
+            <path d="M0 0L22 15M22 0L0 15" stroke="#FFFFFF" stroke-width="2.5"/>
+            <path d="M0 0L22 15M22 0L0 15" stroke="#C8102E" stroke-width="1.5"/>
+            <path d="M11 0V15M0 7.5H22" stroke="#FFFFFF" stroke-width="4"/>
+            <path d="M11 0V15M0 7.5H22" stroke="#C8102E" stroke-width="2.5"/>
+          </svg>
+        </button>
+        <button class="lang__btn" type="button" data-lang-code="uk" aria-pressed="false" title="Українська" aria-label="Українська">
+          <svg class="lang__flag" viewBox="0 0 22 15" aria-hidden="true">
+            <rect width="22" height="7.5" fill="#0057B7"/>
+            <rect y="7.5" width="22" height="7.5" fill="#FFD700"/>
+          </svg>
+        </button>
+      </div>
+      <a class="menu__link" data-menu-item href="#">Chi siamo</a>
       <a class="menu__link" data-menu-item href="#">Servizi</a>
       <a class="menu__link" data-menu-item href="#">Contenuti</a>
       <a class="menu__link" data-menu-item href="#">Recensioni</a>
       <a class="menu__btn menu__btn--light" data-menu-item href="#">Vieni a trovarci</a>
-      <a class="menu__btn menu__btn--ghost" data-menu-item href="#">Test Drive</a>
+      <a class="menu__btn menu__btn--ghost" data-menu-item href="#">Noleggio</a>
+      <!-- Voci dell'area amministratore: al posto di quelle del sito a luce
+           spenta (assets/js/admin.js). Disattivate finche' non si e' entrati. -->
+      <a class="menu__link menu__admin" data-admin-item="servizi" href="#" aria-disabled="true">Servizi</a>
+      <a class="menu__link menu__admin" data-admin-item="prenotazioni" href="#" aria-disabled="true">Prenotazioni</a>
+      <a class="menu__link menu__admin" data-admin-item="flotta" href="#" aria-disabled="true">Parco auto-noleggio</a>
+      <a class="menu__link menu__admin" data-admin-item="orari" href="#" aria-disabled="true">Orari di apertura</a>
+      <a class="menu__btn menu__btn--ghost menu__admin" data-admin-item="preventivo" href="#" aria-disabled="true">Genera preventivo</a>
     </nav>
   </header>
 
@@ -90,44 +178,250 @@
        transizione, non sull'ultima scena e non a luce spenta. -->
   <button class="scrollcue" type="button" data-scrollcue data-on="false"
           aria-label="Vai alla scena successiva">
-    <span class="scrollcue__label">Scroll to explore</span>
+    <span class="scrollcue__label">Scorri per esplorare</span>
     <span class="scrollcue__mouse" aria-hidden="true">
       <span class="scrollcue__wheel"></span>
     </span>
   </button>
 
+  <!-- Barra legale: elemento comune, in basso a destra, in ogni scena.
+       Insegna e partita IVA (art. 35 DPR 633/1972) e i tre documenti; la
+       riempie assets/js/legale.js con i dati di config.js (azienda). -->
+  <footer class="legal-bar" data-legal-bar></footer>
+
   <!-- BLOCCO 1 — scena 2, vista posteriore a 3/4 -->
-  <section class="block block--1" id="block-1" data-visible="false" aria-label="Porsche 911 GT3 RS">
+  <section class="block block--1" id="block-1" data-visible="false" aria-label="Top One Cars">
+    <!-- Testi da esempio_testo_homepage.png: la qualifica sopra il nome,
+         l'indirizzo sotto, sottolineato perche' porta alla mappa. -->
+    <p class="b1__kicker" data-anim style="--i:0">Off. auto-riparazioni.</p>
     <h1 class="b1__title">
-      <span class="b1__title-line" data-anim style="--i:0">Porsche 911</span>
-      <span class="b1__title-line b1__title-line--ghost" data-anim style="--i:1">GT3 RS</span>
+      <span class="b1__title-line" data-anim style="--i:0">Top One Cars</span>
     </h1>
+    <p class="b1__addr" data-anim style="--i:1">
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Top+One+Cars+SS+9+Via+Emilia+312+20070+Vizzolo+Predabissi+MI"
+         target="_blank" rel="noopener">SS 9 Via Emilia, 312, 20070 Vizzolo Predabissi MI</a>
+    </p>
     <ul class="b1__stats">
       <li class="b1__card" data-anim style="--i:2">
-        <span class="b1__card-value">4.0l</span>
-        <span class="b1__card-label">ogni 100 km</span>
+        <span class="b1__card-value">1359</span>
+        <span class="b1__card-label">Clienti soddisfatti</span>
       </li>
       <li class="b1__card" data-anim style="--i:3">
-        <span class="b1__card-value">518</span>
-        <span class="b1__card-label">cavalli tedeschi</span>
+        <span class="b1__card-value">3298</span>
+        <span class="b1__card-label">pezzi sostituiti</span>
       </li>
       <li class="b1__card" data-anim style="--i:4">
-        <span class="b1__card-value">3.2S</span>
-        <span class="b1__card-label">da 0 a 100 km /h</span>
+        <span class="b1__card-value">4.89</span>
+        <span class="b1__card-label">media recensioni Google</span>
       </li>
     </ul>
+
+    <!-- Area amministratore: a luce spenta, al posto delle schede statistiche.
+         La verifica delle credenziali la fa il server (config.admin.endpoint):
+         nella pagina non c'e' e non ci deve essere nessuna password. -->
+    <section class="adm" data-adm hidden aria-labelledby="adm-title">
+      <p class="svc__eyebrow">Top One Cars · Area riservata</p>
+      <h2 class="adm__title" id="adm-title" data-adm-title>Accesso amministratore</h2>
+
+      <form class="adm__form" data-adm-form novalidate>
+        <label class="fld">
+          <span class="fld__label">Utente</span>
+          <input class="fld__input" type="text" name="utente" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+        </label>
+        <!-- Etichetta legata al solo campo: il pulsante dell'occhio sta fuori,
+             altrimenti un click sull'etichetta potrebbe finire su di lui. -->
+        <div class="fld">
+          <label class="fld__label" for="adm-pwd">Password</label>
+          <span class="adm__pwd">
+            <input class="fld__input" id="adm-pwd" name="password" type="password" autocomplete="current-password" required>
+            <button class="adm__eye" type="button" data-adm-eye aria-label="Mostra la password" aria-pressed="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </span>
+        </div>
+        <p class="fld__err adm__err" data-adm-err role="alert"></p>
+        <div class="bk__actions">
+          <button class="bk__primary" type="submit" data-adm-send>Accedi</button>
+        </div>
+        <!-- Credenziali della demo: le mostra admin.js solo se config.admin.demo
+             e' impostato. -->
+        <p class="adm__demo" data-adm-demo hidden>
+          <span>Demo</span> utente <b data-adm-demo-user></b> · password <b data-adm-demo-pwd></b>
+          <button class="bk__link" type="button" data-adm-demo-fill>Compila</button>
+        </p>
+      </form>
+
+      <div class="adm__in" data-adm-in hidden>
+        <p class="adm__welcome" data-adm-welcome></p>
+        <ul class="adm__kpi" data-adm-kpi></ul>
+        <p class="adm__note" data-adm-note>Scegli una sezione dal menu in alto. Per uscire, riaccendi la luce.</p>
+      </div>
+    </section>
+
+    <!-- Le pagine dell'area amministratore: una sola lastra di vetro larga
+         quanto la barra del menu, che cambia contenuto con la voce scelta.
+         Le costruisce assets/js/admin-pagine.js. -->
+    <section class="admp" data-admp hidden aria-labelledby="admp-title">
+      <header class="admp__head">
+        <div>
+          <p class="svc__eyebrow" data-admp-eyebrow>Area amministratore</p>
+          <h2 class="admp__title" id="admp-title" data-admp-title>Area amministratore</h2>
+          <p class="svc__sub" data-admp-sub></p>
+        </div>
+        <div class="admp__tools" data-admp-tools></div>
+        <button class="svc__close" type="button" data-admp-close aria-label="Chiudi la pagina">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+               stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </header>
+      <div class="admp__body" data-admp-body></div>
+    </section>
   </section>
 
   <!-- BLOCCO 2 — scena 3, vista anteriore a 3/4 -->
-  <section class="block block--2" id="block-2" data-visible="false" aria-label="How we engineer the next generation of performance">
+  <section class="block block--2" id="block-2" data-visible="false" aria-label="Scopri come progettiamo la nuova generazione di performance">
     <h2 class="b2__headline">
-      <span class="b2__line" data-anim style="--i:0">How we engineer</span>
-      <span class="b2__line" data-anim style="--i:1">the next generation</span>
-      <span class="b2__line" data-anim style="--i:2">of performance.</span>
+      <span class="b2__line" data-anim style="--i:0">Scopri come progettiamo</span>
+      <span class="b2__line" data-anim style="--i:1">la nuova generazione</span>
+      <span class="b2__line" data-anim style="--i:2">di performance.</span>
     </h2>
     <!-- Le cifre hanno una spaziatura propria: nel mockup il gruppo "911" occupa
          molto piu' spazio di quanto Albert Sans gli darebbe (vedi REPORT.md). -->
-    <p class="b2__giant" data-anim style="--i:3" aria-hidden="true"><span class="b2__giant-num">911</span> Porsche</p>
+    <p class="b2__giant" data-anim style="--i:4" aria-hidden="true"><span class="b2__giant-num">911</span> Porsche</p>
+
+    <!-- Servizi prenotabili: un pulsante, vestito come la barra del menu, apre un
+         pannello di vetro con le categorie a sinistra e i servizi a destra.
+         Il contenuto lo costruisce assets/js/servizi.js da servizi-data.js,
+         generato a sua volta da menu_servizi.txt (npm run servizi). -->
+    <button class="svc-open" type="button" data-anim style="--i:3" data-svc-open
+            aria-haspopup="dialog" aria-expanded="false" aria-controls="servizi">
+      <span class="svc-open__label">Prenota un servizio!</span>
+      <svg class="svc-open__arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 8h10M9 4l4 4-4 4"/>
+      </svg>
+    </button>
+
+    <div class="svc" id="servizi" role="dialog" aria-modal="true" aria-labelledby="svc-title"
+         data-svc hidden>
+      <header class="svc__head">
+        <div>
+          <p class="svc__eyebrow">Top One Cars · Officina</p>
+          <h2 class="svc__title" id="svc-title">Servizi prenotabili</h2>
+          <p class="svc__sub" data-svc-sub></p>
+        </div>
+        <button class="svc__close" type="button" data-svc-close aria-label="Chiudi l'elenco dei servizi">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+               stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </header>
+      <div class="svc__body">
+        <div class="svc__tabs" role="tablist" aria-orientation="vertical"
+             aria-label="Categorie di servizi" data-svc-tabs></div>
+        <div class="svc__panel" id="svc-panel" role="tabpanel" data-svc-panel><ul class="svc__list" data-svc-list></ul></div>
+      </div>
+    </div>
+
+    <!-- Prenotazione: compare a destra del pannello dei servizi appena se ne
+         sceglie almeno uno. Tre passi — data e ora, dati, conferma — nello
+         stesso vetro. Lo gestisce assets/js/prenotazione.js. -->
+    <section class="bk" data-bk hidden aria-labelledby="bk-title">
+      <header class="bk__head">
+        <p class="svc__eyebrow" data-bk-step></p>
+        <h2 class="bk__title" id="bk-title" data-bk-title>Prenotazione</h2>
+      </header>
+
+      <!-- Riepilogo dei servizi scelti: sempre visibile, ciascuno si toglie. -->
+      <div class="bk__picked">
+        <p class="bk__picked-head">
+          <span data-bk-count></span>
+          <button class="bk__link" type="button" data-bk-clear>Svuota</button>
+        </p>
+        <ul class="bk__chips" data-bk-chips></ul>
+      </div>
+
+      <!-- Passo 1: calendario e orario. -->
+      <section class="bk__pane" data-bk-pane="1">
+        <div class="cal">
+          <div class="cal__nav">
+            <button class="cal__arrow" type="button" data-cal-prev aria-label="Mese precedente">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3.5L5.5 8l4.5 4.5"/></svg>
+            </button>
+            <p class="cal__month" data-cal-month aria-live="polite"></p>
+            <button class="cal__arrow" type="button" data-cal-next aria-label="Mese successivo">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5"/></svg>
+            </button>
+          </div>
+          <div class="cal__week" aria-hidden="true">
+            <span>L</span><span>M</span><span>M</span><span>G</span><span>V</span><span>S</span><span>D</span>
+          </div>
+          <div class="cal__grid" data-cal-grid></div>
+        </div>
+        <p class="bk__label" data-bk-slots-label>Scegli un giorno per vedere gli orari</p>
+        <div class="bk__slots" data-bk-slots></div>
+        <div class="bk__actions">
+          <button class="bk__primary" type="button" data-bk-next disabled>Continua</button>
+        </div>
+      </section>
+
+      <!-- Passo 2: i dati di chi prenota. -->
+      <form class="bk__pane bk__form" data-bk-pane="2" data-bk-form novalidate hidden>
+        <p class="bk__when" data-bk-when></p>
+        <label class="fld">
+          <span class="fld__label">Nome e cognome</span>
+          <input class="fld__input" type="text" name="nome" autocomplete="name" required>
+          <span class="fld__err" data-err="nome"></span>
+        </label>
+        <div class="fld__row">
+          <label class="fld">
+            <span class="fld__label">Telefono</span>
+            <input class="fld__input" name="telefono" type="tel" autocomplete="tel" inputmode="tel" required>
+            <span class="fld__err" data-err="telefono"></span>
+          </label>
+          <label class="fld">
+            <span class="fld__label">Email <em>facoltativa</em></span>
+            <input class="fld__input" name="email" type="email" autocomplete="email">
+            <span class="fld__err" data-err="email"></span>
+          </label>
+        </div>
+        <label class="fld">
+          <span class="fld__label">Auto e targa</span>
+          <input class="fld__input" type="text" name="auto" placeholder="Es. Porsche 911 · AB123CD" required>
+          <span class="fld__err" data-err="auto"></span>
+        </label>
+        <label class="fld">
+          <span class="fld__label">Note <em>facoltative</em></span>
+          <input class="fld__input" type="text" name="note" placeholder="Rumori, spie accese, richieste particolari">
+        </label>
+        <label class="fld__check">
+          <input type="checkbox" name="privacy" required>
+          <span class="fld__box" aria-hidden="true"></span>
+          <!-- Presa visione, non consenso: la base giuridica della risposta e'
+               la richiesta stessa (art. 6.1.b GDPR), e chiedere un consenso
+               che non serve lo renderebbe finto. -->
+          <span>Ho letto l’informativa sulla privacy. <button class="fld__link" type="button" data-legal-open="privacy">Leggi</button></span>
+        </label>
+        <span class="fld__err" data-err="privacy"></span>
+        <div class="bk__actions">
+          <button class="bk__ghost" type="button" data-bk-back>Indietro</button>
+          <button class="bk__primary" type="submit" data-bk-send>Invia richiesta</button>
+        </div>
+      </form>
+
+      <!-- Passo 3: conferma. -->
+      <section class="bk__pane bk__done" data-bk-pane="3" hidden>
+        <span class="bk__done-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+               stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </span>
+        <p class="bk__done-text" data-bk-done></p>
+        <div class="bk__actions">
+          <button class="bk__ghost" type="button" data-bk-restart>Nuova prenotazione</button>
+        </div>
+      </section>
+    </section>
   </section>
 
   <!-- BLOCCO 3 — scena 4, ruota in primo piano -->
@@ -158,7 +452,7 @@
       </g>
     </svg>
 
-    <p class="b3__note b3__note--cerchio" data-anim style="--i:1">
+    <p class="b3__note b3__note--cerchio" data-anim data-i18n-righe style="--i:1">
       Cerchio forgiato a più<br>
       razze (design a razze<br>
       sdoppiate) con finitura<br>
@@ -166,7 +460,7 @@
       (tipica tonalità Neodyme o<br>
       Satin Aurum di Porsche).
     </p>
-    <p class="b3__note b3__note--pneumatico" data-anim style="--i:2">
+    <p class="b3__note b3__note--pneumatico" data-anim data-i18n-righe style="--i:2">
       Uno pneumatico ad<br>
       altissime prestazioni<br>
       Michelin Pilot Sport Cup<br>
@@ -178,7 +472,7 @@
       spalla ribassata e mescola<br>
       ad elevato grip.
     </p>
-    <p class="b3__note b3__note--pinza" data-anim style="--i:3">
+    <p class="b3__note b3__note--pinza" data-anim data-i18n-righe style="--i:3">
       Pinza fissa monoblocco ad<br>
       alte prestazioni<br>
       (tipicamente a 6 pistoncini<br>
@@ -188,7 +482,7 @@
       contrasto, posizionata a<br>
       ridosso del disco.
     </p>
-    <p class="b3__note b3__note--disco" data-anim style="--i:4">
+    <p class="b3__note b3__note--disco" data-anim data-i18n-righe style="--i:4">
       Disco cross-drilled per<br>
       massimizzare la<br>
       dissipazione del<br>
@@ -196,18 +490,249 @@
       pastiglie e disperdere i<br>
       gas di frenata.
     </p>
-    <p class="b3__note b3__note--campana" data-anim style="--i:5">
+    <p class="b3__note b3__note--campana" data-anim data-i18n-righe style="--i:5">
       Fissato alla campana<br>
       centrale tramite<br>
       perni/boccole.
     </p>
+
+    <!-- Contenuti: la card che si apre al secondo scroll su questa pagina. Stesso
+         vetro del pannello dei servizi; a destra l'iPhone con l'interfaccia dei
+         Reels, ricostruito da InstagramPhoneMockup.tsx di beautydreamer-web.
+         Lo gestisce assets/js/contenuti.js. -->
+    <section class="cnt" id="contenuti" data-cnt hidden aria-labelledby="cnt-title">
+      <button class="svc__close cnt__close" type="button" data-cnt-close aria-label="Chiudi i contenuti">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+             stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+
+      <div class="cnt__text">
+        <p class="svc__eyebrow">Top One Cars · Contenuti</p>
+        <h2 class="svc__title" id="cnt-title">Dall’officina</h2>
+        <p class="svc__sub">Guarda come lavoriamo, direttamente dal telefono.</p>
+        <ul class="cnt__list" data-cnt-list></ul>
+        <p class="cnt__next" aria-hidden="true">Scorri ancora per proseguire</p>
+      </div>
+
+      <!-- iPhone: scocca in titanio dorato, tasti laterali, vetro dello schermo. -->
+      <div class="phone">
+        <div class="phone__case">
+          <span class="phone__key phone__key--l1"></span>
+          <span class="phone__key phone__key--l2"></span>
+          <span class="phone__key phone__key--l3"></span>
+          <span class="phone__key phone__key--r1"></span>
+
+          <div class="phone__screen" data-phone-screen>
+            <video class="phone__video" data-phone-video loop muted playsinline preload="none"></video>
+
+            <div class="phone__shade phone__shade--top"></div>
+            <div class="phone__shade phone__shade--bottom"></div>
+
+            <!-- Dynamic Island -->
+            <div class="phone__island" aria-hidden="true">
+              <span class="phone__cam"><span></span></span>
+              <span class="phone__sensor"></span>
+            </div>
+
+            <!-- Barra alta dei Reels -->
+            <div class="ig__top">
+              <span class="ig__reels">Reels</span>
+              <div class="ig__top-btns">
+                <button class="ig__round ig__round--brand" type="button" data-ig-open title="Apri Profilo" aria-label="Apri il profilo Instagram">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                </button>
+                <button class="ig__round ig__round--glass" type="button" data-ig-sound title="Attiva Audio" aria-label="Attiva l'audio" aria-pressed="false">
+                  <svg class="ig__muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/></svg>
+                  <svg class="ig__loud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Azioni a destra -->
+            <div class="ig__side">
+              <button class="ig__act" type="button" data-ig-like aria-pressed="false" aria-label="Mi piace">
+                <span class="ig__bubble"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>
+              </button>
+              <button class="ig__act" type="button" data-ig-open aria-label="Commenti">
+                <span class="ig__bubble"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></span>
+              </button>
+              <button class="ig__act" type="button" data-ig-open aria-label="Condividi">
+                <span class="ig__bubble"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></span>
+              </button>
+              <button class="ig__act" type="button" data-ig-save aria-pressed="false" aria-label="Salva">
+                <span class="ig__bubble"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg></span>
+              </button>
+              <button class="ig__act ig__more" type="button" data-ig-open aria-label="Altro">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+              </button>
+              <span class="ig__disc" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              </span>
+            </div>
+
+            <!-- Profilo, didascalia, audio -->
+            <div class="ig__bottom">
+              <div class="ig__profile">
+                <button class="ig__avatar" type="button" data-ig-open aria-label="Profilo">
+                  <span><img src="assets/media/logo.webp" alt="" width="467" height="150" decoding="async"></span>
+                </button>
+                <button class="ig__user" type="button" data-ig-open data-ig-user></button>
+                <button class="ig__follow" type="button" data-ig-open>Segui</button>
+              </div>
+              <p class="ig__caption" data-ig-caption></p>
+              <p class="ig__audio">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                <span data-ig-audio></span>
+              </p>
+            </div>
+
+            <!-- Barra Home -->
+            <div class="phone__home" aria-hidden="true"><span></span></div>
+
+            <!-- Conferma prima di lasciare il sito per Instagram -->
+            <div class="ig__prompt" data-ig-prompt hidden>
+              <div class="ig__prompt-box">
+                <span class="ig__prompt-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                </span>
+                <p class="ig__prompt-title">Aprire Instagram?</p>
+                <p class="ig__prompt-desc" data-ig-desc></p>
+                <button class="ig__prompt-go" type="button" data-ig-go>
+                  <span>Apri Profilo</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                </button>
+                <button class="ig__prompt-stay" type="button" data-ig-stay>Rimani sul Sito</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- BLOCCO 4 — scena 5, l'auto vista dall'alto: le recensioni.
+       Sette card di vetro attorno all'auto, quattro a sinistra allineate verso
+       la carrozzeria e tre a destra (layout: recensioni_png.png). Le card le
+       costruisce assets/js/recensioni.js da recensioni-data.js. -->
+  <section class="block block--4" id="block-4" data-visible="false" aria-label="Recensioni dei clienti">
+    <h2 class="rv__title">Recensioni</h2>
+    <div class="rv" data-rv></div>
+  </section>
+
+  <!-- BLOCCO 5 — scena 7, "Vieni a trovarci": la card con indirizzo, orari e
+       la mappa in stile videogioco (assets/js/visita.js, assets/css/visita.css).
+       La mappa e' quella di Google, incorporata senza chiave e ridipinta con i
+       filtri; si carica solo avvicinandosi alla scena. -->
+  <section class="block block--5" id="block-5" data-visible="false" aria-label="Vieni a trovarci">
+    <article class="vt" data-anim style="--i:0" data-vt>
+      <header class="vt__head">
+        <p class="svc__eyebrow">Vieni a trovarci</p>
+        <h2 class="vt__title">Top One Cars</h2>
+        <p class="vt__addr">SS 9 Via Emilia, 312 · 20070 Vizzolo Predabissi (MI)</p>
+      </header>
+
+      <div class="vt__map">
+        <span class="vt__lens">
+          <iframe class="vt__frame" data-vt-frame title="Mappa della zona di Top One Cars" tabindex="-1"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  data-src="https://maps.google.com/maps?q=SS+9+Via+Emilia+312,+20070+Vizzolo+Predabissi+MI&amp;z=15&amp;hl=it&amp;output=embed"></iframe>
+          <span class="vt__diff" aria-hidden="true"></span>
+        </span>
+        <span class="vt__tint" aria-hidden="true"></span>
+        <span class="vt__lift" aria-hidden="true"></span>
+        <span class="vt__hud" aria-hidden="true">
+          <span class="vt__sweep"></span>
+          <span class="vt__grid"></span>
+          <span class="vt__target"><i></i><i></i><i></i></span>
+          <span class="vt__tag">GPS · Destinazione</span>
+          <span class="vt__north">N</span>
+          <span class="vt__corner vt__corner--tl"></span>
+          <span class="vt__corner vt__corner--tr"></span>
+          <span class="vt__corner vt__corner--bl"></span>
+          <span class="vt__corner vt__corner--br"></span>
+        </span>
+        <!-- Finche' non si sceglie, la mappa di Google non si carica: al
+             caricamento Google riceve l'IP e puo' installare cookie
+             (assets/js/consenso.js). L'HUD resta, la scelta sta sopra. -->
+        <div class="vt__consent" data-vt-consent hidden>
+          <p class="vt__consent-txt">La mappa è fornita da Google, che riceverà il tuo indirizzo IP e potrà usare cookie.</p>
+          <button class="vt__consent-btn" type="button" data-vt-consent-ok>Carica la mappa</button>
+          <button class="vt__consent-more" type="button" data-legal-open="cookie">Cookie policy</button>
+        </div>
+        <a class="vt__open" target="_blank" rel="noopener"
+           href="https://www.google.com/maps/search/?api=1&amp;query=Top+One+Cars+SS+9+Via+Emilia+312+20070+Vizzolo+Predabissi+MI"
+           aria-label="Apri la posizione in Google Maps"></a>
+      </div>
+
+      <p class="vt__status" data-vt-status></p>
+      <ul class="vt__week" data-vt-week aria-label="Orari di apertura"></ul>
+
+      <a class="vt__go" target="_blank" rel="noopener"
+         href="https://www.google.com/maps/dir/?api=1&amp;destination=SS+9+Via+Emilia+312,+20070+Vizzolo+Predabissi+MI">
+        <span>Avvia navigazione</span>
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8.2 13.5 2.5 9.2 13.5 7.6 8.9z"/></svg>
+      </a>
+    </article>
+  </section>
+
+  <!-- BLOCCO 6 — scena 8, "Noleggio": le auto del parco dell'officina, in card
+       riprese dal sito Valenzani Motors (assets/js/noleggio.js). -->
+  <section class="block block--6 nl" id="block-6" data-visible="false" aria-label="Noleggio" data-nl>
+    <header class="nl__head">
+      <p class="svc__eyebrow" data-anim style="--i:0">Noleggio</p>
+      <h2 class="nl__title-page" data-anim style="--i:0">Scegli la tua auto</h2>
+      <p class="nl__sub" data-anim style="--i:1" data-nl-sub></p>
+    </header>
+    <div class="nl__nav" data-anim style="--i:1">
+      <span class="nl__pos" data-nl-pos aria-live="polite"></span>
+      <button class="nl__arrow" type="button" data-nl-prev aria-label="Auto precedenti">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5"/></svg>
+      </button>
+      <button class="nl__arrow" type="button" data-nl-next aria-label="Auto successive">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5"/></svg>
+      </button>
+    </div>
+    <div class="nl__view">
+      <ul class="nl__track" data-nl-track aria-label="Auto a noleggio"></ul>
+    </div>
   </section>
 
 </div>
 
+<!-- Avviso delle voci di menu: la pagina si naviga scorrendo, non cliccando.
+     Un click su una voce sfoca tutto e lo dice al centro dello schermo; il
+     primo gesto (scroll, swipe, tasto, click) lo ritira. assets/js/menu-hint.js -->
+<div class="hint" data-hint hidden aria-hidden="true">
+  <div class="hint__msg" role="status">
+    <span class="scrollcue__mouse hint__mouse" aria-hidden="true">
+      <span class="scrollcue__wheel"></span>
+    </span>
+    <span class="hint__label">Scorri per esplorare</span>
+  </div>
+</div>
+
+<!-- Pannello legale: informativa privacy, cookie policy, informazioni legali.
+     Lo riempie assets/js/legale.js da legale-testi.js; data-scroll perche'
+     rotellina e swipe qui dentro scorrono il testo e non cambiano scena. -->
+<dialog class="lg" data-legal data-scroll>
+  <div class="lg__sheet">
+    <div class="lg__bar">
+      <div class="lg__tabs" role="tablist" data-legal-tabs></div>
+      <button class="lg__close" type="button" data-legal-close aria-label="Chiudi">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+             aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </div>
+    <div class="lg__body" data-legal-body tabindex="-1"></div>
+  </div>
+</dialog>
+
 <!-- La pagina non deve mai diventare nera in silenzio. -->
 <div class="failure" id="failure" hidden role="alert">
-  <h1 data-failure-title></h1>
+  <h1 data-failure-title>Errore</h1>
   <pre data-failure-detail></pre>
 </div>
 

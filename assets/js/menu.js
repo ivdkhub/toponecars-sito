@@ -43,6 +43,9 @@ export class MenuHighlight {
       this.observer = new ResizeObserver(() => this.reposition(true));
       this.observer.observe(this.menu);
     }
+    // Cambiando lingua le voci cambiano larghezza anche se la barra no: la
+    // pastiglia si rimisura sul testo nuovo, senza scivolare.
+    document.addEventListener('linguachange', () => this.reposition(true));
   }
 
   /** Indice della voce associata a una scena, o null se non ce n'e' una. */

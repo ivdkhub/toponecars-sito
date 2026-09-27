@@ -33,13 +33,13 @@ export const TARGETS = [
 
 /** specimen -> selettore, per ricavare dal DOM la regione da misurare. */
 const SELECTORS = {
-  'menu.servizi': '.menu__link:nth-of-type(1)',
-  'menu.contenuti': '.menu__link:nth-of-type(2)',
-  'menu.recensioni': '.menu__link:nth-of-type(3)',
+  'menu.servizi': '.menu__link:nth-of-type(2)',
+  'menu.contenuti': '.menu__link:nth-of-type(3)',
+  'menu.recensioni': '.menu__link:nth-of-type(4)',
   'menu.vieni': '.menu__btn--light',
   'menu.testdrive': '.menu__btn--ghost',
   'b1.title1': '.b1__title-line:nth-child(1)',
-  'b1.title2': '.b1__title-line:nth-child(2)',
+  'b1.title2': '.b1__addr',
   'b1.value1': '.b1__card:nth-child(1) .b1__card-value',
   'b1.label1': '.b1__card:nth-child(1) .b1__card-label',
   'b1.value2': '.b1__card:nth-child(2) .b1__card-value',

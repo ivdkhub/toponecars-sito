@@ -54,6 +54,32 @@ export const MEDIA_VARIANTS = [
 ];
 
 /**
+ * La cartella di riserva quando quella in uso si e' rivelata illeggibile.
+ *
+ * Un browser puo' dichiarare di saper decodificare un formato (canPlayType
+ * "probably") e poi fallire su ogni fotogramma: verificato su un WebKit che
+ * dichiara AV1. Qui si sceglie la famiglia successiva nell'ordine di
+ * MEDIA_VARIANTS che il browser dichiara di leggere, nella stessa misura se
+ * esiste. null se non c'e' piu' niente da provare.
+ *
+ * @param {string} dir cartella che ha fallito
+ * @param {Set<string>} fallite cartelle gia' scartate
+ */
+export function mediaDirDiRiserva(dir, fallite, win = window) {
+  const i = MEDIA_VARIANTS.findIndex((v) => v.hd === dir || v.sd === dir);
+  const piccola = i >= 0 && MEDIA_VARIANTS[i].sd === dir;
+  const probe = win.document.createElement('video');
+  for (const v of MEDIA_VARIANTS.slice(i + 1)) {
+    let ok = false;
+    try { ok = probe.canPlayType(v.type) !== ''; } catch { ok = false; }
+    if (!ok) continue;
+    const scelta = piccola ? (v.sd || v.hd) : (v.hd || v.sd);
+    if (scelta && !fallite.has(scelta)) return scelta;
+  }
+  return null;
+}
+
+/**
  * Se convenga la misura ridotta.
  *
  * Non e' una questione di nitidezza: il palcoscenico e' in object-fit: cover, e
@@ -173,7 +199,7 @@ export const CONFIG = {
       options: [
         {
           id: 'giallo',
-          label: 'Giallo corsa',
+          label: 'Giallo Top One Cars',
           swatch: '#eab709',
           src: 'vernice-giallo.mp4',
           reverseSrc: 'vernice-giallo.rev.mp4',
@@ -214,17 +240,119 @@ export const CONFIG = {
    *  voce "Vieni a trovarci" riproduce esattamente la pastiglia che ha li'. */
   menuPillPadding: 6.84,
 
+  /** Prenotazione dei servizi (assets/js/prenotazione.js).
+   *
+   *  ATTENZIONE: giorni e orari sono VALORI DI PARTENZA, non ancora confermati
+   *  dal committente. Vanno sostituiti con gli orari reali dell'officina.
+   *
+   *  Sono solo la base: l'archivio dell'officina (dati-officina.js) li
+   *  trasforma in fasce orarie, e da li' in poi li modifica la pagina "Orari
+   *  di apertura" dell'area amministratore. */
+  prenotazione: {
+    /** Giorni chiusi, come Date.getDay(): 0 = domenica. */
+    giorniChiusi: [0],
+    /** Orari di accettazione proposti per giorno della settimana (1 = lunedi'). */
+    orari: {
+      1: ['08:30', '09:30', '10:30', '11:30', '14:30', '15:30', '16:30', '17:30'],
+      2: ['08:30', '09:30', '10:30', '11:30', '14:30', '15:30', '16:30', '17:30'],
+      3: ['08:30', '09:30', '10:30', '11:30', '14:30', '15:30', '16:30', '17:30'],
+      4: ['08:30', '09:30', '10:30', '11:30', '14:30', '15:30', '16:30', '17:30'],
+      5: ['08:30', '09:30', '10:30', '11:30', '14:30', '15:30', '16:30', '17:30'],
+      6: ['08:30', '09:30', '10:30', '11:30'],
+    },
+    /** Primo giorno prenotabile: domani (1) — oggi l'officina non puo'
+     *  confermare in tempo. */
+    anticipoGiorni: 1,
+    /** Quanto avanti si puo' prenotare, in giorni. */
+    finestraGiorni: 90,
+    /** Dove inviare la richiesta (POST JSON). null = non ancora collegato: la
+     *  richiesta viene solo emessa come evento `prenotazione` su document. */
+    endpoint: null,
+  },
+
+  /** Area amministratore, a luce spenta sulla scena 2 (assets/js/admin.js).
+   *
+   *  Le credenziali le verifica il server: `endpoint` riceve in POST
+   *  { utente, password } e risponde { nome } con una sessione (cookie
+   *  HttpOnly) se l'accesso e' valido, 401 altrimenti; `logout` chiude la
+   *  sessione. Finche' `endpoint` e' null il form lo dice e non fa entrare
+   *  nessuno: una password controllata nel browser la leggerebbe chiunque. */
+  admin: {
+    endpoint: null,
+    logout: null,
+    /** Credenziali della DEMO, mostrate nel form. Valgono solo finche'
+     *  `endpoint` e' null: aprono l'area con dati di prova salvati nel browser
+     *  di chi la usa, e non proteggono nulla. Con il server collegato vanno
+     *  tolte (null), e l'accesso passa solo da li'. */
+    demo: { utente: 'demo', password: 'toponecars' },
+  },
+
+  /** Pagina "Contenuti": la card con l'iPhone (assets/js/contenuti.js).
+   *
+   *  ATTENZIONE: nome utente e indirizzo del profilo Instagram sono DA
+   *  CONFERMARE con il committente. Finche' `url` e' null i comandi che nel
+   *  telefono porterebbero su Instagram non aprono nulla. */
+  contenuti: {
+    instagram: {
+      utente: 'toponecars',
+      url: null,
+    },
+    didascalia: 'Dentro l’officina Top One Cars: i prodotti che usiamo sulla tua auto. 🔧',
+    audio: 'Audio originale • Top One Cars',
+  },
+
+  /** Dati dell'impresa per informativa privacy, cookie policy, informazioni
+   *  legali e barra in fondo alla pagina (assets/js/legale.js).
+   *
+   *  OBBLIGATORI PRIMA DELLA PUBBLICAZIONE: i campi a null compaiono nel sito
+   *  come "da completare", e la console lo segnala a ogni caricamento.
+   *   - P.IVA in ogni pagina del sito: art. 35 DPR 633/1972;
+   *   - ragione sociale, sede, recapito email, iscrizione al Registro delle
+   *     Imprese (REA), capitale sociale per le societa': art. 7 D.Lgs. 70/2003
+   *     e art. 2250 c.c.;
+   *   - un indirizzo email a cui esercitare i diritti privacy: artt. 13 e
+   *     15-22 GDPR.
+   *  Si prendono dalla visura camerale dell'officina. */
+  azienda: {
+    /** Es. "Top One Cars S.r.l." oppure "Top One Cars di Mario Rossi". */
+    ragioneSociale: null,
+    /** Nome commerciale, come compare nel sito. */
+    insegna: 'Top One Cars',
+    sede: 'SS 9 Via Emilia, 312 · 20070 Vizzolo Predabissi (MI)',
+    piva: null,
+    /** Solo se diverso dalla partita IVA (ditte individuali). */
+    codiceFiscale: null,
+    /** Es. "MI-1234567". */
+    rea: null,
+    /** Solo per le societa' di capitali, es. "10.000 € i.v."; null altrimenti. */
+    capitaleSociale: null,
+    email: null,
+    pec: null,
+    telefono: null,
+  },
+
+  /** Data dell'ultima revisione di informativa privacy e cookie policy
+   *  (AAAA-MM-GG): va aggiornata a ogni modifica dei testi in legale-testi.js. */
+  informativaAggiornata: '2026-09-27',
+
+  // sottopagina: una scena puo' avere un secondo "piano" che si apre con uno
+  // scroll in avanti, invece di passare subito alla scena dopo. Il secondo
+  // scroll lo apre, il successivo prosegue; uno scroll indietro lo richiude.
   // menuItem: indice della voce di menu che la scena rende corrente, oppure null
-  // se nessuna lo e'. Le voci sono cinque e coprono le scene 2-6; la prima e
-  // l'ultima non ne hanno una.
+  // se nessuna lo e'. Le voci sono sei, nell'ordine: Chi siamo, Servizi,
+  // Contenuti, Recensioni, Vieni a trovarci, Noleggio. La prima scena, il campo
+  // lungo d'apertura, non ne ha una; "Vieni a trovarci" copre la sesta e la
+  // settima, e "Noleggio" ha l'ottava, un passo fermo sull'inquadratura della
+  // settima (vedi l'ultima transizione).
   scenes: [
     { id: 'campo-lungo',     label: 'Campo lungo',          block: null,      counter: { n: 1, bar: 0.120 }, menuItem: null },
-    { id: 'retro-tre-q',     label: 'Vista posteriore',     block: 'block-1', counter: { n: 2, bar: 0.267 }, menuItem: 0 },
-    { id: 'fronte-tre-q',    label: 'Vista anteriore',      block: 'block-2', counter: { n: 3, bar: 0.413 }, menuItem: 1 },
-    { id: 'ruota',           label: 'Ruota in primo piano', block: 'block-3', counter: { n: 4, bar: 0.560 }, menuItem: 2 },
-    { id: 'vista-alto',      label: 'Vista dall’alto',     block: null,      counter: { n: 5, bar: 0.707 }, menuItem: 3 },
-    { id: 'ruote-scomposte', label: 'Ruote scomposte',      block: null,      counter: { n: 6, bar: 0.853 }, menuItem: 4 },
-    { id: 'ritorno-alto',    label: 'Ruote ricomposte',     block: null,      counter: { n: 7, bar: 1.000 }, menuItem: null },
+    { id: 'retro-tre-q',     label: 'Vista posteriore',     block: 'block-1', counter: { n: 2, bar: 0.246 }, menuItem: 0 },
+    { id: 'fronte-tre-q',    label: 'Vista anteriore',      block: 'block-2', counter: { n: 3, bar: 0.371 }, menuItem: 1 },
+    { id: 'ruota',           label: 'Ruota in primo piano', block: 'block-3', counter: { n: 4, bar: 0.497 }, menuItem: 2, sottopagina: 'contenuti' },
+    { id: 'vista-alto',      label: 'Vista dall’alto',     block: 'block-4',    counter: { n: 5, bar: 0.623 }, menuItem: 3 },
+    { id: 'ruote-scomposte', label: 'Ruote scomposte',      block: null,      counter: { n: 6, bar: 0.749 }, menuItem: 4 },
+    { id: 'ritorno-alto',    label: 'Ruote ricomposte',     block: 'block-5', counter: { n: 7, bar: 0.874 }, menuItem: 4 },
+    { id: 'noleggio',        label: 'Noleggio',             block: 'block-6', counter: { n: 8, bar: 1.000 }, menuItem: 5 },
   ],
 
   transitions: [
@@ -246,6 +374,11 @@ export const CONFIG = {
     // soglia) perche' le due clip condividono lo stesso fotogramma: basta una
     // dissolvenza minima, che serve solo a coprire il cambio di elemento.
     { src: 't5.rev.mp4', reverseSrc: 't5.mp4', seamFadeMs: 120 },
+    // Ottava scena, "Noleggio": un passo fermo. Nessuna clip, l'immagine resta
+    // sull'ultimo fotogramma della settima; cambiano solo contatore e voce di
+    // menu. `durataMs` e' il tempo del passo, che si comporta come gli altri:
+    // gli input che arrivano nel frattempo vengono scartati.
+    { ferma: true, durataMs: 600 },
   ],
 };
 

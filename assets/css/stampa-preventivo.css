@@ -1,0 +1,133 @@
+/* Il foglio del preventivo (assets/js/admin-pagine.js, foglioPreventivo).
+   Lo stesso foglio fa da anteprima nella pagina Genera preventivo, rimpicciolito
+   a misura della colonna, e da documento nella finestra di stampa: cosi' quello
+   che si vede componendo e' quello che finisce nel PDF.
+   In un file e non in un <style> scritto dallo script: la Content-Security-
+   Policy del sito (vercel.json) accetta solo fogli di stile del sito stesso.
+   Tutto sta sotto .pv, perche' il file e' caricato anche dal sito. */
+
+@font-face {
+  font-family: 'Albert Sans';
+  src: url('../fonts/AlbertSans-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+/* Il compagno cirillico di Albert Sans (vedi base.css). */
+@font-face {
+  font-family: 'Albert Sans';
+  src: url('../fonts/Onest-Cyrillic-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+/* A4 con 14 mm di margine: 794 x 1123 px a 96 dpi, 53 px di margine. */
+@page { size: A4; margin: 14mm; }
+
+.pv {
+  --pv-ink: #1c1424;
+  --pv-muted: #6b5f78;
+  --pv-hair: #e6e0ec;
+  --pv-viola: rgb(127, 77, 177);
+  --pv-giallo: rgb(215, 171, 35);
+  box-sizing: border-box;
+  width: 794px;
+  min-height: 1123px;
+  padding: 53px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: var(--pv-ink);
+  font: 13px/1.5 'Albert Sans', system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  letter-spacing: 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.pv * { box-sizing: border-box; }
+
+.pv__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  padding-bottom: 18px;
+  border-bottom: 2px solid var(--pv-giallo);
+}
+.pv__logo { display: block; width: 210px; height: auto; margin: 0 0 8px -4px; }
+.pv__firm { margin: 0; font-size: 11px; line-height: 1.45; color: var(--pv-muted); }
+.pv__firm b { color: var(--pv-ink); font-weight: 600; }
+.pv__doc { text-align: right; white-space: nowrap; }
+.pv__eyebrow {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pv-viola);
+}
+.pv__num { display: block; margin: 2px 0; font-size: 20px; font-weight: 500; }
+.pv__date { font-size: 11.5px; color: var(--pv-muted); }
+
+.pv__client {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 26px 0 8px;
+}
+.pv__client p { margin: 3px 0 0; min-height: 1.5em; }
+.pv__client strong { font-weight: 600; font-size: 14px; }
+.pv__empty { color: #b3aabd; }
+
+.pv table { width: 100%; border-collapse: collapse; margin: 18px 0 0; }
+.pv th {
+  padding: 8px 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pv-muted);
+  text-align: left;
+  border-bottom: 1px solid var(--pv-ink);
+}
+.pv td { padding: 9px 6px; border-bottom: 1px solid var(--pv-hair); vertical-align: top; }
+.pv .n { text-align: right; white-space: nowrap; }
+.pv th:first-child, .pv td:first-child { padding-left: 0; }
+.pv th:last-child, .pv td:last-child { padding-right: 0; }
+
+.pv table.pv__tot { width: 46%; margin: 14px 0 0 auto; }
+.pv__tot td { border: 0; padding: 4px 0; }
+.pv__tot .g td {
+  padding-top: 10px;
+  border-top: 2px solid var(--pv-viola);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.pv__note {
+  margin: 26px 0 0;
+  padding: 12px 14px;
+  border-left: 3px solid var(--pv-viola);
+  background: #f5f1fa;
+  white-space: pre-line;
+}
+.pv__foot {
+  margin-top: auto;
+  padding-top: 28px;
+  font-size: 10.5px;
+  color: var(--pv-muted);
+}
+
+/* Nella finestra di stampa: il margine lo da' @page, l'altezza il contenuto. */
+@media print {
+  .pv { width: auto; min-height: 0; padding: 0; }
+  .pv__foot { margin-top: 40px; }
+}
+
+/* La finestra di stampa, prima che parta la stampa: il foglio su un tavolo. */
+.pv-win { margin: 0; padding: 24px 0; background: #e9e5ee; }
+.pv-win .pv { margin: 0 auto; box-shadow: 0 2px 18px rgba(28, 20, 36, 0.14); }
+@media print { .pv-win { padding: 0; background: #fff; } .pv-win .pv { box-shadow: none; } }

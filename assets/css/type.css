@@ -22,28 +22,47 @@
   --menu-ghost-ls: -0.34;
   --menu-ghost-w: 400;
 
-  /* blocco 1 */
-  --b1-title-x: 166.5;
-  --b1-title-y: 174.28;
-  --b1-title1-fs: 47.5;
-  --b1-title1-ls: -0.17;
+  /* blocco 1 — titolo e sottotitolo presi da testi-homepage.png (testi del
+     committente), misurati sullo screenshot e non ancora passati da fit-type.py */
+  /* Titolo e sottotitolo allineati al bordo sinistro della barra del menu
+     (140): sull'inchiostro, non sulla scatola — la "T" ha 2 unita' di spalla
+     a sinistra, quindi la scatola parte un poco prima. */
+  --b1-title-x: 137.96;
+  /* Testi da esempio_testo_homepage.png, misurati sull'esempio in scala con
+     l'altezza delle maiuscole del titolo. Dall'alto: la qualifica, con
+     l'inchiostro 30.7 unita' sotto la barra del menu (la distanza che prima
+     aveva il titolo, alzato su richiesta, e che c'e' fra barra e titolo nella
+     pagina "Servizi"); il titolo 17.3 unita' sotto la sua linea di base;
+     l'indirizzo 24 unita' sotto quella del titolo. Le quote sono le scatole,
+     ricavate dagli inchiostri misurando il rendering. */
+  --b1-kicker-y: 145.9;
+  --b1-title-y: 166.2;
+  --b1-addr-y: 238.2;
+  --b1-small-x: 148;
+  --b1-small-fs: 16.5;
+  --b1-small-ls: 0;
+  --b1-addr-w: 300;
+  --b1-addr-lh: 15.4;
+  --b1-title1-fs: 54;
+  --b1-title1-ls: -0.3;
   --b1-title1-w: 400;
-  --b1-title2-fs: 58;
-  --b1-title2-ls: 0.8;
-  --b1-title2-w: 400;
-  --b1-title-gap: 28.22;
+  --b1-title-gap: 60;
   --b1-value-fs: 58;
   --b1-value-ls: 0.745;
   --b1-value-w: 400;
   --b1-value-y: 8.24;
   --b1-label-fs: 10.545;
   --b1-label-ls: 0.256;
-  --b1-label-w: 400;
-  --b1-label-y: -6.32;
+  --b1-label-w: 500;
+  --b1-label-y: 1;
 
   /* blocco 2 */
   --b2-line-x: 150.5;
-  --b2-line-y: 117.98;
+  /* Abbassato a mano (era 117.98): l'inchiostro del titolo sta a meta' fra il
+     fondo della barra del menu (116.26) e il pulsante "Prenota un servizio!"
+     (300), con 30.7 unita' sopra e sotto. Misura presa sull'inchiostro reale
+     delle tre righe, non sulle loro scatole. */
+  --b2-line-y: 142.92;
   --b2-line-fs: 43.4;
   --b2-line-ls: 1.9;
   --b2-line-w: 400;

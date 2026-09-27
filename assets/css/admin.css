@@ -1,0 +1,744 @@
+/* Area amministratore — a luce spenta sulla scena 2 (assets/js/admin.js).
+ *
+ * Il form sta dove stanno le schede statistiche, che a luce spenta si
+ * ritirano: stesso bordo destro (130 dal margine) e stesso fondo (58.51). Il
+ * vetro e' quello del pannello dei servizi, i campi e il pulsante quelli della
+ * prenotazione: sono gia' la lingua dei moduli di questo sito.
+ */
+
+/* --------------------------------------------------------- voci del menu */
+
+/* Fuori dall'area amministratore le voci di gestione non esistono. */
+.menu__admin { display: none; }
+
+html[data-admin="on"] .menu [data-menu-item] { display: none; }
+html[data-admin="on"] .menu .menu__admin { display: inline-flex; align-items: center; }
+html[data-admin="on"] .menu .menu__link.menu__admin { display: inline; }
+/* La pastiglia segue le voci del sito: nell'area riservata non indica nulla. */
+html[data-admin="on"] .menu__pill { opacity: 0; }
+
+/* Lo scambio delle voci e' una dissolvenza, in entrambi i versi. "off" c'e'
+   solo dopo essere usciti dall'area: al primo caricamento niente animazione. */
+html[data-admin="on"] .menu__admin,
+html[data-admin="off"] .menu [data-menu-item] {
+  animation: adm-voce 520ms var(--ease-out) both;
+}
+@keyframes adm-voce {
+  from { opacity: 0; filter: blur(calc(3 * var(--s))); }
+}
+
+/* Sul buio le voci di gestione sono in crema acceso: il lilla tenue del menu,
+   pensato per stare sul video chiaro, sul nero quasi spariva. */
+:root { --adm-crema: rgb(255, 243, 214); }
+html[data-admin="on"] .menu .menu__admin { color: var(--adm-crema); }
+html[data-admin="on"] .menu .menu__btn--ghost.menu__admin {
+  background: rgba(255, 243, 214, 0.12);
+  color: var(--adm-crema);
+}
+.menu__admin:not([aria-disabled="true"]):hover { text-shadow: 0 0 calc(10 * var(--s)) rgba(255, 243, 214, 0.45); }
+
+/* La voce della pagina aperta: pastiglia crema, come quella lilla del sito. */
+html[data-admin="on"] .menu .menu__link.menu__admin[aria-current="page"] {
+  display: inline-block;
+  padding: calc(5 * var(--s)) calc(6.84 * var(--s));
+  margin-block: calc(-5 * var(--s));
+  border-radius: calc(7.6 * var(--s));
+  background: var(--adm-crema);
+  color: rgb(28, 14, 40);
+}
+html[data-admin="on"] .menu .menu__btn--ghost.menu__admin[aria-current="page"] {
+  background: var(--adm-crema);
+  color: rgb(28, 14, 40);
+}
+
+/* Voci attenuate finche' non si e' entrati. */
+.menu__admin[aria-disabled="true"] { opacity: 0.5; cursor: default; }
+
+/* ------------------------------------------ le schede statistiche si ritirano */
+
+html[data-admin="on"] .block--1[data-visible="true"] .b1__card {
+  opacity: 0;
+  transform: translateY(calc(14 * var(--s)));
+  filter: blur(calc(6 * var(--s)));
+  transition-duration: 620ms;
+  pointer-events: none;
+}
+
+/* ----------------------------------------------------------------- il form */
+
+.adm {
+  position: absolute;
+  right: calc(130 * var(--s));
+  bottom: calc(58.51 * var(--s));
+  width: calc(380 * var(--s));
+  padding: calc(24 * var(--s)) calc(26 * var(--s)) calc(22 * var(--s));
+  display: flex;
+  flex-direction: column;
+  gap: calc(6 * var(--s));
+  isolation: isolate;
+  overflow: hidden;
+  pointer-events: auto;
+
+  border-radius: calc(22 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.26);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.02) 55%),
+    var(--svc-glass);
+  -webkit-backdrop-filter: blur(calc(34 * var(--s))) saturate(160%);
+  backdrop-filter: blur(calc(34 * var(--s))) saturate(160%);
+  box-shadow:
+    inset 0 calc(1 * var(--s)) 0 rgba(255, 255, 255, 0.42),
+    inset 0 calc(-1 * var(--s)) 0 rgba(255, 255, 255, 0.08),
+    0 calc(30 * var(--s)) calc(80 * var(--s)) rgba(10, 4, 20, 0.45);
+  color: var(--svc-text);
+  font-family: 'Albert Sans', sans-serif;
+
+  opacity: 0;
+  transform: translateY(calc(18 * var(--s))) scale(0.985);
+  filter: blur(calc(6 * var(--s)));
+  transition:
+    opacity 520ms var(--ease-out),
+    transform 520ms var(--ease-out),
+    filter 520ms var(--ease-out);
+}
+.adm[hidden] { display: none; }
+.adm[data-open="true"] { opacity: 1; transform: none; filter: none; }
+
+.adm::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(90% 55% at 15% -12%, rgba(255, 255, 255, 0.2), transparent 50%);
+  pointer-events: none;
+}
+
+.adm__title {
+  margin: 0 0 calc(10 * var(--s));
+  font-weight: 400;
+  font-size: calc(24 * var(--s));
+  line-height: calc(28 * var(--s));
+  letter-spacing: calc(0.3 * var(--s));
+}
+
+.adm__form { display: flex; flex-direction: column; gap: calc(10 * var(--s)); }
+.adm__form[hidden], .adm__in[hidden] { display: none; }
+
+.adm__pwd { position: relative; display: block; }
+.adm__pwd .fld__input { padding-right: calc(38 * var(--s)); }
+.adm__eye {
+  position: absolute;
+  top: 50%;
+  right: calc(6 * var(--s));
+  translate: 0 -50%;
+  width: calc(26 * var(--s));
+  height: calc(26 * var(--s));
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: calc(6 * var(--s));
+  background: transparent;
+  color: var(--svc-muted);
+  cursor: pointer;
+}
+.adm__eye svg { width: calc(15 * var(--s)); height: calc(15 * var(--s)); }
+.adm__eye:hover, .adm__eye[aria-pressed="true"] { color: var(--svc-text); }
+
+.adm__err { min-height: calc(12 * var(--s)); margin: 0; }
+.adm__err:empty { display: block; }
+
+.adm__welcome {
+  margin: 0 0 calc(6 * var(--s));
+  font-size: calc(15 * var(--s));
+  line-height: calc(21 * var(--s));
+}
+.adm__note {
+  margin: 0;
+  font-size: calc(12 * var(--s));
+  line-height: calc(17 * var(--s));
+  color: var(--svc-muted);
+}
+
+/* Credenziali della demo, sotto il pulsante. */
+.adm__demo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: calc(5 * var(--s));
+  margin: calc(4 * var(--s)) 0 0;
+  padding-top: calc(10 * var(--s));
+  border-top: calc(1 * var(--s)) solid var(--svc-hair);
+  font-size: calc(11.5 * var(--s));
+  color: var(--svc-muted);
+}
+.adm__demo[hidden] { display: none; }
+.adm__demo > span {
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(9.5 * var(--s));
+  letter-spacing: calc(1.4 * var(--s));
+  text-transform: uppercase;
+  color: var(--giallo);
+  margin-right: calc(4 * var(--s));
+}
+.adm__demo b { font-weight: 600; color: var(--adm-crema); font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; }
+.adm__demo .bk__link { margin-left: auto; font-size: calc(11.5 * var(--s)); }
+
+/* Con una pagina aperta il form (o il benvenuto) e il titolo si ritirano:
+   la lastra della pagina prende il loro posto. */
+html[data-admin-page] .adm[data-open="true"] { opacity: 0; filter: blur(calc(6 * var(--s))); pointer-events: none; }
+html[data-admin-page] .block--1[data-visible="true"] :is(.b1__title-line, .b1__kicker, .b1__addr) { opacity: 0; transition-delay: 0ms; }
+
+/* ============================================================== le pagine */
+
+.admp {
+  position: absolute;
+  left: calc(140 * var(--s));
+  top: calc(136 * var(--s));
+  width: calc(1165.44 * var(--s));
+  height: calc(590 * var(--s));
+  padding: calc(24 * var(--s)) calc(28 * var(--s)) calc(22 * var(--s));
+  display: flex;
+  flex-direction: column;
+  gap: calc(18 * var(--s));
+  isolation: isolate;
+  overflow: hidden;
+  pointer-events: auto;
+
+  border-radius: calc(22 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.26);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.02) 55%),
+    var(--svc-glass);
+  -webkit-backdrop-filter: blur(calc(34 * var(--s))) saturate(160%);
+  backdrop-filter: blur(calc(34 * var(--s))) saturate(160%);
+  box-shadow:
+    inset 0 calc(1 * var(--s)) 0 rgba(255, 255, 255, 0.42),
+    inset 0 calc(-1 * var(--s)) 0 rgba(255, 255, 255, 0.08),
+    0 calc(30 * var(--s)) calc(80 * var(--s)) rgba(10, 4, 20, 0.45);
+  color: var(--svc-text);
+  font-family: 'Albert Sans', sans-serif;
+
+  opacity: 0;
+  transform: translateY(calc(18 * var(--s))) scale(0.985);
+  filter: blur(calc(6 * var(--s)));
+  transition: opacity 460ms var(--ease-out), transform 460ms var(--ease-out), filter 460ms var(--ease-out);
+}
+.admp[hidden] { display: none; }
+.admp[data-open="true"] { opacity: 1; transform: none; filter: none; }
+.admp::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(70% 50% at 10% -10%, rgba(255, 255, 255, 0.18), transparent 50%);
+  pointer-events: none;
+}
+
+.admp__head { display: flex; align-items: flex-start; gap: calc(20 * var(--s)); }
+.admp__head > div:first-child { flex: 1; min-width: 0; }
+.admp__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: calc(30 * var(--s));
+  line-height: calc(34 * var(--s));
+  letter-spacing: calc(0.3 * var(--s));
+}
+.admp__tools { display: flex; flex-wrap: wrap; gap: calc(6 * var(--s)); align-self: center; }
+
+.admp__body { flex: 1; min-height: 0; display: flex; }
+.admp__view { flex: 1; min-height: 0; animation: svc-in 420ms var(--ease-out) both; }
+
+/* Aree che scorrono: la rotellina qui scorre davvero (InputController le
+   lascia passare). Barra sottile, nei colori del vetro. */
+[data-scroll] {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+  padding-right: calc(8 * var(--s));
+}
+
+.admp__split {
+  display: grid;
+  grid-template-columns: calc(236 * var(--s)) 1fr;
+  gap: calc(26 * var(--s));
+  min-height: 0;
+}
+.admp__split > * { min-height: 0; }
+.admp__split--fleet { grid-template-columns: 1fr calc(340 * var(--s)); }
+.admp__split--quote { grid-template-columns: 1fr calc(400 * var(--s)); }
+
+.admp__list { margin: 0; padding: 0; list-style: none; }
+.admp__list--full { flex: 1; }
+
+.admp__row {
+  display: grid;
+  align-items: center;
+  gap: calc(14 * var(--s));
+  padding: calc(10 * var(--s)) calc(6 * var(--s));
+  border-bottom: calc(1 * var(--s)) solid var(--svc-hair);
+  font-size: calc(13.5 * var(--s));
+  transition: opacity 260ms var(--ease-out);
+}
+.admp__row:last-child { border-bottom: 0; }
+.admp__row--svc { grid-template-columns: calc(26 * var(--s)) 1fr auto auto auto auto; }
+.admp__row--svc[data-off="true"] .admp__name { opacity: 0.45; text-decoration: line-through; text-decoration-color: rgba(255, 255, 255, 0.3); }
+.admp__row--pren { grid-template-columns: calc(22 * var(--s)) calc(90 * var(--s)) 1.1fr 1fr 1.4fr calc(104 * var(--s)) calc(170 * var(--s)); }
+
+.admp__name { display: flex; flex-direction: column; gap: calc(2 * var(--s)); min-width: 0; }
+.admp__name small { font-size: calc(11 * var(--s)); color: var(--svc-muted); }
+.admp__when { display: flex; flex-direction: column; font-family: 'Aldrich', sans-serif; font-size: calc(11 * var(--s)); letter-spacing: calc(0.6 * var(--s)); color: var(--svc-muted); }
+.admp__when b { font-weight: 400; color: var(--adm-crema); text-transform: capitalize; }
+
+.admp__mini { display: inline-flex; align-items: center; gap: calc(5 * var(--s)); font-size: calc(11 * var(--s)); color: var(--svc-muted); }
+.admp__num { width: calc(70 * var(--s)); height: calc(28 * var(--s)); text-align: right; }
+.admp__sel { height: calc(28 * var(--s)); width: auto; padding-right: calc(6 * var(--s)); }
+.admp select option { background: rgb(30, 14, 48); color: #fff; }
+
+/* Interruttore "prenotabile", come quelli di iOS. */
+.admp__switch {
+  position: relative;
+  width: calc(36 * var(--s));
+  height: calc(20 * var(--s));
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  transition: background-color 220ms var(--ease-out);
+}
+.admp__switch span {
+  position: absolute;
+  top: calc(2 * var(--s));
+  left: calc(2 * var(--s));
+  width: calc(16 * var(--s));
+  height: calc(16 * var(--s));
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 calc(1 * var(--s)) calc(3 * var(--s)) rgba(0, 0, 0, 0.3);
+  transition: transform 220ms var(--ease-out);
+}
+.admp__switch[aria-checked="true"] { background: var(--menu-cta-light); }
+.admp__switch[aria-checked="true"] span { transform: translateX(calc(16 * var(--s))); }
+
+.admp__chip {
+  height: calc(26 * var(--s));
+  padding: 0 calc(12 * var(--s));
+  border-radius: calc(7.6 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--svc-text);
+  font-family: 'Albert Sans', sans-serif;
+  font-size: calc(12 * var(--s));
+  cursor: pointer;
+}
+.admp__chip[aria-pressed="true"] { background: var(--menu-cta-light); border-color: transparent; color: var(--menu-cta-light-text); }
+
+.admp__tags { display: flex; flex-wrap: wrap; gap: calc(4 * var(--s)); min-width: 0; }
+.admp__tag {
+  max-width: 100%;
+  padding: calc(2 * var(--s)) calc(8 * var(--s));
+  border-radius: calc(6 * var(--s));
+  background: rgba(255, 255, 255, 0.08);
+  font-size: calc(11 * var(--s));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admp__badge {
+  justify-self: start;
+  padding: calc(3 * var(--s)) calc(9 * var(--s));
+  border-radius: 999px;
+  font-size: calc(11 * var(--s));
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.1);
+}
+[data-stato="Da confermare"] .admp__badge { background: rgba(215, 171, 35, 0.22); color: rgb(255, 214, 110); }
+[data-stato="Confermata"] .admp__badge { background: rgba(233, 199, 255, 0.22); color: var(--menu-cta-light-text); }
+[data-stato="Completata"] .admp__badge { background: rgba(120, 220, 160, 0.18); color: rgb(160, 235, 190); }
+[data-stato="Annullata"] .admp__badge { color: var(--svc-muted); }
+[data-stato="Annullata"] .admp__name { opacity: 0.5; }
+
+.admp__acts { display: flex; justify-content: flex-end; gap: calc(6 * var(--s)); }
+.admp__btn {
+  height: calc(26 * var(--s));
+  padding: 0 calc(10 * var(--s));
+  border-radius: calc(7.6 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  color: var(--svc-text);
+  font-family: 'Albert Sans', sans-serif;
+  font-size: calc(11.5 * var(--s));
+  cursor: pointer;
+  transition: background-color 220ms var(--ease-out);
+}
+.admp__btn:hover { background: rgba(255, 255, 255, 0.1); }
+.admp__btn--on { background: var(--menu-cta-light); border-color: transparent; color: var(--menu-cta-light-text); }
+.admp__btn--on:hover { background: rgba(233, 199, 255, 0.72); }
+
+.admp__empty { padding: calc(30 * var(--s)) 0; color: var(--svc-muted); font-size: calc(13 * var(--s)); }
+
+.admp__x {
+  width: calc(24 * var(--s));
+  height: calc(24 * var(--s));
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--svc-text);
+  font-size: calc(15 * var(--s));
+  line-height: 1;
+  cursor: pointer;
+}
+.admp__x:hover:not(:disabled) { background: rgba(255, 255, 255, 0.16); }
+.admp__x:disabled { opacity: 0.25; cursor: default; }
+
+/* Parco auto: schede in griglia. */
+.admp__cars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: max-content;
+  gap: calc(12 * var(--s));
+  align-content: start;
+  margin: 0;
+  padding: 0 calc(8 * var(--s)) 0 0;
+  list-style: none;
+}
+.admp__car {
+  border-radius: calc(14 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  transition: border-color 220ms var(--ease-out), background-color 220ms var(--ease-out);
+}
+.admp__car:hover { background: rgba(255, 255, 255, 0.08); }
+.admp__car[data-sel="true"] { border-color: var(--adm-crema); }
+
+/* Tutta la scheda apre l'auto nel modulo a destra. */
+.admp__car-open {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.admp__car-open:focus-visible { outline: calc(1.5 * var(--s)) solid var(--adm-crema); outline-offset: calc(-2 * var(--s)); border-radius: calc(14 * var(--s)); }
+.admp__car-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: rgba(0, 0, 0, 0.25);
+}
+/* Le foto scontornate del parco di esempio (assets/media/noleggio): intere,
+   non ritagliate, come nelle card della pagina Noleggio. */
+.admp__car-img[src^="assets/media/noleggio/"] {
+  object-fit: contain;
+  padding: 6% 7% 4%;
+  background: radial-gradient(ellipse at 50% 85%, rgba(127, 77, 177, 0.4), rgba(0, 0, 0, 0.25) 70%);
+}
+.admp__car-img--none {
+  display: grid;
+  place-items: center;
+  font-size: calc(11 * var(--s));
+  color: var(--svc-muted);
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0 calc(8 * var(--s)), transparent calc(8 * var(--s)) calc(16 * var(--s))),
+    rgba(0, 0, 0, 0.2);
+}
+.admp__car-body { display: flex; flex-direction: column; gap: calc(3 * var(--s)); padding: calc(10 * var(--s)) calc(12 * var(--s)) calc(12 * var(--s)); }
+.admp__car-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: calc(2 * var(--s)); }
+.admp__dot { display: inline-flex; align-items: center; gap: calc(5 * var(--s)); font-size: calc(10.5 * var(--s)); color: var(--svc-muted); }
+.admp__dot::before { content: ""; width: calc(7 * var(--s)); height: calc(7 * var(--s)); border-radius: 50%; background: currentColor; }
+.admp__car[data-stato="Disponibile"] .admp__dot { color: rgb(140, 225, 175); }
+.admp__car[data-stato="Noleggiata"] .admp__dot { color: var(--menu-cta-light-text); }
+.admp__car[data-stato="In manutenzione"] .admp__dot { color: rgb(255, 205, 90); }
+.admp__plate {
+  padding: calc(2 * var(--s)) calc(8 * var(--s));
+  border-radius: calc(4 * var(--s));
+  background: var(--adm-crema);
+  color: rgb(28, 14, 40);
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(11 * var(--s));
+  letter-spacing: calc(1.2 * var(--s));
+}
+.admp__car-name { font-size: calc(15 * var(--s)); }
+.admp__car-meta { font-size: calc(11.5 * var(--s)); color: var(--svc-muted); }
+.admp__car-price { font-size: calc(14 * var(--s)); color: var(--adm-crema); margin-top: calc(4 * var(--s)); }
+.admp__car-price small { font-size: calc(11 * var(--s)); color: var(--svc-muted); }
+.admp__state { margin-top: calc(8 * var(--s)); width: 100%; }
+.admp__car[data-stato="Disponibile"] .admp__state { border-color: rgba(120, 220, 160, 0.5); }
+.admp__car[data-stato="Noleggiata"] .admp__state { border-color: rgba(233, 199, 255, 0.55); }
+.admp__car[data-stato="In manutenzione"] .admp__state { border-color: rgba(215, 171, 35, 0.6); }
+
+.admp__add {
+  display: flex;
+  flex-direction: column;
+  gap: calc(9 * var(--s));
+  padding-left: calc(24 * var(--s));
+  border-left: calc(1 * var(--s)) solid var(--svc-hair);
+}
+.admp__add-title { margin: 0 0 calc(2 * var(--s)); font-size: calc(14 * var(--s)); color: var(--adm-crema); }
+.admp__add .fld__err:empty { display: none; }
+
+/* Foto dell'auto nel modulo. */
+.admp__photo {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  flex: none;
+  border-radius: calc(12 * var(--s));
+  overflow: hidden;
+  border: calc(1 * var(--s)) dashed rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.22);
+  display: grid;
+  place-items: center;
+  font-size: calc(11.5 * var(--s));
+  color: var(--svc-muted);
+}
+.admp__photo[data-vuota="false"] { border-style: solid; }
+.admp__photo img { width: 100%; height: 100%; object-fit: cover; }
+.admp__photo[data-carica="true"]::after {
+  content: "Preparo la foto…";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(14, 5, 24, 0.6);
+  color: var(--svc-text);
+}
+.admp__photo-acts { display: flex; gap: calc(6 * var(--s)); }
+.admp__upload { position: relative; display: inline-flex; align-items: center; overflow: hidden; }
+.admp__file { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 0; }
+.admp__upload:focus-within { outline: calc(1.5 * var(--s)) solid var(--adm-crema); outline-offset: calc(1 * var(--s)); }
+
+/* ------------------------------------------------ servizi: modifica e aggiunta */
+
+.admp__cats { display: flex; flex-direction: column; gap: calc(10 * var(--s)); min-height: 0; }
+.admp__cats .svc__tabs { flex: 1; min-height: 0; }
+.admp__inline { display: flex; gap: calc(6 * var(--s)); padding-right: calc(22 * var(--s)); }
+.admp__inline .fld__input { height: calc(30 * var(--s)); }
+.admp__col { display: flex; flex-direction: column; gap: calc(12 * var(--s)); min-height: 0; }
+.admp__col > .admp__list { flex: 1; min-height: 0; }
+.admp__edit { display: flex; flex-direction: column; gap: calc(4 * var(--s)); }
+.admp__edit .fld__input { height: calc(28 * var(--s)); }
+.admp__addsvc {
+  padding-top: calc(12 * var(--s));
+  border-top: calc(1 * var(--s)) solid var(--svc-hair);
+  display: flex;
+  flex-direction: column;
+  gap: calc(6 * var(--s));
+}
+.admp__addsvc .fld__err:empty { display: none; }
+.admp__addsvc-row { display: grid; grid-template-columns: 1.2fr 1.4fr calc(70 * var(--s)) auto auto; gap: calc(8 * var(--s)); align-items: center; }
+.admp__addsvc-row .fld__input { height: calc(32 * var(--s)); }
+.admp__addsvc-row .bk__primary { height: calc(32 * var(--s)); }
+
+/* Pulsante che elimina: rosso tenue, e deciso quando chiede conferma. */
+.admp__btn--danger { border-color: rgba(255, 138, 160, 0.35); color: rgb(255, 180, 195); }
+.admp__btn--danger:hover { background: rgba(255, 138, 160, 0.12); }
+.admp__btn--danger[data-confirm="true"] { background: rgb(200, 50, 80); border-color: transparent; color: #fff; }
+
+.admp__warn {
+  margin: 0 0 calc(10 * var(--s));
+  padding: calc(8 * var(--s)) calc(12 * var(--s));
+  border-radius: calc(8 * var(--s));
+  background: rgba(200, 50, 80, 0.25);
+  color: rgb(255, 200, 210);
+  font-size: calc(12 * var(--s));
+}
+
+/* Ridisegno della stessa pagina: niente seconda animazione di entrata. */
+.admp__view--same { animation: none; }
+
+/* --------------------------------------------- prenotazioni: ricerca e dettaglio */
+
+.admp__search { width: calc(230 * var(--s)); height: calc(26 * var(--s)); font-size: calc(12 * var(--s)); }
+.admp__chip small { opacity: 0.6; font-size: calc(10.5 * var(--s)); }
+.admp__expand {
+  width: calc(22 * var(--s));
+  height: calc(22 * var(--s));
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--svc-text);
+  font-size: calc(15 * var(--s));
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 220ms var(--ease-out), background-color 220ms var(--ease-out);
+}
+.admp__expand:hover { background: rgba(255, 255, 255, 0.14); }
+.admp__expand[aria-expanded="true"] { transform: rotate(90deg); }
+.admp__row--pren[data-open="true"] { border-bottom-color: transparent; background: rgba(255, 255, 255, 0.04); }
+
+.admp__detail {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: calc(24 * var(--s));
+  padding: calc(4 * var(--s)) calc(10 * var(--s)) calc(16 * var(--s)) calc(42 * var(--s));
+  border-bottom: calc(1 * var(--s)) solid var(--svc-hair);
+  background: rgba(255, 255, 255, 0.04);
+  animation: svc-in 320ms var(--ease-out) both;
+}
+.admp__dl { display: grid; grid-template-columns: calc(120 * var(--s)) 1fr; gap: calc(6 * var(--s)) calc(12 * var(--s)); margin: 0; font-size: calc(12.5 * var(--s)); }
+.admp__dl dt { color: var(--svc-muted); }
+.admp__dl dd { margin: 0; }
+.admp__dl a { color: var(--adm-crema); }
+.admp__detail-side { display: flex; flex-direction: column; gap: calc(10 * var(--s)); }
+.admp__area { height: auto; min-height: calc(64 * var(--s)); padding: calc(8 * var(--s)) calc(10 * var(--s)); resize: vertical; font-family: 'Albert Sans', sans-serif; }
+
+/* ------------------------------------------------------------ orari */
+
+.admp__split--hours { grid-template-columns: 1fr calc(300 * var(--s)); }
+/* Qui scorre la colonna intera: le sue parti tengono la loro altezza. */
+.admp__split--hours .admp__col > * { flex: none; }
+.admp__split--hours .admp__ranges { flex-wrap: nowrap; gap: calc(8 * var(--s)); }
+.admp__ranges .admp__btn { white-space: nowrap; }
+.admp__step { display: flex; align-items: center; gap: calc(10 * var(--s)); padding-bottom: calc(6 * var(--s)); }
+.admp__row--day { grid-template-columns: calc(92 * var(--s)) auto 1fr; }
+.admp__row--day[data-off="true"] .admp__day { opacity: 0.5; }
+.admp__day { font-size: calc(14 * var(--s)); }
+.admp__ranges { display: flex; flex-wrap: wrap; align-items: center; gap: calc(10 * var(--s)); }
+.admp__range { display: inline-flex; align-items: center; gap: calc(6 * var(--s)); color: var(--svc-muted); }
+.admp__range small { font-size: calc(10.5 * var(--s)); }
+.admp__time { width: calc(88 * var(--s)); height: calc(28 * var(--s)); color-scheme: dark; }
+.admp__closed { color: var(--svc-muted); font-size: calc(12.5 * var(--s)); }
+.admp__closures { margin-top: calc(18 * var(--s)); display: flex; flex-direction: column; gap: calc(8 * var(--s)); }
+.admp__closures .fld__err:empty { display: none; }
+.admp__row--closure { grid-template-columns: 1fr auto; }
+.admp__closure-add { display: grid; grid-template-columns: 1fr 1fr 1.4fr auto; gap: calc(8 * var(--s)); align-items: end; }
+.admp__closure-add .fld__input { color-scheme: dark; }
+.admp__empty--small { padding: calc(8 * var(--s)) 0; font-size: calc(12 * var(--s)); }
+.admp__preview-sub { margin: calc(4 * var(--s)) 0 calc(10 * var(--s)); font-size: calc(12 * var(--s)); color: var(--svc-muted); }
+.admp__preview { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: calc(8 * var(--s)); flex: 1; min-height: 0; }
+.admp__preview-day {
+  display: flex;
+  flex-direction: column;
+  gap: calc(2 * var(--s));
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(10.5 * var(--s));
+  letter-spacing: calc(0.4 * var(--s));
+  line-height: 1.6;
+  color: var(--svc-text);
+  word-spacing: calc(2 * var(--s));
+}
+.admp__preview-day b { font-family: 'Albert Sans', sans-serif; font-weight: 400; font-size: calc(12.5 * var(--s)); color: var(--adm-crema); text-transform: capitalize; letter-spacing: 0; }
+.admp__preview-day[data-off="true"] { color: var(--svc-muted); }
+
+/* ------------------------------------------------ riepilogo dopo l'accesso */
+
+.adm__kpi {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(8 * var(--s));
+  margin: calc(4 * var(--s)) 0 calc(12 * var(--s));
+  padding: 0;
+  list-style: none;
+}
+.adm__kpi li {
+  display: flex;
+  flex-direction: column;
+  padding: calc(10 * var(--s)) calc(12 * var(--s));
+  border-radius: calc(12 * var(--s));
+  background: rgba(255, 255, 255, 0.06);
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.1);
+}
+.adm__kpi-t { font-family: 'Aldrich', sans-serif; font-size: calc(9.5 * var(--s)); letter-spacing: calc(1.2 * var(--s)); text-transform: uppercase; color: var(--giallo); }
+.adm__kpi b { font-weight: 400; font-size: calc(26 * var(--s)); line-height: 1.15; color: var(--adm-crema); }
+.adm__kpi small { font-size: calc(11 * var(--s)); color: var(--svc-muted); }
+
+/* Preventivo. */
+.admp__quote { display: flex; flex-direction: column; gap: calc(10 * var(--s)); }
+.fld__row--3 { grid-template-columns: 1fr 1fr 1fr; }
+.admp__lines { display: flex; flex-direction: column; gap: calc(6 * var(--s)); }
+.admp__line { display: grid; grid-template-columns: 1fr calc(64 * var(--s)) calc(90 * var(--s)) calc(24 * var(--s)); gap: calc(8 * var(--s)); align-items: center; }
+.admp__line .admp__num { width: 100%; }
+.admp__line--head { font-size: calc(10.5 * var(--s)); color: var(--svc-muted); }
+.admp__addline { align-self: flex-start; font-size: calc(12 * var(--s)); }
+
+.admp__summary {
+  display: flex;
+  flex-direction: column;
+  padding: calc(18 * var(--s)) calc(20 * var(--s));
+  border-radius: calc(16 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+}
+.admp__tot {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: calc(8 * var(--s)) calc(12 * var(--s));
+  margin: calc(8 * var(--s)) 0 calc(18 * var(--s));
+  font-size: calc(13 * var(--s));
+}
+.admp__tot dt { color: var(--svc-muted); }
+.admp__tot dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.admp__tot .admp__grand {
+  padding-top: calc(10 * var(--s));
+  border-top: calc(1 * var(--s)) solid var(--svc-hair);
+  font-size: calc(20 * var(--s));
+  color: var(--adm-crema);
+}
+.admp__summary .bk__actions { margin-top: auto; }
+
+/* Genera preventivo: al posto dei totali, l'anteprima del foglio che verra'
+   stampato (stampa-preventivo.css), a grandezza A4 e rimpicciolito dallo
+   script a misura della colonna. Scorre se le voci lo allungano. */
+/* Nessuna cornice: il foglio sta direttamente nella card della pagina. */
+.admp__summary--pv {
+  gap: calc(10 * var(--s));
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+.admp__pv-head { display: flex; align-items: baseline; justify-content: space-between; gap: calc(12 * var(--s)); }
+.admp__pv-head .svc__eyebrow { margin: 0; }
+.admp__pv-sum { font-size: calc(12 * var(--s)); color: var(--svc-muted); }
+.admp__pv-total { margin-left: calc(4 * var(--s)); font-weight: 400; font-size: calc(17 * var(--s)); color: var(--adm-crema); font-variant-numeric: tabular-nums; }
+.admp__paper {
+  flex: 1;
+  min-height: 0;
+  /* Scorre (rotellina, dita, tastiera) ma senza barra visibile: il foglio
+     arriva al bordo della colonna, allineato a totale e pulsanti, e la sua
+     larghezza non dipende da quanto e' lungo, cosi' il ridimensionamento non
+     rimbalza. */
+  scrollbar-width: none;
+  padding-right: 0;
+  border-radius: calc(6 * var(--s));
+  box-shadow: 0 calc(8 * var(--s)) calc(28 * var(--s)) rgba(0, 0, 0, 0.35);
+}
+.admp__paper-fit { position: relative; overflow: hidden; background: #fff; }
+.admp__paper-fit .pv { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
+.admp__summary--pv .fld__err:empty { display: none; }
+.admp__summary--pv .bk__actions { margin-top: 0; }
+
+@media (prefers-reduced-transparency: reduce) {
+  .admp {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgb(30, 14, 48);
+  }
+  .adm {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgb(30, 14, 48);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adm { transform: none; filter: none; transition: opacity 420ms linear; }
+  html[data-admin="on"] .menu__admin,
+  html[data-admin="off"] .menu [data-menu-item] { animation-name: adm-voce-lieve; }
+  @keyframes adm-voce-lieve { from { opacity: 0; } }
+}

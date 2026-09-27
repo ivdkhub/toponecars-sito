@@ -1,0 +1,260 @@
+/* Parte legale: la barra in fondo alla pagina e il pannello dei documenti
+ * (assets/js/legale.js).
+ *
+ * La barra e' un elemento comune come il contatore e l'invito a scorrere:
+ * in basso a destra, con il bordo destro a filo della barra del menu (1305) e
+ * la stessa linea di base dell'invito. Discreta, perche' sta sopra il video in
+ * ogni scena, ma sempre leggibile: e' l'obbligo di legge, non una decorazione.
+ *
+ * Il pannello e' un documento da leggere, non un pezzo del canvas 1440x810:
+ * le sue misure sono in px e in vw/vh, cosi' su uno schermo piccolo il testo
+ * resta a grandezza di lettura invece di rimpicciolirsi con la scena. Il
+ * vetro e' quello dei pannelli dei servizi.
+ */
+
+/* --------------------------------------------------------------- la barra */
+
+.legal-bar {
+  position: absolute;
+  right: calc(135 * var(--s));
+  bottom: calc(18 * var(--s));
+  display: flex;
+  align-items: center;
+  gap: calc(12 * var(--s));
+  font-family: 'Albert Sans', sans-serif;
+  font-size: calc(10.5 * var(--s));
+  line-height: 1;
+  letter-spacing: calc(0.2 * var(--s));
+  padding: calc(5 * var(--s)) calc(12 * var(--s));
+  /* Lo stesso fondo e gli stessi angoli della barra del menu: sui fotogrammi
+     chiari (il giallo della scena 7) il testo chiaro da solo non si leggeva. */
+  border-radius: calc(4 * var(--s));
+  background: var(--menu-fill);
+  color: rgba(216, 229, 230, 0.72);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.legal-bar__link {
+  padding: calc(3 * var(--s)) 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color 220ms var(--ease-out);
+}
+.legal-bar__link:hover { color: var(--menu-cta-light-text); text-decoration: underline; text-underline-offset: calc(3 * var(--s)); }
+.legal-bar__link:focus-visible { outline: calc(1.5 * var(--s)) solid var(--menu-cta-light); outline-offset: calc(2 * var(--s)); border-radius: calc(2 * var(--s)); }
+.legal-bar__id { opacity: 0.9; }
+
+/* Nell'area riservata la barra resta, ma si fa da parte. */
+html[data-admin="on"] .legal-bar { opacity: 0.5; }
+
+/* --------------------------------------------------------------- il pannello */
+
+.lg {
+  --lg-pad: clamp(20px, 3.2vw, 40px);
+  width: min(760px, calc(100vw - 32px));
+  max-width: none;
+  height: min(820px, calc(100dvh - 48px));
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: rgba(255, 255, 255, 0.94);
+  font-family: 'Albert Sans', system-ui, sans-serif;
+  overflow: visible;
+  touch-action: pan-y;
+}
+.lg::backdrop {
+  background: rgba(8, 3, 16, 0.55);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.lg[open] { animation: lg-in 420ms var(--ease-out) both; }
+.lg[open]::backdrop { animation: lg-fondo 420ms var(--ease-out) both; }
+@keyframes lg-in { from { opacity: 0; transform: translateY(14px) scale(0.985); } }
+@keyframes lg-fondo { from { opacity: 0; } }
+
+.lg__sheet {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02) 55%),
+    rgba(22, 9, 36, 0.86);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
+  backdrop-filter: blur(30px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    0 30px 90px rgba(6, 2, 14, 0.6);
+}
+
+.lg__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 14px var(--lg-pad);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.lg__tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.lg__tab {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: rgba(255, 255, 255, 0.62);
+  font: 500 14px/1 'Albert Sans', sans-serif;
+  cursor: pointer;
+  transition: background-color 220ms var(--ease-out), color 220ms var(--ease-out);
+}
+.lg__tab:hover { background: rgba(255, 255, 255, 0.07); color: #fff; }
+.lg__tab[aria-selected="true"] { background: var(--menu-cta-light); color: var(--menu-cta-light-text); }
+.lg__tab:focus-visible,
+.lg__close:focus-visible { outline: 2px solid var(--menu-cta-light); outline-offset: 2px; }
+.lg__close {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 220ms var(--ease-out);
+}
+.lg__close:hover { background: rgba(255, 255, 255, 0.16); }
+.lg__close svg { width: 16px; height: 16px; }
+
+.lg__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 26px var(--lg-pad) 40px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(233, 199, 255, 0.35) transparent;
+}
+.lg__body:focus { outline: none; }
+.lg__body .svc__eyebrow { font-size: 11px; letter-spacing: 2px; margin-bottom: 10px; }
+.lg__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: clamp(26px, 3.4vw, 34px);
+  line-height: 1.15;
+  color: #fff;
+}
+.lg__intro { margin: 10px 0 0; color: rgba(255, 255, 255, 0.62); }
+.lg__sec { margin-top: 30px; }
+.lg__h {
+  margin: 0 0 10px;
+  font-family: 'Aldrich', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--giallo);
+}
+.lg__body p { margin: 0 0 10px; }
+.lg__list { margin: 0; padding-left: 20px; }
+.lg__list li { margin-bottom: 8px; }
+.lg__list li::marker { color: rgba(233, 199, 255, 0.6); }
+.lg__body a,
+.lg__inline {
+  color: rgb(233, 199, 255);
+  text-decoration: underline;
+  text-decoration-color: rgba(233, 199, 255, 0.4);
+  text-underline-offset: 3px;
+}
+.lg__body a:hover,
+.lg__inline:hover { text-decoration-color: currentColor; }
+.lg__inline { padding: 0; border: 0; background: none; font: inherit; cursor: pointer; }
+
+.lg__table-wrap { margin: 12px 0 14px; overflow-x: auto; }
+.lg__table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.5; }
+.lg__table th {
+  padding: 8px 12px 8px 0;
+  text-align: left;
+  font-weight: 500;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+.lg__table td {
+  padding: 10px 12px 10px 0;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.lg__table td:first-child { color: #fff; }
+.lg__table code { font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 13px; white-space: nowrap; }
+
+/* Schermi stretti: ogni riga della tabella diventa una scheda. */
+@media (max-width: 560px) {
+  .lg__table thead { display: none; }
+  .lg__table tr { display: block; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+  .lg__table td { display: block; padding: 2px 0; border: 0; }
+  .lg__table td:not(:first-child)::before { content: attr(data-col) ': '; color: rgba(255, 255, 255, 0.5); }
+}
+
+/* I comandi del consenso. */
+.lg__prefs { margin-top: 14px; }
+.lg__pref {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+}
+.lg__pref-txt { display: grid; gap: 2px; }
+.lg__pref-txt strong { font-weight: 500; color: #fff; }
+.lg__pref-txt span { font-size: 13.5px; color: rgba(255, 255, 255, 0.58); }
+.lg__switch {
+  flex: none;
+  position: relative;
+  width: 48px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: background-color 260ms var(--ease-out), border-color 260ms var(--ease-out);
+}
+.lg__knob {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 260ms var(--ease-out);
+}
+.lg__switch[aria-checked="true"] { background: var(--viola); border-color: transparent; }
+.lg__switch[aria-checked="true"] .lg__knob { transform: translateX(20px); }
+.lg__switch:focus-visible { outline: 2px solid var(--menu-cta-light); outline-offset: 2px; }
+.lg__note { margin-top: 10px !important; font-size: 13.5px; color: rgba(255, 255, 255, 0.5); }
+
+@media (prefers-reduced-motion: reduce) {
+  .lg[open], .lg[open]::backdrop { animation-duration: 1ms; }
+  .lg__knob, .lg__switch { transition: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .lg__sheet { background: rgb(24, 11, 38); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .lg::backdrop { background: rgba(8, 3, 16, 0.8); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}

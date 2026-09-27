@@ -14,13 +14,22 @@
      Dove l'elemento e' semitrasparente, alfa e tinta sono stati ricavati per
      regressione sullo sfondo video che cambia fra i tre mockup. */
   --b1-title: rgba(255, 255, 255, 0.71);
-  --b1-title-ghost: rgba(255, 255, 255, 0.21);
+  /* "Top One Cars": giallo a luce accesa, viola a luce spenta, scelti dal
+     committente. */
+  --b1-title-accesa: rgb(242, 182, 12);
+  --b1-title-spenta: rgb(133, 69, 166);
+  /* Il sottotitolo e' piccolo: con l'alfa del vecchio "GT3 RS" (0.21) sparirebbe. */
+  --b1-title-ghost: rgba(255, 255, 255, 0.4);
+  /* Nell'esempio la qualifica e' un filo piu' tenue dell'indirizzo. */
+  --b1-kicker: rgba(255, 255, 255, 0.34);
+  --b1-addr: rgba(255, 255, 255, 0.42);
   --b1-card-fill: rgb(254, 218, 51);
   --b1-card-value: rgb(194, 156, 70);
   --b1-card-label: rgb(147, 95, 101);
-  /* Senza il fondo giallo il testo torna ai colori della pagina. */
-  --b1-card-value-flat: rgba(255, 255, 255, 0.88);
-  --b1-card-label-flat: rgba(255, 255, 255, 0.52);
+  /* Sul vetro il testo e' bianco; l'etichetta resta un gradino sotto la cifra. */
+  --b1-card-value-flat: rgba(255, 255, 255, 0.94);
+  --b1-card-label-flat: rgba(255, 255, 255, 0.9);
+  --b1-card-label-ink: rgba(52, 20, 72, 0.82);
 
   --b2-headline: rgba(255, 255, 255, 0.71);
   --b2-giant: rgba(14, 4, 23, 0.55);
@@ -47,20 +56,54 @@
   white-space: nowrap;
 }
 
+/* A luce spenta "Top One Cars" passa dal giallo al viola. --buio va da 0 a 1 e
+   lo scrive assets/js/theme-tint.js leggendo la clip del buio fotogramma per
+   fotogramma: il colore cresce insieme all'oscurita' e si ritira con lei, senza
+   una transizione CSS che potrebbe andare fuori tempo rispetto al video. Il
+   bagliore e' dello stesso viola. */
 .b1__title-line:first-child {
+  color: color-mix(in oklab, var(--b1-title-spenta) calc(var(--buio, 0) * 100%), var(--b1-title-accesa));
+  text-shadow: 0 0 calc(26 * var(--s))
+    color-mix(in oklab, var(--b1-title-spenta) calc(var(--buio, 0) * 45%), transparent);
   font-weight: var(--b1-title1-w);
   font-size: calc(var(--b1-title1-fs) * var(--s));
   line-height: calc(var(--b1-title-gap) * var(--s));
   letter-spacing: calc(var(--b1-title1-ls) * var(--s));
 }
 
-.b1__title-line--ghost {
-  font-weight: var(--b1-title2-w);
-  font-size: calc(var(--b1-title2-fs) * var(--s));
-  line-height: calc(var(--b1-title2-fs) * var(--s));
-  letter-spacing: calc(var(--b1-title2-ls) * var(--s));
-  color: var(--b1-title-ghost);
+/* Qualifica sopra il nome e indirizzo sotto (esempio_testo_homepage.png):
+   piccoli, tenui, in Aldrich come il contatore. Partono entrambi 8 unita' piu'
+   a destra dell'inchiostro della "T", come nell'esempio. Posizioni e misure in
+   assets/css/type.css. */
+.b1__kicker,
+.b1__addr {
+  position: absolute;
+  left: calc(var(--b1-small-x) * var(--s));
+  margin: 0;
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(var(--b1-small-fs) * var(--s));
+  letter-spacing: calc(var(--b1-small-ls) * var(--s));
 }
+.b1__kicker {
+  top: calc(var(--b1-kicker-y) * var(--s));
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--b1-kicker);
+}
+/* La larghezza fa andare a capo dopo "Vizzolo", come nell'esempio. */
+.b1__addr {
+  top: calc(var(--b1-addr-y) * var(--s));
+  width: calc(var(--b1-addr-w) * var(--s));
+  line-height: calc(var(--b1-addr-lh) * var(--s));
+}
+.b1__addr a {
+  color: var(--b1-addr);
+  text-decoration: underline;
+  text-decoration-thickness: calc(1 * var(--s));
+  text-underline-offset: calc(2.5 * var(--s));
+  transition: color 260ms var(--ease-out);
+}
+.b1__addr a:hover { color: var(--b1-title); }
 
 .b1__stats {
   position: absolute;
@@ -73,25 +116,82 @@
   gap: calc(9.12 * var(--s));
 }
 
-/* Le tre schede non hanno fondo.
+/* Le tre schede sono di vetro smerigliato, alla maniera di iOS.
  *
- * Nel mockup sono gialle piene, e sul video chiaro funzionavano; sul tema scuro
- * diventavano tre macchie fluorescenti su una scena notturna (vedi
- * errore_grafico_card.png). Il fondo e' quindi tolto del tutto e restano il
- * contorno e il testo, che si leggono su entrambi i temi perche' non dipendono
- * da nessuno dei due. E' una deroga voluta rispetto al mockup: il confronto al
- * pixel la registra come scostamento sulle schede. */
+ * Nel mockup erano gialle piene: sul video chiaro funzionavano, sul tema scuro
+ * diventavano tre macchie fluorescenti (vedi errore_grafico_card.png). Il vetro
+ * risolve entrambi i casi perche' il colore non lo decide la scheda ma la scena
+ * che le sta dietro: sfocata e un po' piu' satura, gialla sul pavimento chiaro,
+ * notturna sul tema scuro.
+ *
+ * E' un'approssimazione web del materiale Apple, non Liquid Glass vero: Apple
+ * non ne pubblica una versione CSS. Gli ingredienti sono quelli classici:
+ *   - backdrop-filter: sfocatura + saturazione dello sfondo;
+ *   - una velatura bianca in diagonale, piu' densa in alto a sinistra, su una
+ *     tinta viola appena percettibile: sul pavimento giallo la lastra resta un
+ *     tono sotto lo sfondo, e le etichette bianche si leggono;
+ *   - un filo di luce sul bordo superiore e uno piu' debole su quello inferiore
+ *     (inset shadow), che simulano la rifrazione sullo spessore della lastra;
+ *   - ::before con un riflesso speculare morbido nell'angolo in alto;
+ *   - ::after con un secondo contorno interno, per dare spessore al bordo.
+ *
+ * Il costo resta basso: dietro le schede, a scena ferma, c'e' un video in pausa
+ * sull'ultimo fotogramma, quindi la sfocatura non si ricalcola a ogni frame. */
 .b1__card {
+  position: relative;
+  isolation: isolate;
+  /* Riceve il puntatore per l'inclinazione (assets/js/parallax.js). */
+  pointer-events: auto;
   width: calc(191.48 * var(--s));
   height: calc(91.18 * var(--s));
   border-radius: calc(15.2 * var(--s));
-  background: transparent;
-  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.28);
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.34);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.02) 60%),
+    rgba(40, 16, 62, 0.16);
+  -webkit-backdrop-filter: blur(calc(22 * var(--s))) saturate(150%);
+  backdrop-filter: blur(calc(22 * var(--s))) saturate(150%);
+  box-shadow:
+    inset 0 calc(1 * var(--s)) 0 rgba(255, 255, 255, 0.55),
+    inset 0 calc(-1 * var(--s)) 0 rgba(255, 255, 255, 0.12),
+    0 calc(14 * var(--s)) calc(40 * var(--s)) rgba(18, 7, 32, 0.22);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   overflow: hidden;
+}
+
+.b1__card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    radial-gradient(120% 90% at 18% -10%, rgba(255, 255, 255, 0.38), transparent 45%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.10), transparent 40%, transparent 70%, rgba(255, 255, 255, 0.08));
+  pointer-events: none;
+}
+
+.b1__card::after {
+  content: "";
+  position: absolute;
+  inset: calc(1 * var(--s));
+  border-radius: calc(14.2 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.10);
+  pointer-events: none;
+}
+
+/* Chi chiede meno trasparenza al sistema riceve una lastra piena, scura e
+   leggibile su qualunque scena. */
+@media (prefers-reduced-transparency: reduce) {
+  .b1__card {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(28, 14, 44, 0.9);
+  }
+  .b1__card::before { display: none; }
 }
 
 .b1__card-value {
@@ -104,10 +204,20 @@
   margin-top: calc(var(--b1-value-y) * var(--s));
 }
 
-/* I due colori del testo erano calibrati per stare sul giallo: senza il fondo
-   servono quelli della palette, che reggono sia sul viola sia sul nero. */
+/* Sul vetro il testo e' bianco, come nei widget di iOS. Un'ombra appena
+   percettibile lo stacca quando dietro la lastra c'e' il pavimento giallo. */
+.b1__card-value,
+.b1__card-label { text-shadow: 0 calc(1 * var(--s)) calc(6 * var(--s)) rgba(40, 18, 60, 0.35); }
 .b1__card-value { color: var(--b1-card-value-flat); }
 .b1__card-label { color: var(--b1-card-label-flat); }
+
+/* L'etichetta e' piccola: in bianco sul giallo sparisce. A luce accesa prende
+   quindi un inchiostro viola scuro, come il testo "vibrante" di iOS sul vetro
+   chiaro; a luce spenta torna bianca, perche' dietro la lastra c'e' il buio. */
+html:not([data-theme="scuro"]) .b1__card-label {
+  color: var(--b1-card-label-ink);
+  text-shadow: none;
+}
 
 .b1__card-label {
   font-family: 'Albert Sans', sans-serif;

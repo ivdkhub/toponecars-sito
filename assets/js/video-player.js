@@ -65,6 +65,11 @@ export class VideoPlayer {
 
   build() {
     this.config.transitions.forEach((spec, i) => {
+      // Transizione ferma (config: `ferma`): nessuna clip da preparare.
+      if (spec.ferma) {
+        this.clips.push({ spec, fwd: null, rev: null, ferma: true, seamFadeMs: 0 });
+        return;
+      }
       // Il poster sta SOLO sulla prima clip. E' l'unico che si vede: lo stato di
       // riposo di ogni altra scena e' un fotogramma video in pausa. Metterlo su
       // tutte significava far scaricare al browser sei immagini a fondo pagina —
@@ -127,8 +132,47 @@ export class VideoPlayer {
     // Senza questa riga la velocita' tornerebbe a 1 al primo caricamento.
     v.defaultPlaybackRate = this.config.playbackRate;
     v.playbackRate = this.config.playbackRate;
+    v.addEventListener('error', () => this.formatoIllegibile(v));
     this.stage.appendChild(v);
     return v;
+  }
+
+  /**
+   * Una clip che non si decodifica (MEDIA_ERR_DECODE o formato non supportato)
+   * fa passare TUTTA la pagina alla codifica di riserva: se una clip AV1 non si
+   * legge, non si leggera' nemmeno la successiva. Senza questo ripiego un
+   * browser che dichiara un formato e poi non lo sa leggere mostrerebbe solo il
+   * colore di fondo, con i comandi che "funzionano" su un palcoscenico vuoto.
+   * La scelta della riserva la fa `this.onFormatoIllegibile` (main.js).
+   */
+  formatoIllegibile(el) {
+    const e = el.error;
+    if (!e || (e.code !== 3 && e.code !== 4)) return;       // rete o annullato: non e' il formato
+    const dir = this.config.mediaDir;
+    if (!dir || !el.dataset.src.includes(`/${dir}/`)) return;   // gia' ripiegato
+    this.fallite = this.fallite || new Set();
+    this.fallite.add(dir);
+    const nuova = this.onFormatoIllegibile ? this.onFormatoIllegibile(dir, this.fallite) : null;
+    if (!nuova) return;
+    this.diagnostics.formatoRipiegato = `${dir} -> ${nuova}`;
+    this.config.mediaDir = nuova;
+    const tutti = [
+      ...this.clips.flatMap((c) => [c.fwd, c.rev]),
+      ...Object.values(this.variants).flatMap((v) => Object.values(v.options).flatMap((o) => [o.fwd, o.rev])),
+    ].filter(Boolean);
+    for (const v of tutti) {
+      v.dataset.src = v.dataset.src.replace(`/${dir}/`, `/${nuova}/`);
+      // Solo le clip gia' caricate si ricaricano subito; le altre prenderanno
+      // il nuovo indirizzo quando serviranno.
+      if (v.getAttribute('src')) { v.src = v.dataset.src; v.load(); }
+    }
+    this.config.transitions.forEach((t) => {
+      if (t.src) t.src = t.src.replace(`/${dir}/`, `/${nuova}/`);
+      if (t.reverseSrc) t.reverseSrc = t.reverseSrc.replace(`/${dir}/`, `/${nuova}/`);
+    });
+    // A pagina ferma si rimette subito il fotogramma di riposo; durante una
+    // transizione ci pensa la transizione stessa, che attende la clip.
+    if (!this.running) this.settleAt(this.scene).catch(() => {});
   }
 
   /**
@@ -309,6 +353,8 @@ export class VideoPlayer {
    * della transizione i-1, cioe' esattamente dove il video si e' fermato.
    */
   restTarget(sceneIndex) {
+    // Dopo una transizione ferma l'immagine e' quella della scena prima.
+    while (sceneIndex > 0 && this.clips[sceneIndex - 1].ferma) sceneIndex -= 1;
     if (sceneIndex <= 0) {
       const c = this.clips[0];
       return { el: c.fwd, time: this.startTime(c, false) };
@@ -346,6 +392,13 @@ export class VideoPlayer {
 
   async runInner(index, dir, destScene) {
     const clip = this.clips[index];
+    // Passo fermo: l'immagine non cambia, il passo dura comunque il suo tempo.
+    if (clip.ferma) {
+      await new Promise((r) => setTimeout(r, clip.spec.durataMs ?? 0));
+      this.scene = destScene;
+      this.forget(destScene);
+      return;
+    }
     const useReverseFile = dir < 0 && !!clip.rev;
     const el = useReverseFile ? clip.rev : clip.fwd;
     const reversedScrub = dir < 0 && !useReverseFile;

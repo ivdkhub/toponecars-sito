@@ -1,0 +1,161 @@
+/* Pagina "Recensioni" — blocco 4, scena 5 (l'auto vista dall'alto).
+ *
+ * Posizioni prese dal layout del committente (recensioni_png.png, riportato in
+ * unita' di design con s = 1.312 e offset x = 13): la colonna di sinistra ha il
+ * bordo destro a filo 500, cioe' verso la carrozzeria, e larghezze diverse che
+ * le danno un profilo sfalsato; quella di destra parte a 980. Il bordo esterno
+ * delle card piu' larghe coincide con i bordi della barra del menu.
+ *
+ * Le card sono vestite come la barra del menu nell'header: stesso fondo, stessi
+ * angoli quasi vivi, stesso colore del testo, nessun bordo e nessun vetro.
+ */
+
+.rv {
+  --rv-ink: var(--menu-cta-light-text);
+  --rv-muted: rgba(214, 198, 232, 0.66);
+  --rv-name: var(--menu-text);
+  --rv-star: var(--giallo);
+  --rv-star-off: rgba(214, 198, 232, 0.25);
+}
+
+/* Titolo per i lettori di schermo: nel layout non c'e', la voce accesa del
+   menu dice gia' dove ci si trova. */
+.rv__title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Due pile, una per lato dell'auto. Le card si impilano con uno spazio fisso
+ * invece di stare ad altezze fissate: una recensione piu' lunga, o con la riga
+ * "verificata da Google", spinge in giu' le seguenti invece di coprirle. Lo
+ * spazio (30) e' piu' del doppio dell'oscillazione piu' ampia (11), quindi due
+ * card vicine che galleggiano in versi opposti restano sempre staccate.
+ */
+.rv__col {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: calc(30 * var(--s));
+}
+/* Sinistra: bordo destro a 500, verso l'auto; le card si allineano li'. */
+.rv__col--sx { right: calc(940 * var(--s)); top: calc(148 * var(--s)); align-items: flex-end; }
+/* Destra: bordo sinistro a 980. */
+.rv__col--dx { left: calc(980 * var(--s)); top: calc(152 * var(--s)); align-items: flex-start; }
+
+.rv__card {
+  position: relative;
+  /* Riceve il puntatore per l'inclinazione (assets/js/parallax.js): il canvas
+     lo lascia passare a tutto, tranne a link, pulsanti e card. */
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: calc(6 * var(--s));
+  padding: calc(11 * var(--s)) calc(14 * var(--s)) calc(12 * var(--s));
+
+  border-radius: calc(10 * var(--s));
+  background: var(--menu-fill);
+  color: var(--rv-ink);
+  font-family: 'Albert Sans', sans-serif;
+}
+
+/* Galleggiamento. Si anima `translate` e non `transform`: transform e' gia'
+ * occupato dall'entrata e dall'uscita di [data-anim], e le due proprieta' si
+ * sommano invece di sovrascriversi. Ogni card ha periodo, ampiezza e fase
+ * propri, cosi' non salgono e scendono all'unisono come un blocco solo; i
+ * periodi non sono multipli fra loro e la figura non si ripete a vista.
+ * Parte solo a blocco visibile: prima non c'e' nulla da guardare.
+ */
+.block--4[data-visible="true"] .rv__card {
+  animation: rv-float var(--rv-dur, 7s) ease-in-out var(--rv-delay, 0s) infinite alternate;
+}
+
+@keyframes rv-float {
+  from { translate: 0 calc(var(--rv-amp, 5) * -1 * var(--s)); }
+  to   { translate: 0 calc(var(--rv-amp, 5) * var(--s)); }
+}
+
+/* Larghezza di ciascuna card, dal layout: a sinistra sfalsate verso l'auto,
+   a destra la seconda arriva al bordo della barra del menu (1305.44). Con
+   periodo, fase e ampiezza del galleggiamento. Il ritardo negativo fa partire
+   ognuna a un punto diverso del suo ciclo, quindi il movimento c'e' gia' al
+   primo fotogramma e non comincia tutto dallo stesso punto. */
+.rv__card[data-k="0"] { width: calc(359 * var(--s));    --rv-dur: 6.4s; --rv-delay: -1.1s; --rv-amp: 10; }
+.rv__card[data-k="1"] { width: calc(290 * var(--s));    --rv-dur: 7.3s; --rv-delay: -4.2s; --rv-amp: 9; }
+.rv__card[data-k="2"] { width: calc(225 * var(--s));    --rv-dur: 5.9s; --rv-delay: -2.6s; --rv-amp: 11; }
+.rv__card[data-k="3"] { width: calc(355 * var(--s));    --rv-dur: 8.1s; --rv-delay: -5.3s; --rv-amp: 9.5; }
+.rv__card[data-k="4"] { width: calc(297 * var(--s));    --rv-dur: 6.8s; --rv-delay: -3.4s; --rv-amp: 10.5; }
+.rv__card[data-k="5"] { width: calc(325.44 * var(--s)); --rv-dur: 7.7s; --rv-delay: -0.6s; --rv-amp: 9; }
+.rv__card[data-k="6"] { width: calc(234 * var(--s));    --rv-dur: 6.1s; --rv-delay: -4.9s; --rv-amp: 10; }
+
+.rv__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(10 * var(--s));
+}
+
+.rv__stars { display: inline-flex; gap: calc(2 * var(--s)); }
+.rv__star {
+  width: calc(11 * var(--s));
+  height: calc(11 * var(--s));
+  fill: var(--rv-star);
+}
+.rv__star--off { fill: var(--rv-star-off); }
+
+.rv__when {
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(9.5 * var(--s));
+  letter-spacing: calc(0.8 * var(--s));
+  text-transform: uppercase;
+  color: var(--rv-muted);
+  white-space: nowrap;
+}
+
+.rv__text {
+  margin: 0;
+  font-size: calc(12.8 * var(--s));
+  line-height: calc(17 * var(--s));
+  color: var(--rv-ink);
+  quotes: "“" "”";
+}
+.rv__text::before { content: open-quote; }
+.rv__text::after { content: close-quote; }
+
+.rv__by {
+  display: flex;
+  align-items: baseline;
+  gap: calc(6 * var(--s));
+  margin: 0;
+  font-size: calc(11 * var(--s));
+  white-space: nowrap;
+  overflow: hidden;
+}
+.rv__name { color: var(--rv-name); font-weight: 500; }
+.rv__car { color: var(--rv-muted); overflow: hidden; text-overflow: ellipsis; }
+.rv__car::before { content: "· "; }
+
+/* "Recensione verificata da Google": in fondo, staccata da un filo, piccola e
+   nel carattere dei numeri e delle date. Compare solo sulle recensioni vere. */
+.rv__source {
+  margin: calc(2 * var(--s)) 0 0;
+  padding-top: calc(7 * var(--s));
+  border-top: calc(1 * var(--s)) solid rgba(214, 198, 232, 0.14);
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(9 * var(--s));
+  letter-spacing: calc(0.8 * var(--s));
+  text-transform: uppercase;
+  color: var(--rv-muted);
+  white-space: nowrap;
+}
+
+/* Con prefers-reduced-motion le card stanno ferme. */
+@media (prefers-reduced-motion: reduce) {
+  .block--4[data-visible="true"] .rv__card { animation: none; }
+}

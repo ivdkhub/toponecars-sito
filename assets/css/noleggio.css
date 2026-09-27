@@ -1,0 +1,333 @@
+/* Pagina "Noleggio" — blocco 6, scena 8 (la stessa inquadratura dall'alto
+ * della scena 7). Le card sono in assets/js/noleggio.js.
+ *
+ * In alto a sinistra, dove il fondo e' libero, il titolo della pagina; sotto,
+ * una fila di card larga quanto la barra del menu (140 -> 1305): quattro card
+ * da 277 con 18 di spazio. Le card riprendono quelle del sito Valenzani Motors
+ * (foto 16:9 con i badge, modello, dati in griglia, prezzo, comando), vestite
+ * con il vetro scuro dei pannelli di questo sito e i suoi colori.
+ */
+
+.nl {
+  /* Ombra stretta ai lati (spread negativo): sfuma entro i 14 di margine della
+     finestra, che taglia in orizzontale, e sotto resta ampia e morbida. */
+  --nl-ombra: 0 calc(26 * var(--s)) calc(40 * var(--s)) calc(-14 * var(--s));
+  --nl-w: 277;
+  --nl-gap: 18;
+  --nl-ok: rgb(120, 230, 150);
+  --nl-busy: rgb(242, 182, 12);
+  --nl-off: rgb(255, 138, 160);
+}
+
+.nl__head {
+  position: absolute;
+  left: calc(140 * var(--s));
+  top: calc(136 * var(--s));
+  width: calc(360 * var(--s));
+}
+/* Il fondo qui e' il pavimento giallo: i testi della testa sono in inchiostro
+   viola scuro, come le etichette delle schede sul giallo, non in bianco. */
+.nl__head .svc__eyebrow { margin-bottom: calc(8 * var(--s)); color: var(--viola); }
+.nl__title-page {
+  margin: 0;
+  font-family: 'Albert Sans', sans-serif;
+  font-weight: 400;
+  font-size: calc(34 * var(--s));
+  line-height: calc(38 * var(--s));
+  letter-spacing: calc(0.4 * var(--s));
+  color: rgb(40, 14, 60);
+}
+.nl__sub {
+  margin: calc(8 * var(--s)) 0 0;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: calc(13 * var(--s));
+  line-height: calc(18 * var(--s));
+  color: rgba(52, 20, 72, 0.82);
+}
+
+/* Frecce e posizione, sopra l'ultima card. Spariscono se le auto stanno tutte
+   in vista. */
+.nl__nav {
+  position: absolute;
+  right: calc(135 * var(--s));
+  top: calc(262 * var(--s));
+  display: flex;
+  align-items: center;
+  gap: calc(8 * var(--s));
+  pointer-events: auto;
+}
+.nl[data-piene="true"] .nl__nav { visibility: hidden; }
+.nl__pos {
+  margin-right: calc(4 * var(--s));
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(11 * var(--s));
+  letter-spacing: calc(0.8 * var(--s));
+  color: rgba(52, 20, 72, 0.82);
+}
+.nl__arrow {
+  display: grid;
+  place-items: center;
+  width: calc(30 * var(--s));
+  height: calc(30 * var(--s));
+  padding: 0;
+  border: 0;
+  border-radius: calc(4 * var(--s));
+  background: var(--menu-fill);
+  color: var(--menu-text);
+  cursor: pointer;
+  transition: background-color 260ms var(--ease-out), opacity 260ms var(--ease-out);
+}
+.nl__arrow svg { width: calc(14 * var(--s)); height: calc(14 * var(--s)); }
+.nl__arrow:hover:not(:disabled) { background: var(--menu-cta-light); color: var(--menu-cta-light-text); }
+.nl__arrow:disabled { opacity: 0.35; cursor: default; }
+.nl__arrow:focus-visible { outline: calc(1.5 * var(--s)) solid var(--menu-cta-light); outline-offset: calc(2 * var(--s)); }
+
+/* La fila: una finestra larga quattro card, il nastro dentro scorre. Taglia
+   solo in orizzontale (le card fuori vista), non in verticale: tagliata anche
+   li', l'ombra delle card disegnava il bordo della finestra come una fascia
+   scura. I 14 di margine ai lati tengono dentro le card inclinate. */
+.nl__view {
+  position: absolute;
+  left: calc(126 * var(--s));
+  top: calc(292 * var(--s));
+  width: calc((4 * var(--nl-w) + 3 * var(--nl-gap) + 28) * var(--s));
+  height: calc(420 * var(--s));
+  padding: calc(8 * var(--s)) calc(14 * var(--s));
+  overflow-x: clip;
+  overflow-y: visible;
+}
+.nl__track {
+  --nl-primo: 0;
+  display: flex;
+  gap: calc(var(--nl-gap) * var(--s));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform: translateX(calc(var(--nl-primo) * (var(--nl-w) + var(--nl-gap)) * var(--s) * -1));
+  transition: transform 620ms var(--ease-out);
+}
+.nl__slot { flex: none; width: calc(var(--nl-w) * var(--s)); }
+
+/* ------------------------------------------------------------------ card */
+
+.nl__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+  border-radius: calc(16 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.22);
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02) 50%),
+    rgba(20, 9, 34, 0.72);
+  -webkit-backdrop-filter: blur(calc(28 * var(--s))) saturate(150%);
+  backdrop-filter: blur(calc(28 * var(--s))) saturate(150%);
+  box-shadow:
+    inset 0 calc(1 * var(--s)) 0 rgba(255, 255, 255, 0.35),
+    var(--nl-ombra) rgba(10, 4, 20, 0.5);
+  color: var(--svc-text);
+  font-family: 'Albert Sans', sans-serif;
+  transition: border-color 300ms var(--ease-out), box-shadow 300ms var(--ease-out);
+}
+/* data-tilt e l'inclinazione li mette assets/js/parallax.js, comune a tutte
+   le card del sito. */
+.nl__card[data-tilt="true"] {
+  border-color: rgba(233, 199, 255, 0.5);
+  box-shadow:
+    inset 0 calc(1 * var(--s)) 0 rgba(255, 255, 255, 0.35),
+    var(--nl-ombra) rgba(10, 4, 20, 0.68);
+}
+/* Riflesso che segue il puntatore. */
+.nl__card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 0%), rgba(255, 255, 255, 0.12), transparent 45%);
+  opacity: 0;
+  transition: opacity 300ms var(--ease-out);
+}
+.nl__card[data-tilt="true"]::after { opacity: 1; }
+
+.nl__media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 80%, rgba(127, 77, 177, 0.55), rgba(20, 9, 34, 0.9) 70%);
+}
+.nl__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 500ms var(--ease-out);
+}
+.nl__card[data-tilt="true"] .nl__img { transform: scale(1.05); }
+/* Le immagini scontornate (parco di esempio): l'auto intera, appoggiata sul
+   fondo viola con la sua ombra, come in un salone. */
+.nl__img--cut {
+  object-fit: contain;
+  padding: 11% 8% 7%;
+  filter: drop-shadow(0 calc(8 * var(--s)) calc(9 * var(--s)) rgba(6, 2, 14, 0.6));
+}
+/* Sfumatura in basso, verso il corpo della card. */
+.nl__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(20, 9, 34, 0.85), transparent 45%, rgba(0, 0, 0, 0.25));
+}
+
+.nl__shape {
+  position: absolute;
+  left: 12%;
+  bottom: 14%;
+  width: 76%;
+  fill: rgba(233, 199, 255, 0.16);
+  stroke: rgba(233, 199, 255, 0.7);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 calc(6 * var(--s)) rgba(186, 120, 255, 0.55));
+}
+.nl__shape-glass { fill: rgba(20, 9, 34, 0.6); stroke: rgba(233, 199, 255, 0.45); }
+.nl__shape-wheel { fill: rgb(20, 9, 34); stroke: var(--giallo); stroke-width: 2; }
+
+.nl__badge,
+.nl__cat {
+  position: absolute;
+  top: calc(10 * var(--s));
+  z-index: 1;
+  padding: calc(3 * var(--s)) calc(8 * var(--s));
+  border-radius: calc(6 * var(--s));
+  font-size: calc(10.5 * var(--s));
+  line-height: 1.3;
+  -webkit-backdrop-filter: blur(calc(10 * var(--s)));
+  backdrop-filter: blur(calc(10 * var(--s)));
+}
+.nl__badge {
+  left: calc(10 * var(--s));
+  font-weight: 600;
+  color: var(--nl-ok);
+  background: rgba(120, 230, 150, 0.12);
+  border: calc(1 * var(--s)) solid rgba(120, 230, 150, 0.35);
+}
+.nl__badge[data-stato="Noleggiata"] { color: var(--nl-busy); background: rgba(242, 182, 12, 0.12); border-color: rgba(242, 182, 12, 0.35); }
+.nl__badge[data-stato="In manutenzione"] { color: var(--nl-off); background: rgba(255, 138, 160, 0.12); border-color: rgba(255, 138, 160, 0.35); }
+.nl__cat {
+  right: calc(10 * var(--s));
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(10, 4, 20, 0.55);
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.12);
+}
+
+.nl__body {
+  display: flex;
+  flex-direction: column;
+  padding: calc(12 * var(--s)) calc(14 * var(--s)) calc(14 * var(--s));
+}
+.nl__eyebrow {
+  margin: 0 0 calc(3 * var(--s));
+  font-size: calc(10.5 * var(--s));
+  letter-spacing: calc(0.8 * var(--s));
+  text-transform: uppercase;
+  color: var(--svc-muted);
+}
+.nl__eyebrow b { font-weight: 600; color: var(--giallo); }
+.nl__title {
+  margin: 0;
+  overflow: hidden;
+  font-weight: 500;
+  font-size: calc(18 * var(--s));
+  line-height: calc(23 * var(--s));
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: color 260ms var(--ease-out);
+}
+.nl__card[data-tilt="true"] .nl__title { color: rgb(233, 199, 255); }
+
+.nl__specs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(6 * var(--s));
+  margin: calc(11 * var(--s)) 0;
+  padding: 0;
+  list-style: none;
+}
+.nl__specs li {
+  display: flex;
+  align-items: center;
+  gap: calc(6 * var(--s));
+  min-width: 0;
+  padding: calc(6 * var(--s)) calc(8 * var(--s));
+  border-radius: calc(9 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: calc(11.5 * var(--s));
+  font-weight: 500;
+  white-space: nowrap;
+}
+.nl__specs li span { overflow: hidden; text-overflow: ellipsis; }
+.nl__ico {
+  flex: none;
+  width: calc(13 * var(--s));
+  height: calc(13 * var(--s));
+  fill: none;
+  stroke: rgb(186, 120, 255);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nl__foot {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: calc(2 * var(--s)) calc(8 * var(--s));
+  padding-top: calc(10 * var(--s));
+  border-top: calc(1 * var(--s)) solid var(--svc-hair);
+}
+.nl__price { margin: 0; font-size: calc(11.5 * var(--s)); color: var(--svc-muted); }
+.nl__price b {
+  font-weight: 700;
+  font-size: calc(22 * var(--s));
+  letter-spacing: calc(-0.3 * var(--s));
+  color: var(--svc-text);
+  font-variant-numeric: tabular-nums;
+}
+.nl__deposit { margin: 0; font-size: calc(10.5 * var(--s)); color: var(--svc-muted); text-align: right; }
+.nl__cta {
+  grid-column: 1 / -1;
+  height: calc(32 * var(--s));
+  margin-top: calc(8 * var(--s));
+  border: 0;
+  border-radius: calc(9 * var(--s));
+  background: var(--menu-cta-light);
+  color: var(--menu-cta-light-text);
+  font-family: 'Albert Sans', sans-serif;
+  font-size: calc(12.5 * var(--s));
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 260ms var(--ease-out), transform 200ms var(--ease-out);
+}
+.nl__cta:hover:not(:disabled) { background: rgba(233, 199, 255, 0.72); }
+.nl__cta:active:not(:disabled) { transform: scale(0.98); }
+.nl__cta:disabled {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--svc-muted);
+  cursor: default;
+}
+.nl__cta:focus-visible { outline: calc(1.5 * var(--s)) solid var(--menu-cta-light-text); outline-offset: calc(2 * var(--s)); }
+/* Un'auto che non si puo' prendere resta in vista, ma un passo indietro. */
+.nl__card:not([data-stato="Disponibile"]) .nl__media > :is(.nl__img, .nl__shape) { opacity: 0.55; filter: grayscale(0.5); }
+.nl__card:not([data-stato="Disponibile"]) .nl__img--cut {
+  filter: grayscale(0.5) drop-shadow(0 calc(8 * var(--s)) calc(9 * var(--s)) rgba(6, 2, 14, 0.6));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nl__track, .nl__img { transition-duration: 0ms; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .nl__card { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgb(30, 14, 48); }
+}

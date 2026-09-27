@@ -14,6 +14,7 @@
  * attivarle insieme mostrerebbe un salto. La macchina lo impedisce; qui i due
  * comandi si limitano a sparire quando non sono azionabili.
  */
+import { t } from './i18n.js';
 
 /** Base comune: un comando legato a una variante della scena. */
 class VariantControl {
@@ -69,6 +70,7 @@ export class ThemeSwitch extends VariantControl {
     if (!this.el) return;
     this.el.addEventListener('click', () => this.toggle());
     this.ascolta();
+    document.addEventListener('linguachange', () => this.sync(this.machine.isBusy));
     this.sync(false);
   }
 
@@ -86,7 +88,7 @@ export class ThemeSwitch extends VariantControl {
     this.el.dataset.on = String(this.visibile);
     this.el.disabled = busy || !this.machine.canToggleVariant('theme');
     this.el.setAttribute('aria-pressed', String(this.machine.variantAttiva('theme')));
-    this.el.setAttribute('aria-label', this.etichette[stato] || this.etichette.chiaro);
+    this.el.setAttribute('aria-label', t(this.etichette[stato] || this.etichette.chiaro));
   }
 }
 
@@ -130,6 +132,11 @@ export class PaintPicker extends VariantControl {
       document.addEventListener(type, (e) => { if (e.detail) this.chiudi(); });
     }
     this.ascolta();
+    // Cambio lingua: i nomi dei colori.
+    document.addEventListener('linguachange', () => {
+      this.costruisciMenu();
+      this.sync(this.machine.isBusy);
+    });
     this.sync(false);
   }
 
@@ -151,7 +158,7 @@ export class PaintPicker extends VariantControl {
       if (v.swatch) pallino.style.background = v.swatch;
       const testo = document.createElement('span');
       testo.className = 'paint__label';
-      testo.textContent = v.label;
+      testo.textContent = t(v.label);
       b.append(pallino, testo);
       b.addEventListener('click', () => this.scegli(v.id));
       this.menu.appendChild(b);

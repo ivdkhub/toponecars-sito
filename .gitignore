@@ -33,3 +33,17 @@ video/
 foto/
 mockup ui sample/
 animazioni_da_aggiungere/
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
+video-sezione-contenuti/
+
+# Strumenti dell'ambiente di sviluppo e file di lavoro lasciati nella radice
+# da sessioni precedenti (estrazioni di testi, prove): non fanno parte del sito.
+.claude/
+.playwright/
+skills-lock.json
+/extract.py
+/extract_texts.py
+/strings.json
+/texts.json
+/test.js

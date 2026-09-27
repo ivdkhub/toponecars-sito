@@ -1,0 +1,76 @@
+/* Avviso "Scorri per esplorare" al click su una voce del menu.
+ *
+ * Un velo a tutto schermo sopra video e interfaccia: la sfocatura cresce da
+ * zero con una transizione sul raggio di backdrop-filter, quindi la pagina si
+ * offusca davvero, non si limita a dissolversi in una copia gia' sfocata.
+ * Al centro lo stesso mouse con la rotellina gialla dell'invito in basso,
+ * ingrandito: stesso segno, stesso significato.
+ */
+
+.hint {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(14, 5, 24, 0);
+  -webkit-backdrop-filter: blur(0px) saturate(100%);
+  backdrop-filter: blur(0px) saturate(100%);
+  transition:
+    backdrop-filter 620ms var(--ease-out),
+    -webkit-backdrop-filter 620ms var(--ease-out),
+    background-color 620ms var(--ease-out);
+  cursor: pointer;
+}
+.hint[hidden] { display: none; }
+
+.hint[data-open="true"] {
+  background: rgba(14, 5, 24, 0.28);
+  -webkit-backdrop-filter: blur(calc(18 * var(--s))) saturate(120%);
+  backdrop-filter: blur(calc(18 * var(--s))) saturate(120%);
+}
+
+/* Il messaggio arriva appena dopo il velo, con l'entrata dei blocchi. */
+.hint__msg {
+  /* Scala locale: le misure del mouse dell'invito in basso, ingrandite. */
+  --s: calc(min(100vw / 1440, 100vh / 810) * 1.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(9 * var(--s));
+  color: var(--bianco);
+  opacity: 0;
+  transform: translateY(calc(8 * var(--s)));
+  filter: blur(calc(3 * var(--s)));
+  transition:
+    opacity 520ms var(--ease-out) 120ms,
+    transform 520ms var(--ease-out) 120ms,
+    filter 520ms var(--ease-out) 120ms;
+}
+.hint[data-open="true"] .hint__msg { opacity: 1; transform: none; filter: none; }
+
+.hint__label {
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(10.5 * var(--s));
+  letter-spacing: calc(1.9 * var(--s));
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 0 calc(12 * var(--s)) rgba(14, 5, 24, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint { transition: background-color 420ms linear; }
+  .hint[data-open="true"] {
+    -webkit-backdrop-filter: blur(calc(18 * var(--s)));
+    backdrop-filter: blur(calc(18 * var(--s)));
+  }
+  .hint__msg { transform: none; filter: none; transition: opacity 420ms linear; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .hint[data-open="true"] {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(14, 5, 24, 0.88);
+  }
+}

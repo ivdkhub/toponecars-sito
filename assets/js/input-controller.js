@@ -12,6 +12,11 @@
  * la coda dell'inerzia non faccia partire un secondo passo appena il video
  * finisce.
  */
+/** true se l'evento nasce dentro un'area che scorre per conto suo. */
+function dentroScorrevole(t) {
+  return t instanceof Element && !!t.closest('[data-scroll]');
+}
+
 export class InputController {
   /**
    * @param {object} config CONFIG risolto
@@ -58,6 +63,9 @@ export class InputController {
   /* ------------------------------------------------------ rotellina e trackpad */
 
   onWheel(e) {
+    // Dentro un elenco che scorre davvero (le pagine dell'area amministratore,
+    // segnate data-scroll) la rotellina scorre l'elenco: non e' un passo.
+    if (dentroScorrevole(e.target)) return;
     e.preventDefault();                       // la pagina non scorre mai
     const magnitude = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
     if (Math.abs(magnitude) < 1) return;      // rumore: non apre ne' tiene aperto un gesto
@@ -78,7 +86,7 @@ export class InputController {
   /* ------------------------------------------------------------------- touch */
 
   onTouchStart(e) {
-    if (e.touches.length !== 1) { this.touch = null; return; }
+    if (e.touches.length !== 1 || dentroScorrevole(e.target)) { this.touch = null; return; }
     this.touch = { y0: e.touches[0].clientY, dy: 0 };
   }
 
@@ -104,6 +112,12 @@ export class InputController {
   onKey(e) {
     // e.repeat escluso: tenere premuto un tasto non e' un gesto ripetuto.
     if (e.defaultPrevented || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+    // Dentro un campo di testo le frecce muovono il cursore: non sono un passo,
+    // e bloccarle renderebbe il campo inusabile.
+    const t = e.target;
+    if (t instanceof Element && (t.closest('input, textarea, select') || t.isContentEditable)) return;
+    // In un pannello modale (i documenti legali) le frecce scorrono il testo.
+    if (t instanceof Element && t.closest('dialog[open]')) return;
     let dir = 0;
     if (e.key === 'ArrowDown' || e.key === 'PageDown') dir = 1;
     else if (e.key === 'ArrowUp' || e.key === 'PageUp') dir = -1;

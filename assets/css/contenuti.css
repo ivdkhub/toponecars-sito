@@ -1,0 +1,567 @@
+/* Pagina "Contenuti" — la card con l'iPhone, sottopagina della scena 4.
+ *
+ * La card e' il vetro del pannello dei servizi (assets/css/servizi.css), alla
+ * stessa altezza e con le stesse misure, centrata: a sinistra il testo e
+ * l'elenco dei video, a destra il telefono.
+ *
+ * Il telefono ricostruisce InstagramPhoneMockup.tsx di beautydreamer-web. Li'
+ * e' largo 380 px; qui 250 unita' di design, quindi ogni misura originale in
+ * pixel e' moltiplicata per --p = --s * 250/380. Colori, raggi, gradienti e
+ * posizioni sono quelli del componente originale (classi Tailwind riportate
+ * nei commenti dove non sono ovvie).
+ */
+
+/* ------------------------------------------------------------------ la card */
+
+.cnt {
+  position: absolute;
+  left: calc(340 * var(--s));
+  top: calc(136 * var(--s));
+  width: calc(760 * var(--s));
+  height: calc(572 * var(--s));
+  padding: calc(28 * var(--s)) calc(30 * var(--s));
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: calc(40 * var(--s));
+  isolation: isolate;
+  pointer-events: auto;
+
+  border-radius: calc(22 * var(--s));
+  border: calc(1 * var(--s)) solid rgba(255, 255, 255, 0.26);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.02) 55%),
+    var(--svc-glass);
+  -webkit-backdrop-filter: blur(calc(34 * var(--s))) saturate(160%);
+  backdrop-filter: blur(calc(34 * var(--s))) saturate(160%);
+  box-shadow:
+    inset 0 calc(1 * var(--s)) 0 rgba(255, 255, 255, 0.42),
+    inset 0 calc(-1 * var(--s)) 0 rgba(255, 255, 255, 0.08),
+    0 calc(30 * var(--s)) calc(80 * var(--s)) rgba(10, 4, 20, 0.45);
+  color: var(--svc-text);
+  font-family: 'Albert Sans', sans-serif;
+
+  /* Entra come il pannello dei servizi: sale, si mette a fuoco e appare. */
+  opacity: 0;
+  transform: translateY(calc(18 * var(--s))) scale(0.985);
+  filter: blur(calc(6 * var(--s)));
+  transition:
+    opacity 420ms var(--ease-out),
+    transform 420ms var(--ease-out),
+    filter 420ms var(--ease-out);
+}
+.cnt[hidden] { display: none; }
+.cnt[data-open="true"] { opacity: 1; transform: none; filter: none; }
+
+/* Uscita al cambio di scena: la card sale appena, si sfoca e si dissolve con
+ * calma mentre il video della transizione e' gia' partito. Il blocco che la
+ * contiene diventa invisibile dopo 350 ms (blockExitMs), che per una lastra
+ * cosi' grande e' uno scatto: `visibility: visible` la tiene in vista per
+ * tutta la sua uscita anche quando il blocco e' gia' nascosto. */
+.cnt[data-open="leaving"] {
+  visibility: visible;
+  opacity: 0;
+  transform: translateY(calc(-14 * var(--s))) scale(0.985);
+  filter: blur(calc(8 * var(--s)));
+  /* Opacita' con una curva che parte piano: con quella di uscita dei blocchi
+     meta' della lastra spariva nei primi 110 ms, e l'effetto restava brusco. */
+  transition:
+    opacity 720ms cubic-bezier(0.45, 0, 0.35, 1),
+    transform 720ms var(--ease-out),
+    filter 720ms var(--ease-out);
+}
+
+.cnt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(90% 60% at 12% -12%, rgba(255, 255, 255, 0.22), transparent 50%);
+  pointer-events: none;
+}
+
+.cnt__close { position: absolute; top: calc(24 * var(--s)); left: calc(422 * var(--s)); }
+
+.cnt__text { display: flex; flex-direction: column; min-width: 0; padding-right: calc(40 * var(--s)); }
+
+.cnt__list {
+  margin: calc(26 * var(--s)) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: calc(1 * var(--s)) solid var(--svc-hair);
+}
+
+.cnt__item {
+  display: grid;
+  grid-template-columns: calc(34 * var(--s)) 1fr calc(22 * var(--s));
+  align-items: center;
+  width: 100%;
+  padding: calc(12 * var(--s)) calc(8 * var(--s)) calc(12 * var(--s)) 0;
+  border: 0;
+  border-bottom: calc(1 * var(--s)) solid var(--svc-hair);
+  background: transparent;
+  color: var(--svc-text);
+  font-family: 'Albert Sans', sans-serif;
+  font-size: calc(14.5 * var(--s));
+  text-align: left;
+  cursor: pointer;
+  animation: svc-in 480ms var(--ease-out) both;
+  transition: background-color 260ms var(--ease-out);
+}
+.cnt__item:hover { background: rgba(255, 255, 255, 0.05); }
+.cnt__item:focus-visible { outline: calc(1.5 * var(--s)) solid var(--menu-cta-light); outline-offset: calc(-1 * var(--s)); }
+.cnt__item[aria-current="true"] .cnt__item-title { color: var(--menu-cta-light-text); }
+
+.cnt__item-play {
+  width: calc(22 * var(--s));
+  height: calc(22 * var(--s));
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: calc(1.2 * var(--s)) solid rgba(255, 255, 255, 0.34);
+  color: var(--svc-text);
+}
+.cnt__item-play svg { width: calc(10 * var(--s)); height: calc(10 * var(--s)); margin-left: calc(1 * var(--s)); }
+.cnt__item[aria-current="true"] .cnt__item-play {
+  background: var(--menu-cta-light);
+  border-color: transparent;
+  color: var(--menu-cta-light-text);
+}
+
+/* In fondo, come l'invito in basso nella pagina: si continua scorrendo. */
+.cnt__next {
+  margin: auto 0 0;
+  font-family: 'Aldrich', sans-serif;
+  font-size: calc(10.5 * var(--s));
+  letter-spacing: calc(1.9 * var(--s));
+  text-transform: uppercase;
+  color: var(--svc-muted);
+}
+
+/* A card aperta le note della ruota, e le loro linee, si ritirano: resterebbero
+   a meta' sotto il vetro. */
+html[data-sub="contenuti"] .block--3[data-visible="true"] .b3__note,
+html[data-sub="contenuti"] .block--3[data-visible="true"] .b3__leaders {
+  opacity: 0;
+  transition-delay: 0ms;
+}
+
+/* ----------------------------------------------------------------- l'iPhone */
+
+.phone {
+  --p: calc(var(--s) * 250 / 380);
+  position: relative;
+  width: calc(250 * var(--s));
+  align-self: center;
+  /* drop-shadow-2xl */
+  filter: drop-shadow(0 calc(25 * var(--p)) calc(25 * var(--p)) rgba(0, 0, 0, 0.15));
+  /* Trasformazione e trasparenza le scrive contenuti.js (effetto ParallaxCard). */
+  transform-style: preserve-3d;
+  will-change: opacity, transform;
+}
+
+/* Scocca in titanio dorato: p-3.5, rounded-[54px], bordo #8e7a4a/40, anello bianco/10. */
+.phone__case {
+  position: relative;
+  padding: calc(14 * var(--p));
+  border-radius: calc(54 * var(--p));
+  background: linear-gradient(to bottom, #3a3528, #1e1c18, #2c271d);
+  border: calc(3 * var(--p)) solid rgba(142, 122, 74, 0.4);
+  box-shadow:
+    0 0 0 calc(1 * var(--p)) rgba(255, 255, 255, 0.1),
+    0 calc(25 * var(--p)) calc(60 * var(--p)) calc(-15 * var(--p)) rgba(0, 0, 0, 0.8);
+}
+
+/* Tasti laterali. */
+.phone__key {
+  position: absolute;
+  width: calc(3 * var(--p));
+  background: rgba(142, 122, 74, 0.6);
+}
+.phone__key--l1, .phone__key--l2, .phone__key--l3 { left: calc(-5 * var(--p)); border-radius: calc(2 * var(--p)) 0 0 calc(2 * var(--p)); }
+.phone__key--r1 { right: calc(-5 * var(--p)); border-radius: 0 calc(2 * var(--p)) calc(2 * var(--p)) 0; }
+.phone__key--l1 { top: calc(112 * var(--p)); height: calc(40 * var(--p)); }
+.phone__key--l2 { top: calc(168 * var(--p)); height: calc(48 * var(--p)); }
+.phone__key--l3 { top: calc(232 * var(--p)); height: calc(48 * var(--p)); }
+.phone__key--r1 { top: calc(144 * var(--p)); height: calc(64 * var(--p)); }
+
+/* Vetro dello schermo: aspect 9/19.5, rounded-[42px]. */
+.phone__screen {
+  position: relative;
+  aspect-ratio: 9 / 19.5;
+  width: 100%;
+  overflow: hidden;
+  border-radius: calc(42 * var(--p));
+  border: calc(1 * var(--p)) solid rgba(255, 255, 255, 0.1);
+  background: #000;
+  box-shadow: inset 0 calc(2 * var(--p)) calc(4 * var(--p)) rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  user-select: none;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: #fff;
+}
+
+.phone__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.phone__shade { position: absolute; inset-inline: 0; z-index: 10; pointer-events: none; }
+.phone__shade--top {
+  top: 0;
+  height: calc(112 * var(--p));
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.3), transparent);
+}
+.phone__shade--bottom {
+  bottom: 0;
+  height: calc(176 * var(--p));
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.4), transparent);
+}
+
+/* Dynamic Island: w-28 h-7, top-3. */
+.phone__island {
+  position: absolute;
+  z-index: 30;
+  top: calc(12 * var(--p));
+  left: 50%;
+  translate: -50% 0;
+  width: calc(112 * var(--p));
+  height: calc(28 * var(--p));
+  padding: 0 calc(12 * var(--p));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 999px;
+  background: #000;
+  border: calc(1 * var(--p)) solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 calc(4 * var(--p)) calc(6 * var(--p)) rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+.phone__cam {
+  width: calc(10 * var(--p));
+  height: calc(10 * var(--p));
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #1a1a1a;
+  border: calc(1 * var(--p)) solid #2d2d2d;
+}
+.phone__cam span { width: calc(4 * var(--p)); height: calc(4 * var(--p)); border-radius: 50%; background: rgba(10, 10, 35, 0.6); }
+.phone__sensor {
+  width: calc(8 * var(--p));
+  height: calc(8 * var(--p));
+  border-radius: 50%;
+  background: #111;
+  border: calc(1 * var(--p)) solid rgba(30, 58, 138, 0.3);
+}
+
+/* Barra Home: w-32 h-1, bottom-1.5. */
+.phone__home {
+  position: absolute;
+  z-index: 30;
+  bottom: calc(6 * var(--p));
+  inset-inline: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.phone__home span {
+  width: calc(128 * var(--p));
+  height: calc(4 * var(--p));
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* -------------------------------------------------------- interfaccia Reels */
+
+.phone__screen button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.phone__screen svg { display: block; }
+
+/* Barra alta: top-12, px-4. */
+.ig__top {
+  position: absolute;
+  z-index: 20;
+  top: calc(48 * var(--p));
+  inset-inline: 0;
+  padding: 0 calc(16 * var(--p));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  filter: drop-shadow(0 calc(1 * var(--p)) calc(2 * var(--p)) rgba(0, 0, 0, 0.1));
+}
+.ig__reels {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: calc(18 * var(--p));
+  font-weight: 700;
+  letter-spacing: 0.025em;
+}
+.ig__top-btns { display: flex; align-items: center; gap: calc(8 * var(--p)); }
+
+.ig__round {
+  width: calc(32 * var(--p));
+  height: calc(32 * var(--p));
+  display: grid !important;
+  place-items: center;
+  border-radius: 50%;
+  transition: transform 150ms ease, background-color 150ms ease;
+}
+.ig__round svg { width: calc(16 * var(--p)); height: calc(16 * var(--p)); }
+.ig__round--brand {
+  background: linear-gradient(to top right, #f59e0b, #f43f5e, #9333ea) !important;
+  box-shadow: 0 calc(4 * var(--p)) calc(6 * var(--p)) rgba(0, 0, 0, 0.1);
+}
+.ig__round--brand:hover { transform: scale(1.05); }
+.ig__round--glass {
+  background: rgba(0, 0, 0, 0.4) !important;
+  -webkit-backdrop-filter: blur(calc(12 * var(--p)));
+  backdrop-filter: blur(calc(12 * var(--p)));
+  border: calc(1 * var(--p)) solid rgba(255, 255, 255, 0.2) !important;
+}
+.ig__round--glass:hover { background: rgba(0, 0, 0, 0.6) !important; }
+.ig__loud { display: none !important; color: var(--giallo); }
+[data-ig-sound][aria-pressed="true"] .ig__muted { display: none !important; }
+[data-ig-sound][aria-pressed="true"] .ig__loud { display: block !important; }
+
+/* Azioni a destra: right-3, bottom-20, gap-4. */
+.ig__side {
+  position: absolute;
+  z-index: 20;
+  right: calc(12 * var(--p));
+  bottom: calc(80 * var(--p));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(16 * var(--p));
+  filter: drop-shadow(0 calc(4 * var(--p)) calc(3 * var(--p)) rgba(0, 0, 0, 0.07));
+}
+.ig__bubble {
+  display: grid;
+  place-items: center;
+  padding: calc(8 * var(--p));
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.3);
+  -webkit-backdrop-filter: blur(calc(4 * var(--p)));
+  backdrop-filter: blur(calc(4 * var(--p)));
+  transition: transform 150ms ease;
+}
+.ig__act:hover .ig__bubble { transform: scale(1.1); }
+.ig__bubble svg { width: calc(24 * var(--p)); height: calc(24 * var(--p)); transition: color 150ms ease, fill 150ms ease; }
+[data-ig-like][aria-pressed="true"] svg { color: #ef4444; fill: #ef4444; }
+[data-ig-save][aria-pressed="true"] svg { color: var(--giallo); fill: var(--giallo); }
+.ig__more {
+  display: grid !important;
+  place-items: center;
+  padding: calc(8 * var(--p)) !important;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.3) !important;
+  -webkit-backdrop-filter: blur(calc(4 * var(--p)));
+  backdrop-filter: blur(calc(4 * var(--p)));
+}
+.ig__more svg { width: calc(20 * var(--p)); height: calc(20 * var(--p)); }
+
+/* Disco che gira: w-8 h-8, bordo bianco/60, sfumatura antracite -> oro. */
+.ig__disc {
+  width: calc(32 * var(--p));
+  height: calc(32 * var(--p));
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: calc(2 * var(--p)) solid rgba(255, 255, 255, 0.6);
+  background: linear-gradient(to top right, #2b2a28, var(--giallo));
+  box-shadow: 0 calc(4 * var(--p)) calc(6 * var(--p)) rgba(0, 0, 0, 0.1);
+  animation: ig-spin 4s linear infinite;
+}
+.ig__disc svg { width: calc(14 * var(--p)); height: calc(14 * var(--p)); }
+@keyframes ig-spin { to { transform: rotate(360deg); } }
+
+/* In basso: profilo, didascalia, audio. bottom-4, px-4. */
+.ig__bottom {
+  position: absolute;
+  z-index: 20;
+  bottom: calc(16 * var(--p));
+  inset-inline: 0;
+  padding: 0 calc(16 * var(--p));
+  text-align: left;
+}
+.ig__profile { display: flex; align-items: center; gap: calc(10 * var(--p)); margin-bottom: calc(8 * var(--p)); }
+
+.ig__avatar {
+  flex: none;
+  width: calc(36 * var(--p));
+  height: calc(36 * var(--p));
+  padding: calc(2 * var(--p)) !important;
+  border-radius: 50%;
+  background: linear-gradient(to top right, #f59e0b, #f43f5e, #9333ea) !important;
+  transition: transform 150ms ease;
+}
+.ig__avatar:hover { transform: scale(1.05); }
+.ig__avatar span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #000;
+  border: calc(1 * var(--p)) solid #000;
+}
+/* Il logo e' orizzontale: nel cerchio sta intero, non ritagliato. */
+.ig__avatar img { width: 100%; height: 100%; object-fit: contain; }
+
+.ig__user {
+  font-size: calc(14 * var(--p)) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.025em;
+  text-shadow: 0 calc(1 * var(--p)) calc(2 * var(--p)) rgba(0, 0, 0, 0.3);
+}
+.ig__user:hover { text-decoration: underline; }
+
+.ig__follow {
+  margin-left: calc(4 * var(--p));
+  padding: calc(2 * var(--p)) calc(10 * var(--p)) !important;
+  border-radius: calc(6 * var(--p));
+  border: calc(1 * var(--p)) solid rgba(255, 255, 255, 0.6) !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  font-size: calc(12 * var(--p)) !important;
+  font-weight: 600 !important;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.ig__follow:hover { background: #fff !important; color: #000 !important; }
+
+.ig__caption {
+  margin: 0 0 calc(8 * var(--p));
+  font-size: calc(12 * var(--p));
+  line-height: 1.25;
+  color: rgba(255, 255, 255, 0.9);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ig__audio {
+  display: flex;
+  align-items: center;
+  gap: calc(6 * var(--p));
+  margin: 0;
+  font-size: calc(11 * var(--p));
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.ig__audio svg { flex: none; width: calc(12 * var(--p)); height: calc(12 * var(--p)); color: var(--giallo); }
+.ig__audio span { overflow: hidden; text-overflow: ellipsis; }
+
+/* Senza indirizzo del profilo i comandi verso Instagram restano visibili ma
+   non promettono un'azione: niente mano, niente ingrandimento. */
+.cnt[data-ig="false"] [data-ig-open] { cursor: default; }
+.cnt[data-ig="false"] [data-ig-open]:hover .ig__bubble,
+.cnt[data-ig="false"] .ig__round--brand:hover,
+.cnt[data-ig="false"] .ig__avatar:hover { transform: none; }
+.cnt[data-ig="false"] .ig__user:hover { text-decoration: none; }
+.cnt[data-ig="false"] .ig__follow:hover { background: rgba(255, 255, 255, 0.2) !important; color: #fff !important; }
+
+/* ---------------------------------------------------- conferma Instagram */
+
+.ig__prompt {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(20 * var(--p));
+  text-align: center;
+  background: rgba(0, 0, 0, 0.75);
+  -webkit-backdrop-filter: blur(calc(12 * var(--p)));
+  backdrop-filter: blur(calc(12 * var(--p)));
+  animation: ig-in 200ms ease both;
+  cursor: default;
+}
+.ig__prompt[hidden] { display: none; }
+@keyframes ig-in { from { opacity: 0; transform: scale(0.95); } }
+
+.ig__prompt-box {
+  width: 100%;
+  max-width: calc(280 * var(--p));
+  padding: calc(24 * var(--p));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: calc(24 * var(--p));
+  background: #1f1f1f;
+  border: calc(1 * var(--p)) solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 calc(25 * var(--p)) calc(50 * var(--p)) calc(-12 * var(--p)) rgba(0, 0, 0, 0.25);
+}
+.ig__prompt-icon {
+  width: calc(56 * var(--p));
+  height: calc(56 * var(--p));
+  display: grid;
+  place-items: center;
+  margin-bottom: calc(16 * var(--p));
+  border-radius: calc(16 * var(--p));
+  background: linear-gradient(to top right, #f59e0b, #f43f5e, #9333ea);
+}
+.ig__prompt-icon svg { width: calc(32 * var(--p)); height: calc(32 * var(--p)); }
+.ig__prompt-title {
+  margin: 0 0 calc(4 * var(--p));
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: calc(18 * var(--p));
+  font-weight: 700;
+}
+.ig__prompt-desc {
+  margin: 0 0 calc(20 * var(--p));
+  font-size: calc(12 * var(--p));
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+.ig__prompt-go,
+.ig__prompt-stay {
+  width: 100%;
+  padding: calc(10 * var(--p)) calc(16 * var(--p)) !important;
+  border-radius: calc(12 * var(--p));
+  font-size: calc(12 * var(--p)) !important;
+}
+.ig__prompt-go {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: calc(6 * var(--p));
+  margin-bottom: calc(10 * var(--p));
+  background: linear-gradient(to right, #f59e0b, #f43f5e, #9333ea) !important;
+  font-weight: 600 !important;
+}
+.ig__prompt-go svg { width: calc(14 * var(--p)); height: calc(14 * var(--p)); }
+.ig__prompt-go:hover { opacity: 0.95; }
+.ig__prompt-stay {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: calc(1 * var(--p)) solid rgba(255, 255, 255, 0.1) !important;
+  font-weight: 500 !important;
+}
+.ig__prompt-stay:hover { background: rgba(255, 255, 255, 0.2) !important; }
+
+/* ------------------------------------------------------- accessibilita' */
+
+@media (prefers-reduced-transparency: reduce) {
+  .cnt {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgb(30, 14, 48);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cnt { transform: none; filter: none; transition: opacity 420ms linear; }
+  .cnt[data-open="leaving"] { transform: none; filter: none; transition: opacity 720ms linear; }
+  .ig__disc { animation: none; }
+}

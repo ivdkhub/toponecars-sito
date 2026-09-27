@@ -104,6 +104,29 @@ async function gesture(f, deltaY, opts) {
   await wheel(f, deltaY, opts);
 }
 
+/** true se la sottopagina della scena corrente (la card dei contenuti) e' aperta. */
+const sottoAperta = (f) => f.contentWindow.__TOC__.contenuti.aperto;
+const haSotto = (f) => !!f.contentWindow.__TOC__.config.scenes[scene(f)].sottopagina;
+
+/**
+ * Un passo di SCENA in avanti. Sulla scena che ha una sottopagina il primo
+ * gesto la apre senza cambiare scena, quindi servono due gesti: il primo viene
+ * verificato (sottopagina aperta, scena ferma) se si passa `t`.
+ */
+async function avanti(f, t) {
+  if (haSotto(f) && !sottoAperta(f)) {
+    const s = scene(f);
+    await gesture(f, 120);
+    await sleep(200);
+    if (t) {
+      t.eq(sottoAperta(f), true, `scena ${s + 1}: il primo scroll apre la sottopagina`);
+      t.eq(scene(f), s, `scena ${s + 1}: e la scena resta ferma`);
+    }
+  }
+  await gesture(f, 120);
+  await idle(f);
+}
+
 async function key(f, k) {
   await sleep(50);
   f.contentWindow.dispatchEvent(new KeyboardEvent('keydown', {
@@ -174,13 +197,14 @@ const FAST = 'playbackRate=4';
 const SCENARIOS = [
   {
     name: 'catena in avanti fino all’ultima scena, un passo per gesto',
+    // Un passo per gesto, salvo la scena con una sottopagina: li' il primo
+    // gesto la apre (verificato da `avanti`) e il secondo prosegue.
     async run(t) {
       const f = await frame(FAST);
       await idle(f);
       t.eq(scene(f), 1, 'intro arrivata alla scena 2');
       for (let expected = 2; expected <= ultima(f); expected += 1) {
-        await gesture(f, 120);
-        await idle(f);
+        await avanti(f, t);
         t.eq(scene(f), expected, `dopo un gesto: scena ${expected + 1}`);
       }
       t.eq(scene(f), ultima(f), `arrivato in fondo (${quante(f)} scene)`);
@@ -402,7 +426,7 @@ const SCENARIOS = [
         };
       };
       for (let expected = 1; expected <= ultima(f); expected += 1) {
-        if (expected > 1) { await gesture(f, 120); await idle(f); }
+        if (expected > 1) await avanti(f);
         const r = read();
         t.eq(r.value, String(cfg.scenes[expected].counter.n).padStart(2, '0'),
           `scena ${expected + 1}: numero ${r.value}`);
@@ -424,8 +448,7 @@ const SCENARIOS = [
       t.eq(pastigliaSopra(f, attesa(0)), true, 'scena 1: pastiglia spenta');
 
       for (let i = 1; i <= ultima(f); i += 1) {
-        await gesture(f, 120);
-        await idle(f);
+        await avanti(f);
         await sleep(500);                       // la pastiglia scivola
         t.eq(voceCorrente(f), attesa(i),
           `scena ${i + 1}: voce ${attesa(i) === null ? 'nessuna' : attesa(i)}`);
@@ -631,11 +654,11 @@ const SCENARIOS = [
       // E’ la condizione in cui Chrome mette il video in pausa e smette di
       // chiamare requestAnimationFrame; senza una guardia indipendente dai
       // fotogrammi la pagina resterebbe in transizione per sempre.
-      await f.contentWindow.eval(`
-        Object.defineProperty(document, 'hidden', { get: () => true, configurable: true });
-        Object.defineProperty(document, 'visibilityState', { get: () => 'hidden', configurable: true });
-        window.requestAnimationFrame = () => 0;
-      `);
+      // Direttamente sugli oggetti della pagina, senza eval: la Content-Security-
+      // Policy del sito (vercel.json, applicata anche da tools/serve.js) lo vieta.
+      Object.defineProperty(f.contentDocument, 'hidden', { get: () => true, configurable: true });
+      Object.defineProperty(f.contentDocument, 'visibilityState', { get: () => 'hidden', configurable: true });
+      f.contentWindow.requestAnimationFrame = () => 0;
 
       const opzione = w().config.variants.paint.options[0].id;
       f.contentDocument.querySelector('[data-paint-toggle]').click();
@@ -646,6 +669,153 @@ const SCENARIOS = [
       t.eq(ds(f).paint, opzione, 'e lo stato arriva comunque a destinazione');
       t.eq(w().player.visible.dataset.clip, 'paint-' + opzione + '-avanti',
         'il fotogramma viene portato a destinazione a mano');
+      return f;
+    },
+  },
+  {
+    name: 'codifica illeggibile: la pagina passa da sola alla successiva',
+    // Un browser puo' dichiarare un formato e poi non saperlo leggere
+    // (verificato su WebKit con AV1). Qui lo si simula con una cartella che
+    // non esiste: ogni clip fallisce, e la pagina deve ripiegare da sola.
+    async run(t) {
+      const f = await frame(FAST + '&mediaDir=formato-illeggibile');
+      await idle(f);
+      const w = f.contentWindow.__TOC__;
+      await waitFor(() => w.player.diagnostics.formatoRipiegato, 10000).catch(() => {});
+      t.eq(typeof w.player.diagnostics.formatoRipiegato, 'string', `ripiego registrato (${w.player.diagnostics.formatoRipiegato})`);
+      t.eq(w.config.mediaDir !== 'formato-illeggibile', true, `cartella in uso: ${w.config.mediaDir}`);
+      await waitFor(() => w.player.visible && w.player.visible.readyState >= 2, 15000).catch(() => {});
+      t.eq(!!w.player.visible && w.player.visible.readyState >= 2, true, 'il fotogramma di riposo si vede');
+      await gesture(f, 120);
+      await idle(f);
+      t.eq(scene(f), 2, 'e la navigazione prosegue');
+      t.eq(!w.player.visible.error && w.player.visible.readyState >= 2, true, 'con la clip nuova leggibile');
+      return f;
+    },
+  },
+  {
+    name: 'area amministratore: accesso, servizi, orari e uscita riaccendendo la luce',
+    async run(t) {
+      const CHIAVE = 'toc-officina-demo-v2';
+      try { localStorage.removeItem(CHIAVE); } catch { /* niente */ }
+      const f = await frame('scene=1');
+      const w = f.contentWindow;
+      const doc = f.contentDocument;
+      const root = doc.documentElement;
+      await idle(f);
+      const dati = w.__TOC__.dati;
+
+      doc.querySelector('[data-lamp]').click();
+      await waitFor(() => root.dataset.admin === 'on', 5000);
+      await waitFor(() => doc.querySelector('[data-adm]').dataset.open === 'true', 20000);
+      t.eq(ds(f).theme, 'scuro', 'a luce spenta');
+      await sleep(900);
+      const schede = [...doc.querySelectorAll('.b1__card')].map((c) => Number(getComputedStyle(c).opacity));
+      t.eq(schede.every((o) => o < 0.05), true, 'le schede statistiche si sono ritirate');
+      const visibili = [...doc.querySelectorAll('.menu a')].filter((a) => getComputedStyle(a).display !== 'none');
+      t.eq(visibili.map((a) => a.textContent.trim()).join(' | '),
+        'Servizi | Prenotazioni | Parco auto-noleggio | Orari di apertura | Genera preventivo', 'le voci del menu sono quelle di gestione');
+      t.eq(visibili.every((a) => a.getAttribute('aria-disabled') === 'true'), true, 'disattivate prima dell’accesso');
+
+      const form = doc.querySelector('[data-adm-form]');
+      form.elements.utente.value = 'demo';
+      form.elements.password.value = 'sbagliata';
+      form.requestSubmit();
+      await sleep(100);
+      t.eq(root.dataset.adminAuth, undefined, 'con la password sbagliata non si entra');
+      t.eq(doc.querySelector('[data-adm-err]').textContent.includes('non corrette'), true, 'e il form lo dice');
+
+      doc.querySelector('[data-adm-demo-fill]').click();
+      form.requestSubmit();
+      await sleep(100);
+      t.eq(root.dataset.adminAuth, 'true', 'con le credenziali della demo si entra');
+      t.eq(doc.querySelectorAll('.adm__kpi li').length, 4, 'il riepilogo mostra i suoi quattro numeri');
+
+      // Servizi: aggiunta ed eliminazione, visibili nel catalogo pubblico.
+      doc.querySelector('[data-admin-item="servizi"]').click();
+      await sleep(600);
+      const prima = dati.catalogoPubblico()[0].servizi.length;
+      const nuovo = doc.querySelector('.admp__addsvc input');
+      nuovo.value = 'Servizio di prova';
+      nuovo.dispatchEvent(new w.Event('input', { bubbles: true }));
+      doc.querySelector('.admp__addsvc').requestSubmit();
+      await sleep(150);
+      t.eq(dati.catalogoPubblico()[0].servizi.length, prima + 1, 'un servizio aggiunto entra nel catalogo del sito');
+      const elimina = [...doc.querySelectorAll('.admp__row--svc')].pop().querySelector('.admp__btn--danger');
+      elimina.click();
+      t.eq(dati.catalogoPubblico()[0].servizi.length, prima + 1, 'il primo click chiede solo conferma');
+      elimina.click();
+      await sleep(150);
+      t.eq(dati.catalogoPubblico()[0].servizi.length, prima, 'il secondo click lo elimina');
+
+      // Orari: il sabato chiuso sparisce dal calendario della prenotazione.
+      doc.querySelector('[data-admin-item="orari"]').click();
+      await sleep(600);
+      const sabato = new Date(); sabato.setHours(0, 0, 0, 0);
+      do { sabato.setDate(sabato.getDate() + 1); } while (sabato.getDay() !== 6);
+      t.gt(dati.slotDi(sabato).length, 0, 'il sabato ha orari prenotabili');
+      const riga = [...doc.querySelectorAll('.admp__row--day')].find((r) => r.textContent.startsWith('Sabato'));
+      riga.querySelector('.admp__switch').click();
+      await sleep(150);
+      t.eq(dati.slotDi(sabato).length, 0, 'chiuso il sabato, il calendario non propone orari');
+
+      // Riaccendendo la luce si esce.
+      doc.querySelector('[data-lamp]').click();
+      await waitFor(() => state(f) === 'idle' && ds(f).theme === 'chiaro', 20000);
+      await sleep(700);
+      t.eq(root.dataset.adminAuth, undefined, 'riaccesa la luce la sessione e’ chiusa');
+      t.eq(root.dataset.admin, 'off', 'e l’area amministratore e’ chiusa');
+      t.eq(doc.querySelector('[data-admp]').hidden, true, 'nessuna pagina di gestione resta aperta');
+      t.eq([...doc.querySelectorAll('.menu a')].filter((a) => getComputedStyle(a).display !== 'none').length, 6,
+        'il menu torna quello del sito');
+
+      try { localStorage.removeItem(CHIAVE); } catch { /* niente */ }
+      return f;
+    },
+  },
+  {
+    name: 'contenuti: il secondo scroll apre la card con il video, il terzo prosegue',
+    async run(t) {
+      const cfg0 = await frame('scene=1');           // solo per leggere la configurazione
+      const idx = cfg0.contentWindow.__TOC__.config.scenes.findIndex((s) => s.sottopagina === 'contenuti');
+      cfg0.remove();
+      t.eq(idx >= 0, true, 'una scena dichiara la sottopagina dei contenuti');
+
+      const f = await frame(`${FAST}&scene=${idx}`);
+      await idle(f);
+      const video = f.contentDocument.querySelector('[data-phone-video]');
+      t.eq(sottoAperta(f), false, 'arrivati sulla pagina la card e’ chiusa');
+      t.eq(video.querySelectorAll('source').length, 0, 'e il video non e’ ancora stato chiesto alla rete');
+
+      await gesture(f, 120);
+      await sleep(600);
+      t.eq(sottoAperta(f), true, 'lo scroll in avanti apre la card');
+      t.eq(scene(f), idx, 'senza cambiare scena');
+      t.eq(state(f), 'idle', 'e senza avviare transizioni');
+      t.gt(video.querySelectorAll('source').length, 0, 'il video viene chiesto solo ora');
+      await waitFor(() => !video.paused && video.currentTime > 0, 8000).catch(() => {});
+      t.eq(!video.paused && video.currentTime > 0, true, 'il video nel telefono parte da solo');
+      t.eq(video.muted, true, 'senza audio finche’ non lo si attiva');
+
+      await gesture(f, -120);
+      await sleep(800);
+      t.eq(sottoAperta(f), false, 'lo scroll indietro richiude la card');
+      t.eq(scene(f), idx, 'restando sulla stessa scena');
+      t.eq(video.paused, true, 'e il video si ferma');
+
+      await gesture(f, 120);
+      await sleep(300);
+      t.eq(sottoAperta(f), true, 'riaperta');
+      await gesture(f, 120);
+      await idle(f);
+      t.eq(scene(f), idx + 1, 'con la card aperta lo scroll prosegue alla scena dopo');
+      t.eq(sottoAperta(f), false, 'e la card esce con il suo blocco');
+      t.eq(f.contentDocument.querySelector('[data-cnt]').hidden, true, 'a uscita finita la card non e’ piu’ nel disegno');
+
+      await gesture(f, -120);
+      await idle(f);
+      t.eq(scene(f), idx, 'tornando indietro si rientra sulla pagina');
+      t.eq(sottoAperta(f), false, 'con la card chiusa: si riapre solo scorrendo in avanti');
       return f;
     },
   },

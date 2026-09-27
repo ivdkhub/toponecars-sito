@@ -5,6 +5,7 @@
   "description": "Landing page a scene video collegate da transizioni cinematografiche.",
   "scripts": {
     "serve": "node tools/serve.js",
+    "servizi": "node tools/build-servizi.js",
     "test": "node tools/autotest-run.js",
     "pixel": "node tools/pixel-check.js"
   },

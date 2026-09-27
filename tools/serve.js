@@ -29,6 +29,18 @@ const TYPES = {
   '.txt': 'text/plain; charset=utf-8',
 };
 
+// Le intestazioni di sicurezza di produzione (vercel.json, regola "/(.*)"):
+// applicate anche qui, cosi' una Content-Security-Policy troppo stretta si
+// scopre in sviluppo e nei test, non dopo la pubblicazione. Non valgono per
+// tests/, che non viene pubblicata e ha i suoi script nella pagina.
+const SICUREZZA = (() => {
+  try {
+    const v = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
+    const regola = (v.headers || []).find((h) => h.source === '/(.*)');
+    return Object.fromEntries((regola ? regola.headers : []).map((h) => [h.key, h.value]));
+  } catch { return {}; }
+})();
+
 function send(res, code, headers, body) {
   res.writeHead(code, headers);
   res.end(body);
@@ -62,6 +74,7 @@ const server = http.createServer((req, res) => {
     // non si resta con i vecchi in cache.
     const media = pathname.startsWith('/assets/media/');
     const base = {
+      ...(pathname.startsWith('/tests/') ? {} : SICUREZZA),
       'Content-Type': type,
       'Accept-Ranges': 'bytes',
       'Cache-Control': media ? 'public, max-age=3600' : 'no-cache',

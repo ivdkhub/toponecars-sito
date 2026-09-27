@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Scarica Aldrich e Albert Sans da Google Fonts in locale (woff2, subset latin).
+"""Scarica Aldrich e Albert Sans da Google Fonts in locale (woff2, subset latin),
+piu' i loro compagni cirillici per la versione ucraina del sito: Onest per
+Albert Sans e Tektur per Aldrich (subset cyrillic). Nel CSS i compagni stanno
+sotto lo stesso nome di famiglia, con unicode-range (vedi base.css).
 
 I font NON vanno caricati dalla rete a runtime: questo script li porta una volta
 sola dentro assets/fonts/ e stampa le regole @font-face da incollare nel CSS.
@@ -15,8 +18,11 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
 
 FAMILIES = [
-    ("Albert Sans", "Albert+Sans:wght@100..900", "AlbertSans-Variable"),
-    ("Aldrich", "Aldrich", "Aldrich-Regular"),
+    # (famiglia nel CSS, famiglia su Google Fonts, nome del file, subset)
+    ("Albert Sans", "Albert+Sans:wght@100..900", "AlbertSans-Variable", "latin"),
+    ("Aldrich", "Aldrich", "Aldrich-Regular", "latin"),
+    ("Albert Sans", "Onest:wght@100..900", "Onest-Cyrillic-Variable", "cyrillic"),
+    ("Aldrich", "Tektur:wght@400..900", "Tektur-Cyrillic", "cyrillic"),
 ]
 
 
@@ -28,11 +34,11 @@ def get(url):
 def main():
     os.makedirs(DEST, exist_ok=True)
     faces = []
-    for family, spec, basename in FAMILIES:
+    for family, spec, basename, wanted in FAMILIES:
         css = get("https://fonts.googleapis.com/css2?family=%s&display=block" % spec).decode("utf-8")
         blocks = re.findall(r"/\*\s*([\w\-\[\]]+)\s*\*/\s*@font-face\s*\{(.*?)\}", css, re.S)
         for subset, body in blocks:
-            if subset != "latin":            # la pagina e' solo latina: niente peso inutile
+            if subset != wanted:             # solo l'alfabeto che serve: niente peso inutile
                 continue
             url = re.search(r"url\((https://[^)]+\.woff2)\)", body).group(1)
             weight = re.search(r"font-weight:\s*([^;]+);", body).group(1).strip()

@@ -19,6 +19,16 @@
       },
       {
         "ok": true,
+        "label": "scena 4: il primo scroll apre la sottopagina",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 4: e la scena resta ferma",
+        "detail": ""
+      },
+      {
+        "ok": true,
         "label": "dopo un gesto: scena 5",
         "detail": ""
       },
@@ -34,7 +44,12 @@
       },
       {
         "ok": true,
-        "label": "arrivato in fondo (7 scene)",
+        "label": "dopo un gesto: scena 8",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "arrivato in fondo (8 scene)",
         "detail": ""
       }
     ],
@@ -46,6 +61,11 @@
       {
         "ok": true,
         "label": "arrivato in fondo",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "indietro fino alla scena 7",
         "detail": ""
       },
       {
@@ -242,7 +262,7 @@
       },
       {
         "ok": true,
-        "label": "non e’ stato un salto istantaneo (1314 ms, currentTime intermedio 4.04)",
+        "label": "non e’ stato un salto istantaneo (1318 ms, currentTime intermedio 4.04)",
         "detail": ""
       }
     ],
@@ -315,7 +335,7 @@
     "checks": [
       {
         "ok": true,
-        "label": "stessa geometria in tutte le 17 rilevazioni",
+        "label": "stessa geometria in tutte le 22 rilevazioni",
         "detail": ""
       },
       {
@@ -341,7 +361,7 @@
       },
       {
         "ok": true,
-        "label": "scena 2: barra 0.267",
+        "label": "scena 2: barra 0.246",
         "detail": ""
       },
       {
@@ -351,7 +371,7 @@
       },
       {
         "ok": true,
-        "label": "scena 3: barra 0.413",
+        "label": "scena 3: barra 0.371",
         "detail": ""
       },
       {
@@ -361,7 +381,7 @@
       },
       {
         "ok": true,
-        "label": "scena 4: barra 0.56",
+        "label": "scena 4: barra 0.497",
         "detail": ""
       },
       {
@@ -371,7 +391,7 @@
       },
       {
         "ok": true,
-        "label": "scena 5: barra 0.707",
+        "label": "scena 5: barra 0.623",
         "detail": ""
       },
       {
@@ -381,7 +401,7 @@
       },
       {
         "ok": true,
-        "label": "scena 6: barra 0.853",
+        "label": "scena 6: barra 0.749",
         "detail": ""
       },
       {
@@ -391,7 +411,17 @@
       },
       {
         "ok": true,
-        "label": "scena 7: barra 1",
+        "label": "scena 7: barra 0.874",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 8: numero 08",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 8: barra 1",
         "detail": ""
       }
     ],
@@ -462,12 +492,22 @@
       },
       {
         "ok": true,
-        "label": "scena 7: voce nessuna",
+        "label": "scena 7: voce 4",
         "detail": ""
       },
       {
         "ok": true,
         "label": "scena 7: la pastiglia copre la voce giusta",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 8: voce 5",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "scena 8: la pastiglia copre la voce giusta",
         "detail": ""
       }
     ],
@@ -601,7 +641,7 @@
       },
       {
         "ok": true,
-        "label": "si parte dall'ultima scena (6)",
+        "label": "si parte dall'ultima scena (7)",
         "detail": ""
       },
       {
@@ -710,6 +750,224 @@
       {
         "ok": true,
         "label": "il fotogramma viene portato a destinazione a mano",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "codifica illeggibile: la pagina passa da sola alla successiva",
+    "checks": [
+      {
+        "ok": true,
+        "label": "ripiego registrato (formato-illeggibile -> av1)",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "cartella in uso: av1",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il fotogramma di riposo si vede",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "e la navigazione prosegue",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "con la clip nuova leggibile",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "area amministratore: accesso, servizi, orari e uscita riaccendendo la luce",
+    "checks": [
+      {
+        "ok": true,
+        "label": "a luce spenta",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "le schede statistiche si sono ritirate",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "le voci del menu sono quelle di gestione",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "disattivate prima dell’accesso",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "con la password sbagliata non si entra",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "e il form lo dice",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "con le credenziali della demo si entra",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il riepilogo mostra i suoi quattro numeri",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "un servizio aggiunto entra nel catalogo del sito",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il primo click chiede solo conferma",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il secondo click lo elimina",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il sabato ha orari prenotabili",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "chiuso il sabato, il calendario non propone orari",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "riaccesa la luce la sessione e’ chiusa",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "e l’area amministratore e’ chiusa",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "nessuna pagina di gestione resta aperta",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il menu torna quello del sito",
+        "detail": ""
+      }
+    ],
+    "error": null
+  },
+  {
+    "name": "contenuti: il secondo scroll apre la card con il video, il terzo prosegue",
+    "checks": [
+      {
+        "ok": true,
+        "label": "una scena dichiara la sottopagina dei contenuti",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "arrivati sulla pagina la card e’ chiusa",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "e il video non e’ ancora stato chiesto alla rete",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "lo scroll in avanti apre la card",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "senza cambiare scena",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "e senza avviare transizioni",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il video viene chiesto solo ora",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "il video nel telefono parte da solo",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "senza audio finche’ non lo si attiva",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "lo scroll indietro richiude la card",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "restando sulla stessa scena",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "e il video si ferma",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "riaperta",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "con la card aperta lo scroll prosegue alla scena dopo",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "e la card esce con il suo blocco",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "a uscita finita la card non e’ piu’ nel disegno",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "tornando indietro si rientra sulla pagina",
+        "detail": ""
+      },
+      {
+        "ok": true,
+        "label": "con la card chiusa: si riapre solo scorrendo in avanti",
         "detail": ""
       }
     ],
