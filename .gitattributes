@@ -1,0 +1,4 @@
+# Fine riga LF per tutti i file di testo, qualunque sia il sistema di chi
+# lavora: su Windows gli editor tendono a riscriverli in CRLF, e ogni file
+# toccato comparirebbe nel diff come cambiato per intero.
+* text=auto eol=lf
