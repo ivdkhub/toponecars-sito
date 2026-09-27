@@ -315,18 +315,18 @@ export const CONFIG = {
    *  Si prendono dalla visura camerale dell'officina. */
   azienda: {
     /** Es. "Top One Cars S.r.l." oppure "Top One Cars di Mario Rossi". */
-    ragioneSociale: null,
+    ragioneSociale: 'TOP ONE CARS SRL',
     /** Nome commerciale, come compare nel sito. */
     insegna: 'Top One Cars',
     sede: 'SS 9 Via Emilia, 312 · 20070 Vizzolo Predabissi (MI)',
-    piva: null,
+    piva: '13478420964',
     /** Solo se diverso dalla partita IVA (ditte individuali). */
     codiceFiscale: null,
     /** Es. "MI-1234567". */
     rea: null,
     /** Solo per le societa' di capitali, es. "10.000 € i.v."; null altrimenti. */
     capitaleSociale: null,
-    email: null,
+    email: 'toponecars.srl@gmail.com',
     pec: null,
     telefono: null,
   },
