@@ -235,6 +235,7 @@ riporta al punto di partenza.
 |---|---|---|---|
 | `theme` | lampadina | `darktheme.mp4` | `chiaro` → `scuro` |
 | `paint` | vernice | `vernice-giallo.mp4` | `rosso` → `giallo` |
+| `paint` | vernice | `vernice-officina.mp4` | `rosso` → `officina` (la parete si dipinge viola e giallo) |
 
 È la stessa meccanica delle transizioni fra scene — stessa velocità, stesse
 dissolvenze sulle giunture, stesso rifiuto delle richieste che arrivano mentre il
@@ -242,12 +243,16 @@ video scorre. Le giunture sono state misurate come tutte le altre: **3,45** per
 il buio e **3,57** per la vernice, contro il 3,30 della giuntura fra la prima e
 la seconda transizione.
 
-Due regole, entrambe volute:
+Tre regole, tutte volute:
 
 - **da una variante non si cambia scena.** Le sei transizioni della sequenza
   esistono soltanto con le luci accese e l'auto rossa, quindi percorrerle da lì
   vorrebbe dire riaccendere la luce, o ridipingere l'auto, di nascosto. `canGo()`
   è falso e ogni richiesta viene scartata come al bordo della sequenza;
+- **dalla vernice lo scroll all'indietro riporta al rosso** (`backScrollRestores`
+  in `config.js`): rotellina, freccia o swipe verso l'alto riproducono al
+  contrario la clip dell'opzione attiva, senza cambiare scena. In avanti resta
+  bloccato;
 - **due varianti non sono attive insieme,** per la stessa ragione: la clip del
   buio riprende un'auto rossa, quella della vernice un'auto illuminata. Il
   comando dell'una sparisce mentre l'altra è attiva.

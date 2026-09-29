@@ -32,6 +32,7 @@ export const TESTI = {
   'Chiudi il menu': ['Close the menu', 'Закрити меню'],
   'Rosso Carmine': ['Carmine Red', 'Кармінно-червоний'],
   'Giallo Top One Cars': ['Top One Cars Yellow', 'Жовтий Top One Cars'],
+  'Officina Top One Cars': ['Top One Cars Workshop', 'Майстерня Top One Cars'],
   'Principale': ['Main', 'Головне меню'],
   'Lingua del sito': ['Site language', 'Мова сайту'],
   'Chi siamo': ['About us', 'Про нас'],

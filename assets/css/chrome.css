@@ -476,6 +476,18 @@ html[data-theme="scuro"] .lamp .lamp__rays { opacity: 1; }
    l'invito a tornare indietro, ed e' anche l'unico modo per farlo, visto che da
    li' non si cambia scena. */
 html[data-paint="giallo"] .paint__btn { color: rgb(234, 183, 9); }
+/* Parete dipinta: dietro il rullo ci sono triangoli viola, gialli e bianchi, e
+   nessun colore del disegno ci si stacca. Gli si mette dietro il fondo della
+   barra del menu, come per le card delle recensioni: e' il comando per tornare
+   al rosso, deve leggersi su qualunque triangolo. */
+html[data-paint="officina"] .paint__btn {
+  margin: calc(-5 * var(--s));
+  width: calc(100% + 10 * var(--s));
+  height: calc(100% + 10 * var(--s));
+  border-radius: calc(7.6 * var(--s));
+  background: var(--menu-fill);
+  color: var(--adm-crema, rgb(255, 243, 214));
+}
 
 /* L'elenco dei colori: stesso fondo e stesso raggio della barra del menu, cosi'
    sembra parte della stessa cosa. */

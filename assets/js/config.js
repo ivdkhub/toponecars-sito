@@ -196,6 +196,10 @@ export const CONFIG = {
       baseLabel: 'Rosso Carmine',
       baseSwatch: '#950f19',
       blockNavigation: true,
+      // Da un'opzione della vernice uno scroll all'indietro (rotellina, freccia,
+      // swipe) non cambia scena: riporta al colore ordinario, riproducendo la
+      // clip al contrario. In avanti resta bloccato come prima.
+      backScrollRestores: true,
       options: [
         {
           id: 'giallo',
@@ -203,6 +207,18 @@ export const CONFIG = {
           swatch: '#eab709',
           src: 'vernice-giallo.mp4',
           reverseSrc: 'vernice-giallo.rev.mp4',
+          seamFadeMs: 300,
+        },
+        // Non una vernice dell'auto, che resta rossa: la parete alle sue spalle
+        // si dipinge con i colori dell'officina (wallpainting.mp4). Stessa
+        // partenza e stessa meccanica, quindi e' un'opzione della stessa
+        // variante. Il pallino mostra i due colori della parete.
+        {
+          id: 'officina',
+          label: 'Officina Top One Cars',
+          swatch: 'linear-gradient(135deg, rgb(127, 77, 177) 0 50%, rgb(215, 171, 35) 50% 100%)',
+          src: 'vernice-officina.mp4',
+          reverseSrc: 'vernice-officina.rev.mp4',
           seamFadeMs: 300,
         },
       ],

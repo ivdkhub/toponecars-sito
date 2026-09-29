@@ -55,6 +55,9 @@ EXTRA = {
     # fotogramma di riposo della scena 2 (scarto medio 3,52) e arriva all'auto
     # gialla, dove resta in pausa.
     "vernice-giallo": os.path.join(ROOT, "fromredtoyellow.mp4"),
+    # La parete dipinta con i colori dell'officina: stessa partenza (scarto
+    # medio 3,49), l'auto resta rossa e cambia lo sfondo.
+    "vernice-officina": os.path.join(ROOT, "animazioni_da_aggiungere", "wallpainting.mp4"),
 }
 
 # GOP di 24 (un fotogramma chiave al secondo) e rilevamento dei cambi di scena

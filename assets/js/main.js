@@ -139,6 +139,13 @@ async function start() {
       contenuti.apri();
       return;
     }
+    // Da una variante che lo prevede (la vernice) un passo indietro riporta
+    // allo stato ordinario con la clip al contrario, invece di essere scartato.
+    if (dir < 0) {
+      const variante = Object.keys(machine.variants).find((k) =>
+        machine.variantAttiva(k) && machine.variantSpec(k).backScrollRestores);
+      if (variante) { machine.setVariant(variante, null, source); return; }
+    }
     // canGo e' falso anche a luce spenta: la sequenza si percorre solo con il
     // tema chiaro, quindi il passo viene scartato come al bordo della sequenza.
     if (!machine.canGo(dir)) { rejected.atEdge += 1; return; }

@@ -644,6 +644,32 @@ const SCENARIOS = [
     },
   },
   {
+    name: 'vernice: ogni opzione, e lo scroll all’indietro riporta al colore ordinario',
+    async run(t) {
+      const f = await frame('scene=1');
+      const w = () => f.contentWindow.__TOC__;
+      await idle(f);
+      const spec = w().config.variants.paint;
+      const partenza = scene(f);
+      for (const o of spec.options) {
+        f.contentDocument.querySelector('[data-paint-toggle]').click();
+        f.contentDocument.querySelector(`[data-paint-option="${o.id}"]`).click();
+        await waitFor(() => ds(f).paint === o.id && state(f) === 'idle', 40000);
+        t.eq(w().player.visible.dataset.clip, 'paint-' + o.id + '-avanti',
+          `${o.id}: in pausa sull’ultimo fotogramma della sua clip`);
+        await gesture(f, 120);
+        await sleep(900);
+        t.eq(ds(f).paint, o.id, `${o.id}: in avanti resta bloccato`);
+        await gesture(f, -120);
+        await waitFor(() => ds(f).paint === spec.base && state(f) === 'idle', 40000);
+        t.eq(scene(f), partenza, `${o.id}: lo scroll indietro non cambia scena`);
+        t.eq(w().player.visible.dataset.clip, 'tr1-avanti',
+          `${o.id}: si rientra sul fotogramma di riposo con la clip al contrario`);
+      }
+      return f;
+    },
+  },
+  {
     name: 'finestra nascosta: la transizione si chiude comunque, non resta appesa',
     async run(t) {
       const f = await frame('scene=1');
