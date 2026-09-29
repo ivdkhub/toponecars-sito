@@ -14,7 +14,9 @@
 <meta property="og:title" content="Top One Cars — Officina autoriparazioni, Vizzolo Predabissi">
 <meta property="og:description" content="Tagliandi, diagnosi, pneumatici, climatizzazione, revisioni e noleggio auto. Prenota il servizio online.">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%237f4db1'/%3E%3Cpath d='M5 20h22M9 20a3 3 0 106 0 3 3 0 10-6 0M18 20a3 3 0 106 0 3 3 0 10-6 0' stroke='%23d7ab23' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+<!-- Telefono o no, prima del primo disegno: accende assets/css/mobile.css. -->
+<script src="assets/js/mobile-detect.js"></script>
+<link rel="icon"href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%237f4db1'/%3E%3Cpath d='M5 20h22M9 20a3 3 0 106 0 3 3 0 10-6 0M18 20a3 3 0 106 0 3 3 0 10-6 0' stroke='%23d7ab23' stroke-width='2' fill='none'/%3E%3C/svg%3E">
 <!-- L'unica immagine del primo fotogramma: e' cio' che si vede mentre la prima
      clip arriva, quindi vale la pena chiederla subito. -->
 <link rel="preload" as="image" href="assets/media/poster.webp" fetchpriority="high">
@@ -66,6 +68,8 @@
 <link rel="stylesheet" href="assets/css/stampa-preventivo.css">
 <link rel="stylesheet" href="assets/css/hint.css">
 <link rel="stylesheet" href="assets/css/legale.css">
+<!-- Ultimo di proposito: vale solo sotto html[data-mobile] e deve prevalere. -->
+<link rel="stylesheet" href="assets/css/mobile.css">
 </head>
 <body>
 

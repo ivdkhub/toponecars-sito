@@ -27,6 +27,9 @@ export const TESTI = {
   "Cambia colore dell'auto": ['Change the car colour', 'Змінити колір авто'],
   'Spegni le luci': ['Turn off the lights', 'Вимкнути світло'],
   'Accendi le luci': ['Turn on the lights', 'Увімкнути світло'],
+  // Il pulsante del menu sul telefono (mobile.js).
+  'Apri il menu': ['Open the menu', 'Відкрити меню'],
+  'Chiudi il menu': ['Close the menu', 'Закрити меню'],
   'Rosso Carmine': ['Carmine Red', 'Кармінно-червоний'],
   'Giallo Top One Cars': ['Top One Cars Yellow', 'Жовтий Top One Cars'],
   'Principale': ['Main', 'Головне меню'],

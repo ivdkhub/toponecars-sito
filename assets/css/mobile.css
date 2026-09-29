@@ -1,0 +1,752 @@
+/* Il sito sul telefono — solo sotto html[data-mobile] (assets/js/mobile-detect.js).
+ *
+ * Computer e tablet non vedono una sola di queste regole: ogni selettore
+ * comincia con html[data-mobile], che la' non c'e'.
+ *
+ * Al posto delle scene video una pagina che scorre, su un fondo fermo nei
+ * colori dell'officina (viola e giallo, da Palette colori.txt). Le sezioni
+ * sono le stesse, con le stesse card di vetro: cambia solo l'impaginazione,
+ * da coordinate sul canvas 1440x810 a colonna.
+ *
+ * --s non e' piu' la scala del canvas ma un valore fisso: le misure del
+ * progetto sono pensate per 1440 px, quindi a 1 unita' = 1,1 px caratteri,
+ * raggi e spaziature hanno sul telefono la misura che hanno sul computer, un
+ * filo piu' grande per il dito. Le larghezze si riscrivono qui.
+ */
+
+html[data-mobile] {
+  --s: 1.1px;
+  --m-gutter: 16px;
+  --m-bar-h: 60px;
+  --m-top: calc(var(--m-bar-h) + env(safe-area-inset-top, 0px));
+  scroll-padding-top: calc(var(--m-top) + 12px);
+}
+
+html[data-mobile],
+html[data-mobile] body {
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: auto;
+  touch-action: auto;
+}
+html[data-mobile] body { background: #120720; }
+
+/* --------------------------------------------------------------- il fondo */
+
+/* Fermo, dietro a tutto: il viola profondo del tema, un alone viola in alto
+   e uno giallo in basso, come la luce dell'officina sul pavimento. Non scorre
+   con la pagina (position: fixed), quindi le lastre di vetro ci scivolano
+   sopra e la sfocatura ha sempre qualcosa da sfocare. */
+html[data-mobile] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(90% 55% at 100% 0%, rgba(127, 77, 177, 0.62), transparent 70%),
+    radial-gradient(80% 45% at 0% 38%, rgba(127, 77, 177, 0.34), transparent 70%),
+    radial-gradient(110% 50% at 15% 100%, rgba(215, 171, 35, 0.42), transparent 70%),
+    radial-gradient(70% 35% at 100% 72%, rgba(215, 171, 35, 0.18), transparent 70%),
+    linear-gradient(180deg, #1c0b31 0%, #120720 45%, #1a0b24 100%);
+  transition: opacity 600ms var(--ease-out);
+}
+/* A luce spenta (area amministratore) il giallo si ritira: resta il buio viola. */
+html[data-mobile] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(90% 55% at 100% 0%, rgba(133, 69, 166, 0.45), transparent 70%),
+    radial-gradient(90% 50% at 0% 100%, rgba(127, 77, 177, 0.28), transparent 70%),
+    #0b0414;
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out);
+}
+html[data-mobile][data-theme="scuro"] body::after { opacity: 1; }
+
+/* Il palcoscenico video non si costruisce nemmeno; per sicurezza non occupa
+   spazio, come gli elementi della sola navigazione a scene. */
+html[data-mobile] .stage,
+html[data-mobile] .counter,
+html[data-mobile] .scrollcue,
+html[data-mobile] .hint,
+html[data-mobile] .paint,
+html[data-mobile] .b2__giant,
+html[data-mobile] .b3__leaders,
+html[data-mobile] .b3__note,
+html[data-mobile] .cnt__close,
+html[data-mobile] .cnt__next,
+html[data-mobile] .nl__nav { display: none !important; }
+
+/* ------------------------------------------------------------ il contenuto */
+
+html[data-mobile] .canvas {
+  position: relative;
+  z-index: 1;
+  left: auto;
+  top: auto;
+  width: auto;
+  height: auto;
+  transform: none;
+  pointer-events: auto;
+  padding: calc(var(--m-top) + 8px) var(--m-gutter) calc(28px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+
+html[data-mobile] .block {
+  position: relative;
+  inset: auto;
+  visibility: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+/* Niente comparse legate alle scene: tutto e' gia' li'. */
+html[data-mobile] [data-anim] {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+  transition: none;
+}
+
+
+/* ------------------------------------------------------ barra in alto */
+
+html[data-mobile] .chrome {
+  position: fixed;
+  z-index: 20;
+  inset: 0 0 auto 0;
+  height: var(--m-top);
+  padding: env(safe-area-inset-top, 0px) 10px 0 var(--m-gutter);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: auto;
+  background: linear-gradient(180deg, rgba(18, 7, 32, 0.72), rgba(18, 7, 32, 0.5));
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  backdrop-filter: blur(22px) saturate(160%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(8, 3, 16, 0.25);
+}
+html[data-mobile] .chrome__logo {
+  position: static;
+  width: auto;
+  height: 34px;
+  margin-right: auto;
+}
+
+html[data-mobile] .lamp,
+html[data-mobile] .m-burger {
+  position: static;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--menu-text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+html[data-mobile] .lamp { opacity: 1; pointer-events: auto; }
+html[data-mobile] .lamp__icon { top: -1px; width: 25px; height: 25px; }
+html[data-mobile] .lamp:active,
+html[data-mobile] .m-burger:active { background: rgba(255, 255, 255, 0.08); }
+html[data-mobile] .m-burger svg { width: 26px; height: 26px; }
+html[data-mobile] .m-burger path { transition: transform 300ms var(--ease-out); transform-origin: 12px 12px; }
+html[data-mobile][data-m-menu="open"] .m-burger__a { transform: translateY(4px) rotate(45deg); }
+html[data-mobile][data-m-menu="open"] .m-burger__b { transform: translateY(-4px) rotate(-45deg); }
+
+/* ------------------------------------------------------------- il menu */
+
+/* Il menu si apre dal pulsante come una lastra di vetro sotto la barra: le
+   bandierine in cima, poi le voci una per riga. */
+html[data-mobile] .menu {
+  position: fixed;
+  z-index: 19;
+  left: 10px;
+  right: 10px;
+  top: calc(var(--m-top) + 8px);
+  width: auto;
+  height: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.02) 55%),
+    rgba(26, 11, 42, 0.84);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  backdrop-filter: blur(30px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.36), 0 24px 60px rgba(8, 3, 16, 0.55);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px) scale(0.985);
+  transform-origin: 90% 0;
+  transition: opacity 260ms var(--ease-out), transform 260ms var(--ease-out), visibility 0s linear 260ms;
+}
+html[data-mobile][data-m-menu="open"] .menu {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 260ms var(--ease-out), transform 260ms var(--ease-out);
+}
+html[data-mobile] .menu__pill { display: none; }
+
+html[data-mobile] .lang {
+  position: static;
+  transform: none;
+  align-self: flex-start;
+  margin: 0 0 8px;
+  padding: 3px;
+  border-radius: 12px;
+}
+html[data-mobile] .lang__btn { width: 48px; height: 34px; border-radius: 9px; }
+html[data-mobile] .lang__flag { width: 24px; height: 16px; }
+
+html[data-mobile] .menu .menu__link,
+html[data-mobile] .menu .menu__btn,
+html[data-mobile][data-admin="on"] .menu .menu__admin,
+html[data-mobile][data-admin="on"] .menu .menu__link.menu__admin,
+html[data-mobile][data-admin="on"] .menu .menu__link.menu__admin[aria-current="page"] {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: auto;
+  height: 48px;
+  margin: 0;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: transparent;
+  font-size: 17px;
+  letter-spacing: 0.1px;
+  color: var(--menu-text);
+}
+html[data-mobile] .menu [data-menu-item][data-current] {
+  background: var(--menu-cta-light);
+  color: var(--menu-cta-light-text);
+}
+html[data-mobile] .menu .menu__btn--ghost:not(.menu__admin) {
+  margin-top: 6px;
+  background: var(--menu-cta-ghost);
+}
+/* Area riservata: niente voci del sito, solo quelle di gestione, in crema. */
+html[data-mobile]:not([data-admin="on"]) .menu .menu__admin,
+html[data-mobile][data-admin="on"] .menu [data-menu-item] { display: none; }
+html[data-mobile][data-admin="on"] .menu .menu__admin { color: var(--adm-crema); }
+html[data-mobile][data-admin="on"] .menu .menu__admin[aria-current="page"] {
+  background: rgba(255, 243, 214, 0.16);
+}
+
+/* ---------------------------------------------------- blocco 1, la testa */
+
+html[data-mobile] .block--1 { padding-top: 22px; }
+html[data-mobile] .b1__kicker,
+html[data-mobile] .b1__addr,
+html[data-mobile] .b1__title {
+  position: static;
+  width: auto;
+}
+html[data-mobile] .b1__kicker { order: 1; font-size: 14px; }
+html[data-mobile] .b1__title { order: 2; margin: -6px 0 0; }
+html[data-mobile] .b1__title-line:first-child {
+  white-space: normal;
+  font-size: clamp(44px, 14vw, 64px);
+  line-height: 1.02;
+  letter-spacing: -0.5px;
+}
+html[data-mobile] .b1__addr {
+  order: 3;
+  font-size: 14px;
+  line-height: 1.45;
+}
+html[data-mobile] .b1__stats {
+  order: 4;
+  position: static;
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+html[data-mobile] .b1__card {
+  width: auto;
+  height: auto;
+  padding: 16px 10px 16px;
+  justify-content: center;
+}
+html[data-mobile] .b1__card:first-child { grid-column: 1 / -1; }
+html[data-mobile] .b1__card-value { margin-top: 0; font-size: 46px; line-height: 1; }
+html[data-mobile] .b1__card-label { margin-top: 6px; font-size: 13px; line-height: 1.2; white-space: normal; text-align: center; }
+/* Sul fondo scuro l'etichetta resta bianca: l'inchiostro viola serviva sul
+   pavimento giallo del video. */
+html[data-mobile]:not([data-theme="scuro"]) .b1__card-label {
+  color: var(--b1-card-label-flat);
+  text-shadow: 0 1px 6px rgba(40, 18, 60, 0.35);
+}
+
+/* ------------------------------------------------ area amministratore */
+
+/* A luce spenta la pagina e' solo l'area riservata: le sezioni del sito
+   escono, e la testa lascia il posto alle card di accesso e di gestione. */
+html[data-mobile][data-admin="on"] .block:not(.block--1),
+html[data-mobile][data-admin="on"] .b1__stats,
+html[data-mobile][data-admin="on"] .b1__addr { display: none; }
+html[data-mobile][data-admin="on"] .legal-bar { opacity: 0.6; }
+
+html[data-mobile] .adm {
+  order: 5;
+  position: relative;
+  right: auto;
+  bottom: auto;
+  width: auto;
+  margin-top: 8px;
+  padding: 24px 20px 22px;
+}
+html[data-mobile][data-admin-page] .adm,
+html[data-mobile][data-admin-page] :is(.b1__kicker, .b1__title) { display: none; }
+html[data-mobile][data-admin-page] .block--1 { padding-top: 0; }
+
+html[data-mobile] .adm__kpi { grid-template-columns: 1fr 1fr; }
+html[data-mobile] .adm__demo { flex-wrap: wrap; }
+
+html[data-mobile] .admp {
+  order: 6;
+  position: relative;
+  left: auto;
+  top: auto;
+  width: auto;
+  height: auto;
+  margin: 0 calc(-1 * var(--m-gutter) + 6px);
+  padding: 20px 16px 22px;
+  overflow: visible;
+  gap: 16px;
+}
+html[data-mobile] .admp__head { flex-wrap: wrap; position: relative; padding-right: 48px; gap: 12px; }
+html[data-mobile] .admp__head > div:first-child { flex-basis: 100%; }
+html[data-mobile] .admp__head .svc__close { position: absolute; top: 0; right: 0; }
+html[data-mobile] .admp__title { font-size: 28px; line-height: 1.15; }
+html[data-mobile] .admp__tools { align-self: flex-start; width: 100%; }
+html[data-mobile] .admp__search { width: 100%; height: 44px; }
+
+/* Nessuna area con lo scorrimento proprio: scorre la pagina. */
+html[data-mobile] .admp [data-scroll] { overflow: visible; max-height: none; padding-right: 0; }
+html[data-mobile] .admp__body,
+html[data-mobile] .admp__view { display: block; min-height: 0; }
+
+html[data-mobile] .admp__split,
+html[data-mobile] .admp__split--fleet,
+html[data-mobile] .admp__split--quote,
+html[data-mobile] .admp__split--hours {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Categorie dei servizi: una fila di pastiglie che scorre di lato. */
+html[data-mobile] .admp__cats .svc__tabs,
+html[data-mobile] .svc__tabs {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  gap: 6px;
+  padding: 0 0 8px;
+  margin: 0 -4px;
+  border-right: 0;
+  border-bottom: 1px solid var(--svc-hair);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+html[data-mobile] .svc__tabs::-webkit-scrollbar { display: none; }
+html[data-mobile] .svc__tab {
+  flex: none;
+  width: auto;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--svc-hair);
+  white-space: nowrap;
+}
+html[data-mobile] .svc__tab[aria-selected="true"] { border-color: transparent; }
+html[data-mobile] .admp__inline { padding-right: 0; }
+html[data-mobile] .admp__inline .fld__input { height: 44px; }
+
+/* Righe dei servizi: il nome su tutta la riga, i comandi sotto. */
+html[data-mobile] .admp__row { gap: 10px; padding: 14px 4px; font-size: 15px; }
+html[data-mobile] .admp__row--svc {
+  grid-template-columns: 48px 1fr 1fr;
+  grid-template-areas:
+    "num nome nome"
+    ". prezzo durata"
+    "switch azioni azioni";
+  align-items: center;
+}
+html[data-mobile] .admp__row--svc > .svc__num { grid-area: num; align-self: start; padding-top: 3px; }
+html[data-mobile] .admp__row--svc > :is(.admp__name, .admp__edit) { grid-area: nome; }
+html[data-mobile] .admp__row--svc > .admp__mini { grid-area: prezzo; }
+html[data-mobile] .admp__row--svc > .admp__sel { grid-area: durata; }
+html[data-mobile] .admp__row--svc > .admp__switch { grid-area: switch; }
+html[data-mobile] .admp__row--svc > .admp__acts { grid-area: azioni; flex-wrap: nowrap; }
+html[data-mobile] .admp__acts { flex-wrap: wrap; }
+
+html[data-mobile] .admp__addsvc-row {
+  grid-template-columns: 1fr 1fr;
+}
+html[data-mobile] .admp__addsvc-row > :nth-child(1),
+html[data-mobile] .admp__addsvc-row > :nth-child(2) { grid-column: 1 / -1; }
+html[data-mobile] .admp__addsvc-row > .bk__primary { grid-column: 1 / -1; }
+html[data-mobile] .admp__num { width: 90px; }
+
+/* Prenotazioni: ogni richiesta e' una piccola scheda. */
+html[data-mobile] .admp__row--pren {
+  grid-template-columns: 34px 1fr auto;
+  grid-template-areas:
+    "apri quando stato"
+    ". cliente cliente"
+    ". veicolo veicolo"
+    ". servizi servizi"
+    ". azioni azioni";
+  align-items: start;
+  row-gap: 8px;
+}
+html[data-mobile] .admp__row--pren > .admp__expand { grid-area: apri; }
+html[data-mobile] .admp__row--pren > .admp__when { grid-area: quando; flex-direction: row; gap: 8px; align-items: baseline; }
+html[data-mobile] .admp__row--pren > .admp__badge { grid-area: stato; }
+html[data-mobile] .admp__row--pren > .admp__name:nth-child(3) { grid-area: cliente; }
+html[data-mobile] .admp__row--pren > .admp__name:nth-child(4) { grid-area: veicolo; }
+html[data-mobile] .admp__row--pren > .admp__tags { grid-area: servizi; }
+html[data-mobile] .admp__row--pren > .admp__acts { grid-area: azioni; justify-content: flex-start; }
+html[data-mobile] .admp__row--pren > .admp__acts:empty { display: none; }
+html[data-mobile] .admp__detail { grid-template-columns: 1fr; gap: 16px; padding: 12px 4px 18px; }
+html[data-mobile] .admp__dl { grid-template-columns: 1fr; gap: 2px; font-size: 14px; }
+html[data-mobile] .admp__dl dd { margin-bottom: 8px; }
+
+/* Parco auto: le schede una sotto l'altra, poi il modulo. */
+html[data-mobile] .admp__cars { grid-template-columns: 1fr 1fr; gap: 10px; }
+html[data-mobile] .admp__car-top { flex-wrap: wrap; gap: 4px 8px; }
+html[data-mobile] .admp__add { padding-left: 0; border-left: 0; padding-top: 18px; border-top: 1px solid var(--svc-hair); }
+
+/* Orari: giorno e interruttore, poi le fasce sotto. */
+html[data-mobile] .admp__row--day {
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "giorno switch" "fasce fasce";
+}
+html[data-mobile] .admp__row--day > .admp__day { grid-area: giorno; }
+html[data-mobile] .admp__row--day > .admp__switch { grid-area: switch; }
+html[data-mobile] .admp__row--day > :is(.admp__ranges, .admp__closed) { grid-area: fasce; }
+html[data-mobile] .admp__split--hours .admp__ranges { flex-wrap: wrap; }
+html[data-mobile] .admp__time { width: 104px; height: 40px; }
+html[data-mobile] .admp__closure-add { grid-template-columns: 1fr 1fr; }
+html[data-mobile] .admp__closure-add > :nth-child(n+3) { grid-column: 1 / -1; }
+
+/* Preventivo: modulo, poi il foglio; le righe delle voci su due livelli. */
+html[data-mobile] .fld__row--3 { grid-template-columns: 1fr 1fr; }
+html[data-mobile] .admp__line { grid-template-columns: 1fr 1.4fr 40px; gap: 8px; }
+html[data-mobile] .admp__line > :first-child { grid-column: 1 / -1; }
+html[data-mobile] .admp__line .admp__num { width: 100%; }
+html[data-mobile] .admp__line--head { display: none; }
+html[data-mobile] .admp__lines > .admp__line + .admp__line { padding-top: 10px; border-top: 1px solid var(--svc-hair); }
+html[data-mobile] .admp__split--quote > :last-child { overflow-x: auto; max-width: 100%; }
+
+/* Bersagli per il dito: 40 px almeno. */
+html[data-mobile] .admp__btn,
+html[data-mobile] .admp__chip { min-height: 38px; padding: 0 14px; font-size: 14px; }
+html[data-mobile] .admp__x,
+html[data-mobile] .admp__expand { width: 36px; height: 36px; }
+html[data-mobile] .admp__switch { width: 48px; height: 28px; }
+html[data-mobile] .admp__switch span { width: 22px; height: 22px; top: 3px; left: 3px; }
+html[data-mobile] .admp__switch[aria-checked="true"] span { transform: translateX(20px); }
+html[data-mobile] .admp__sel,
+html[data-mobile] .admp__num,
+html[data-mobile] .admp__edit .fld__input { height: 40px; }
+
+/* ------------------------------------------ campi dei moduli, ovunque */
+
+/* 16 px: sotto questa misura Safari su iPhone ingrandisce la pagina a ogni
+   tocco su un campo. */
+html[data-mobile] .fld__input,
+html[data-mobile] select.fld__input,
+html[data-mobile] textarea.fld__input { font-size: 16px; height: 46px; }
+html[data-mobile] textarea.fld__input { height: auto; min-height: 90px; }
+html[data-mobile] .fld__label { font-size: 13px; }
+html[data-mobile] .fld__err { font-size: 12.5px; line-height: 1.3; }
+html[data-mobile] .fld__row { grid-template-columns: 1fr; gap: 10px; }
+html[data-mobile] .fld__check { grid-template-columns: 24px 1fr; font-size: 13.5px; line-height: 1.4; padding: 4px 0; }
+html[data-mobile] .fld__box { width: 22px; height: 22px; border-radius: 6px; }
+html[data-mobile] .bk__primary,
+html[data-mobile] .bk__ghost { height: 48px; padding: 0 22px; font-size: 16px; border-radius: 12px; }
+html[data-mobile] .bk__actions .bk__primary { flex: 1; }
+html[data-mobile] .adm__eye { width: 40px; height: 40px; }
+html[data-mobile] .adm__pwd .fld__input { padding-right: 48px; }
+
+/* --------------------------------------------------- blocco 2, servizi */
+
+html[data-mobile] .b2__headline { position: static; }
+html[data-mobile] .b2__line {
+  display: inline;
+  white-space: normal;
+  font-size: clamp(28px, 8.4vw, 36px);
+  line-height: 1.12;
+  letter-spacing: 0.6px;
+}
+html[data-mobile] .b2__line::after { content: " "; }
+
+html[data-mobile] .svc-open {
+  position: static;
+  justify-content: space-between;
+  width: 100%;
+  height: 58px;
+  padding: 0 18px 0 8px;
+  border-radius: 14px;
+  background: var(--menu-fill);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+html[data-mobile] .svc-open__label {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 17px;
+  background: var(--menu-cta-light);
+  color: var(--menu-cta-light-text);
+}
+html[data-mobile] .svc-open__arrow { width: 20px; height: 20px; }
+
+/* Il foglio dei servizi e della prenotazione: a tutto schermo, sopra la
+   barra, con il suo scorrimento. Sotto, la pagina resta ferma. */
+html[data-mobile] .m-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 10px calc(90px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(10, 4, 20, 0.5);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 320ms var(--ease-out), visibility 0s linear 320ms;
+}
+html[data-mobile] .m-sheet[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 320ms var(--ease-out);
+}
+html[data-mobile][data-panel="servizi"],
+html[data-mobile][data-panel="servizi"] body { overflow: hidden; }
+
+html[data-mobile] .m-sheet .svc,
+html[data-mobile] .m-sheet .bk {
+  position: relative;
+  left: auto;
+  top: auto;
+  width: auto;
+  height: auto;
+  flex: none;
+  overflow: visible;
+  padding: 22px 16px 20px;
+}
+html[data-mobile] .svc__title { font-size: 30px; line-height: 1.1; }
+html[data-mobile] .svc__sub { font-size: 14px; line-height: 1.35; }
+html[data-mobile] .svc__eyebrow { font-size: 11.5px; }
+html[data-mobile] .svc__close { width: 44px; height: 44px; }
+html[data-mobile] .svc__close svg { width: 16px; height: 16px; }
+/* La croce resta a portata di pollice mentre si scorre l'elenco. */
+html[data-mobile] .svc__head { position: sticky; top: -22px; z-index: 2; gap: 12px; }
+html[data-mobile] .svc__head .svc__close { position: sticky; top: 0; }
+html[data-mobile] .svc__body { display: flex; flex-direction: column; gap: 10px; }
+html[data-mobile] .svc__pick { padding: 14px 6px 14px 0; grid-template-columns: 34px 1fr 30px; }
+html[data-mobile] .svc__check { width: 26px; height: 26px; }
+html[data-mobile] .svc__check svg { width: 15px; height: 15px; }
+html[data-mobile] .svc__name { font-size: 16px; line-height: 1.3; }
+html[data-mobile] .svc__detail { font-size: 13px; line-height: 1.35; }
+
+html[data-mobile] .bk { gap: 16px; }
+html[data-mobile] .bk__title { font-size: 26px; line-height: 1.15; }
+html[data-mobile] .bk__picked-head { font-size: 14px; }
+html[data-mobile] .bk__link { font-size: 14px; padding: 6px 0; }
+html[data-mobile] .bk__chip { height: 32px; max-width: 100%; font-size: 13.5px; }
+html[data-mobile] .bk__chip-x { width: 28px; height: 28px; }
+html[data-mobile] .cal__month { font-size: 17px; }
+html[data-mobile] .cal__arrow { width: 42px; height: 42px; }
+html[data-mobile] .cal__arrow svg { width: 16px; height: 16px; }
+html[data-mobile] .cal__week span { font-size: 11px; }
+html[data-mobile] .cal__day { height: 44px; font-size: 16px; border-radius: 10px; }
+html[data-mobile] .bk__label,
+html[data-mobile] .bk__when { font-size: 14px; }
+html[data-mobile] .bk__slots { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
+html[data-mobile] .bk__slot { height: 44px; font-size: 14px; border-radius: 10px; }
+html[data-mobile] .bk__done-text { font-size: 17px; line-height: 1.45; }
+
+/* In fondo al foglio: porta al calendario finche' non e' in vista. */
+html[data-mobile] .m-sheet__go {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 3;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--giallo);
+  color: #1a0b24;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 14px 40px rgba(8, 3, 16, 0.5);
+  cursor: pointer;
+  animation: svc-in 360ms var(--ease-out) both;
+}
+html[data-mobile] .m-sheet__go[hidden] { display: none; }
+html[data-mobile] .m-sheet__go svg { width: 20px; height: 20px; display: block; }
+
+/* --------------------------------------------------- blocco 3, contenuti */
+
+html[data-mobile] .cnt {
+  position: relative;
+  left: auto;
+  top: auto;
+  width: auto;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px 16px;
+}
+html[data-mobile] .cnt__text { padding-right: 0; }
+html[data-mobile] .cnt__item { padding: 14px 6px 14px 0; font-size: 16px; grid-template-columns: 34px 1fr 30px; }
+html[data-mobile] .cnt__item-play { width: 28px; height: 28px; }
+html[data-mobile] .phone { width: min(250px, 72vw); --p: calc(min(250px, 72vw) / 380); align-self: center; }
+
+/* ------------------------------------------------- blocco 4, recensioni */
+
+html[data-mobile] .rv__title {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  margin: 0;
+  font-weight: 400;
+  font-size: clamp(28px, 8.4vw, 36px);
+  line-height: 1.12;
+  color: rgba(255, 255, 255, 0.86);
+}
+html[data-mobile] .rv {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+html[data-mobile] .rv__col {
+  position: static;
+  gap: 12px;
+  align-items: stretch;
+}
+html[data-mobile] .rv__card {
+  width: auto !important;
+  padding: 16px 16px 14px;
+  border-radius: 14px;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  animation: none !important;
+}
+html[data-mobile] .rv__text { font-size: 15px; line-height: 1.5; }
+html[data-mobile] .rv__star { width: 14px; height: 14px; }
+
+/* ----------------------------------------------- blocco 5, vieni a trovarci */
+
+html[data-mobile] .vt {
+  position: relative;
+  left: auto;
+  top: auto;
+  width: auto;
+  height: auto;
+  padding: 22px 16px 20px;
+  gap: 16px;
+}
+html[data-mobile] .vt__map { height: 260px; flex: none; }
+html[data-mobile] .vt__week li { font-size: 14px; padding: 2px 0; }
+html[data-mobile] .vt__go { height: 52px; font-size: 16px; border-radius: 14px; }
+html[data-mobile] .vt__consent-btn { min-height: 44px; }
+
+/* ------------------------------------------------------ blocco 6, noleggio */
+
+html[data-mobile] .nl__head { position: static; width: auto; }
+html[data-mobile] .nl__head .svc__eyebrow { color: var(--giallo); }
+html[data-mobile] .nl__title-page { color: rgba(255, 255, 255, 0.9); font-size: clamp(28px, 8.4vw, 36px); line-height: 1.12; }
+html[data-mobile] .nl__sub { color: rgba(255, 255, 255, 0.64); font-size: 14px; line-height: 1.4; }
+/* Le card scorrono di lato con il dito, una alla volta, fermandosi a filo. */
+html[data-mobile] .nl__view {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0 calc(-1 * var(--m-gutter));
+  padding: 6px var(--m-gutter) 26px;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 var(--m-gutter);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+html[data-mobile] .nl__view::-webkit-scrollbar { display: none; }
+html[data-mobile] .nl__track { transform: none; transition: none; gap: 12px; }
+html[data-mobile] .nl__slot { width: min(300px, 80vw); scroll-snap-align: start; }
+html[data-mobile] .nl__cta { height: 44px; font-size: 15px; }
+
+/* --------------------------------------------------------- barra legale */
+
+/* Nel markup sta prima dei blocchi (e' un elemento comune): qui va in fondo. */
+html[data-mobile] .legal-bar {
+  order: 99;
+  position: static;
+  align-self: stretch;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  white-space: normal;
+  text-align: center;
+  font-size: 12.5px;
+  line-height: 1.4;
+  pointer-events: auto;
+}
+html[data-mobile] .legal-bar__link { padding: 8px 0; }
+
+/* Il pannello legale: quasi a tutto schermo. */
+html[data-mobile] .lg { width: calc(100vw - 16px); height: calc(100dvh - 24px); }
+html[data-mobile] .lg__tab { padding: 10px 12px; }
+html[data-mobile] .lg__close { width: 44px; height: 44px; }
+
+/* Chi chiede meno movimento: niente dissolvenze nel menu e nel foglio. */
+@media (prefers-reduced-motion: reduce) {
+  html[data-mobile] .menu,
+  html[data-mobile] .m-sheet { transition-duration: 0ms; }
+}

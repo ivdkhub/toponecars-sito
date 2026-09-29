@@ -81,6 +81,24 @@ A luce spenta (lampadina, scena 2) si apre l'**area amministratore**: vedi sotto
 - **Orari, Instagram, invio prenotazioni, accesso admin**: `assets/js/config.js`,
   voci `prenotazione`, `contenuti`, `admin`.
 
+## Sul telefono
+
+Sul telefono (schermo largo fino a 640 px, o basso e a tocco in orizzontale)
+la sequenza di scene video non parte: nessun video viene scaricato, e al suo
+posto c'e' una pagina che scorre, su un fondo fermo viola e giallo, con le
+stesse sezioni e le stesse card di vetro. Computer e tablet non cambiano.
+
+- `assets/js/mobile-detect.js`, script sincrono nel `<head>`, mette
+  `html[data-mobile]` prima del primo disegno; `?mobile=1` e `?mobile=0`
+  forzano la scelta per le prove da computer.
+- `assets/js/mobile.js` avvia la pagina al posto del motore (lo chiama
+  `main.js`): menu a comparsa, servizi e prenotazione in un foglio a tutto
+  schermo, lampadina nella barra per l'area amministratore.
+- `assets/css/mobile.css` impagina tutto in colonna; ogni regola comincia con
+  `html[data-mobile]`, quindi fuori dal telefono non ne vale nessuna.
+- `node tools/mobile-shoot.mjs [cartella]` scatta la pagina, il menu, la
+  prenotazione completa e ogni pagina dell'area amministratore a 390x844.
+
 ## Lingue
 
 Il sito e' in italiano, inglese e ucraino; si sceglie con le bandierine nella

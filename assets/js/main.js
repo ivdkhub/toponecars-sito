@@ -69,6 +69,15 @@ async function start() {
     return;
   }
 
+  // Sul telefono niente scene video: una pagina che scorre, con le stesse
+  // sezioni (assets/js/mobile.js). Lo decide mobile-detect.js, nel <head>.
+  if (document.documentElement.dataset.mobile === 'true') {
+    const { avviaMobile } = await import('./mobile.js');
+    avviaMobile();
+    booted = true;
+    return;
+  }
+
   // La lingua prima di tutto: i moduli qui sotto scrivono i loro testi gia'
   // tradotti, e l'istantanea dei testi dell'HTML va fatta prima che li tocchino.
   avviaLingua();
